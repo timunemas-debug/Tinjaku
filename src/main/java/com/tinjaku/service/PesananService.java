@@ -1,6 +1,7 @@
 package com.tinjaku.service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,6 @@ public class PesananService {
         return pesananList;
     }
 
-
     public Pesanan getPesananById(Long id){
         return pesananList.stream()
                .filter(p -> p.getId().equals(id))
@@ -27,14 +27,23 @@ public class PesananService {
                .orElse(null);
     }
 
-    // public Pesanan getPesananById(Long id){
-    //     for(Pesanan pesanan : pesananList){
-    //         if(pesanan.getId().equals(id)){
-    //             return pesanan;
-    //         }
-    //     }
-    //     return null;
-    // }
+    public List<Pesanan> getPesananByStatus(StatusPesanan status){
+        return pesananList.stream()
+               .filter(p -> p.getStatus().equals(status))
+               .collect(Collectors.toList());
+    }
+
+    public Pesanan getPesananByNama(Long pelangganId){
+        return pesananList.stream()
+               .filter(p -> p.getPelangganId().equals(pelangganId))
+               .findFirst()
+               .orElse(null);
+    }
+
+    public int hitungTotalPesanan(){
+        return pesananList.size();
+               
+    }
 
     public Pesanan updatePesananService(Long id, Pesanan pesananBaru){
         for(Pesanan pesanan : pesananList){
@@ -49,7 +58,13 @@ public class PesananService {
         return null;
     }
 
-    public boolean hapusPesananService(Long id){
-        return pesananList.removeIf(p -> p.getId().equals(id));
+    public Pesanan hapusPesananService(Long id){
+        for(Pesanan pesanan : pesananList){
+            if(pesanan.getId().equals(id)){
+                pesananList.remove(pesanan);
+                return pesanan;
+            }
+        }
+        return null;
     }
 }

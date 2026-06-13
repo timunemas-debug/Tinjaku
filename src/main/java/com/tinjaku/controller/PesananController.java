@@ -36,6 +36,16 @@ public class PesananController {
         return pesananService.getPesananById(id);
     }
 
+    @GetMapping("/status/{status}")
+    public List<Pesanan> pesananByStatus(@PathVariable StatusPesanan status){
+        return pesananService.getPesananByStatus(status);
+    }
+
+    @GetMapping("/idpelanggan/{pelangganId}")
+    public Pesanan pesananByNama(@PathVariable Long pelangganId){
+        return pesananService.getPesananByNama(pelangganId);
+    }
+
     @DeleteMapping("/{id}")
     public Pesanan hapusPesanan(@PathVariable Long id){
         return pesananService.hapusPesananService(id);
@@ -46,4 +56,10 @@ public class PesananController {
                                  @RequestBody Pesanan pesananDiupdate){
         return pesananService.updatePesananService(id, pesananDiupdate);
     }
+
+    @GetMapping("/total")
+    public int totalPesanan(){
+        return pesananService.hitungTotalPesanan();
+    }
+
 }
