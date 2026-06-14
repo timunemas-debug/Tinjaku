@@ -35,7 +35,7 @@ public class PesananService {
 
     public Pesanan getPesananByNama(Long pelangganId){
         return pesananList.stream()
-               .filter(p -> p.getPelangganId().equals(pelangganId))
+               .filter(p -> p.getUserId().equals(pelangganId))
                .findFirst()
                .orElse(null);
     }

@@ -1,20 +1,19 @@
 package com.tinjaku.model;
 
 public class Pesanan {
-    private Long id, pelangganId;
+    private Long id, userId;
 
     private String alamat, keluhan;
     private StatusPesanan status;
-
     public Pesanan(){
     }
 
-    public Pesanan(String alamat, String keluhan, StatusPesanan status, Long id, Long pelangganId){
+    public Pesanan(String alamat, String keluhan, StatusPesanan status, Long id, Long userId){
         this.alamat = alamat;
         this.keluhan = keluhan;
         this.id = id;
-        this.pelangganId = pelangganId;
         this.status = status;
+        this.userId = userId;
     }
 
     public String getAlamat() {
@@ -46,18 +45,18 @@ public class Pesanan {
         this.id = id;
     }
 
-    public Long getPelangganId() {
-        return pelangganId;
+    public Long getUserId() {
+        return userId;
     }
-    public void setPelangganId(Long pelangganId) {
-        this.pelangganId = pelangganId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     @Override
     public String toString(){
         return "Pesanan{" +
                "id=" + id +
-               ",pelangganId=" + pelangganId +
+               ",pelangganId=" + userId +
                ",alamat=" + alamat +
                ",keluhan=" + keluhan +
                ".status=" + status +
