@@ -6,14 +6,23 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.model.User;
+import com.tinjaku.dto.UserRequest;
 import com.tinjaku.model.Pesanan;
 
 @Service
 public class UserService {
     private List<User> userList = new ArrayList<>();
 
-    public User tambahUser(User user){
+    public User tambahUser(UserRequest request){
+        User user = new User();
+
+        user.setUserId((long) (userList.size() + 1));
+        user.setNama(request.getNama());
+        user.setNama(request.getNama());
+        user.setPesananList(new ArrayList<>());
+
         userList.add(user);
+
         return user;
     }
 

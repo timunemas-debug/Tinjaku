@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tinjaku.service.UserService;
+
+import jakarta.validation.Valid;
+
+import com.tinjaku.dto.UserRequest;
 import com.tinjaku.model.*;
 
 @RestController
@@ -24,8 +28,8 @@ public class UserController {
     }
 
     @PostMapping
-    public User tambahUser(@RequestBody User user){
-        return userService.tambahUser(user);
+    public User tambahUser(@Valid @RequestBody UserRequest request){
+        return userService.tambahUser(request);
     }
 
     @PostMapping("/{userId}/pesanan")
