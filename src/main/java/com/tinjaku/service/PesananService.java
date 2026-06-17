@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.*;
 
 @Service
@@ -24,7 +25,7 @@ public class PesananService {
         return pesananList.stream()
                .filter(p -> p.getId().equals(id))
                .findFirst()
-               .orElse(null);
+               .orElseThrow(() -> new ResourceNotFound("Pesanan dengan id : " + id + " tidak ditemukan"));
     }
 
     public List<Pesanan> getPesananByStatus(StatusPesanan status){
@@ -37,12 +38,11 @@ public class PesananService {
         return pesananList.stream()
                .filter(p -> p.getUserId().equals(pelangganId))
                .findFirst()
-               .orElse(null);
+               .orElseThrow(() -> new ResourceNotFound("Pesanan dengan pelanggan id : " + pelangganId + " tidak ditemukan"));
     }
 
     public int hitungTotalPesanan(){
         return pesananList.size();
-               
     }
 
     public Pesanan updatePesananService(Long id, Pesanan pesananBaru){
@@ -55,7 +55,7 @@ public class PesananService {
                 return pesanan;
             }
         }
-        return null;
+        throw new ResourceNotFound("Pesanan dengan id : " + id + " tidak ditemukan");
     }
 
     public Pesanan hapusPesananService(Long id){
@@ -65,6 +65,6 @@ public class PesananService {
                 return pesanan;
             }
         }
-        return null;
+        throw new ResourceNotFound("Pesanan dengan id : " + id + " tidak ditemukan");
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.model.User;
 import com.tinjaku.dto.UserRequest;
+import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Pesanan;
 
 @Service
@@ -34,8 +35,9 @@ public class UserService {
         return userList.stream()
                .filter(u -> u.getUserId().equals(userId))
                .findFirst()
-               .orElse(null);
-    }
+               .orElseThrow(() ->
+                new ResourceNotFound("User tidak ditemukan"));
+            }
 
     public User deleteUserById(Long userId){
         for(User user : userList){
