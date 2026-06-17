@@ -10,5 +10,4 @@ public class UserRequest {
     
     @NotBlank(message = "Nama tidak boleh kosong")
     private String nama;
-
 }
