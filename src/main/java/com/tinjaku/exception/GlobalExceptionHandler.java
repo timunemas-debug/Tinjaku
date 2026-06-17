@@ -4,14 +4,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.tinjaku.dto.ResponEror;
+import com.tinjaku.dto.ResponErorRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFound.class)
-    public ResponseEntity<ResponEror> handleUserNotFound(ResourceNotFound ex){
+    public ResponseEntity<ResponErorRequest> handleUserNotFound(ResourceNotFound ex){
         return ResponseEntity
                .status(HttpStatus.NOT_FOUND)
-               .body(new ResponEror(ex.getMessage(), 404));
+               .body(new ResponErorRequest(ex.getMessage(), 404));
     }
 }

@@ -1,7 +1,6 @@
 package com.tinjaku.model;
 import lombok.*;
 
-
 @Getter
 @Setter
 @AllArgsConstructor

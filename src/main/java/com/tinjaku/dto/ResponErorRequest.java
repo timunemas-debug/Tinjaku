@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ResponEror {
+public class ResponErorRequest {
     private String message;
     private int status;
 }

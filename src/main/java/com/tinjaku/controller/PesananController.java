@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import com.tinjaku.service.PesananService;
+
+import jakarta.validation.Valid;
+
+import com.tinjaku.dto.PesananRequest;
 import com.tinjaku.model.*;
 
 @RestController
@@ -22,7 +26,7 @@ public class PesananController {
     }
 
     @PostMapping
-    public Pesanan tambah(@RequestBody Pesanan pesanan){
+    public Pesanan tambah(@Valid @RequestBody Pesanan pesanan){
         return pesananService.tambahPesanan(pesanan);
     }
 

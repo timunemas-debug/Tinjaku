@@ -2,13 +2,17 @@ package com.tinjaku.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.random.*;
 
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.model.User;
+import com.tinjaku.dto.PesananRequest;
 import com.tinjaku.dto.UserRequest;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Pesanan;
+import com.tinjaku.model.StatusPesanan;
 
 @Service
 public class UserService {
@@ -49,13 +53,24 @@ public class UserService {
         return null;
     }
 
-    public User tambahPesananUser(Long userId, Pesanan pesanan){
+    public User tambahPesananUser(Long userId, PesananRequest request){
         for(User user : userList){
             if(user.getUserId().equals(userId)){
+                Random random = new Random();
+
+                Pesanan pesanan = new Pesanan();
+                pesanan.setId((long) random.nextInt(10000));
+                pesanan.setUserId(userId);
+                pesanan.setAlamat(request.getAlamat());
+                pesanan.setKeluhan(request.getKeluhan());
+                pesanan.setStatus(StatusPesanan.MENUNGGU);
+
                 user.getPesananList().add(pesanan);
+
                 return user;
+
             }
         }
-        return null;
+        throw new ResourceNotFound("User dengan Id : " + userId + " tidak ditemukan");
     }
 }

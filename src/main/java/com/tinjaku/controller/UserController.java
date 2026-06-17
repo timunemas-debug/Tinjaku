@@ -15,6 +15,7 @@ import com.tinjaku.service.UserService;
 
 import jakarta.validation.Valid;
 
+import com.tinjaku.dto.PesananRequest;
 import com.tinjaku.dto.UserRequest;
 import com.tinjaku.model.*;
 
@@ -34,8 +35,8 @@ public class UserController {
 
     @PostMapping("/{userId}/pesanan")
     public User tambahPesanan(@PathVariable Long userId,
-                              @RequestBody Pesanan pesanan){
-        return userService.tambahPesananUser(userId, pesanan);
+                              @RequestBody PesananRequest request){
+        return userService.tambahPesananUser(userId, request);
     }
 
     @GetMapping
