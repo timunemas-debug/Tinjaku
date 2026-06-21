@@ -48,7 +48,6 @@ public class PesananService {
     public Pesanan updatePesananService(Long id, Pesanan pesananBaru){
         for(Pesanan pesanan : pesananList){
             if(pesanan.getId().equals(id)){
-                pesanan.setAlamat(pesananBaru.getAlamat());
                 pesanan.setKeluhan(pesananBaru.getKeluhan());
                 pesanan.setStatus(pesananBaru.getStatus());
 

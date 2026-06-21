@@ -22,8 +22,9 @@ public class UserService {
         User user = new User();
 
         user.setUserId((long) (userList.size() + 1));
-        user.setNama(request.getNama());
-        user.setNama(request.getNama());
+        user.setNamaUser(request.getNamaUser());
+        user.setAlamatLengkap(request.getAlamatUser());
+        user.setKota(request.getKota());
         user.setPesananList(new ArrayList<>());
 
         userList.add(user);
@@ -44,13 +45,9 @@ public class UserService {
             }
 
     public User deleteUserById(Long userId){
-        for(User user : userList){
-            if(user.getUserId().equals(userId)){
-                userList.remove(user);
-                return user;
-            }
-        }
-        return null;
+        User user = getUserById(userId);
+        userList.remove(user);
+        return user;
     }
 
     public User tambahPesananUser(Long userId, PesananRequest request){
@@ -61,7 +58,6 @@ public class UserService {
                 Pesanan pesanan = new Pesanan();
                 pesanan.setId((long) random.nextInt(10000));
                 pesanan.setUserId(userId);
-                pesanan.setAlamat(request.getAlamat());
                 pesanan.setKeluhan(request.getKeluhan());
                 pesanan.setStatus(StatusPesanan.MENUNGGU);
 

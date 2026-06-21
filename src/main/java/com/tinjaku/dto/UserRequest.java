@@ -8,6 +8,12 @@ import lombok.Setter;
 @Setter
 public class UserRequest {
     
-    @NotBlank(message = "Nama tidak boleh kosong")
-    private String nama;
+    @NotBlank(message = "Nama user tidak boleh kosong!")
+    private String namaUser;
+
+    @NotBlank(message = "Alamat user tidak boleh kosong!")
+    private String alamatUser;
+
+    @NotBlank(message = "Kota user tidak boleh kosong!")
+    private String kota;
 }

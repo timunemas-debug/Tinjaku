@@ -1,6 +1,5 @@
 package com.tinjaku.controller;
 
-
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;

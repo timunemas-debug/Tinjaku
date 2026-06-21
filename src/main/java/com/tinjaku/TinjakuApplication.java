@@ -9,5 +9,4 @@ public class TinjakuApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TinjakuApplication.class, args);
 	}
-
 }

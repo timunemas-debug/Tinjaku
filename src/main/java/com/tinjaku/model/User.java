@@ -8,14 +8,16 @@ import lombok.*;
 @Setter
 public class User {
     private Long userId;
-    private String nama;
+    private String namaUser, alamatLengkap, kota;
     private List<Pesanan> pesananList;
     public User(){
     }
 
-    public User(Long userId, String nama){
+    public User(Long userId, String namaUser, String alamatLengkap, String kota){
         this.userId = userId;
-        this.nama = nama;
+        this.namaUser = namaUser;
+        this.alamatLengkap = alamatLengkap;
+        this.kota = kota;
         this.pesananList = new ArrayList<>();
     }
 }
