@@ -14,4 +14,11 @@ public class GlobalExceptionHandler {
                .status(HttpStatus.NOT_FOUND)
                .body(new ResponErorRequest(ex.getMessage(), 404));
     }
+    
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ResponErorRequest> handleBadRequest(BadRequestException ex){
+        return ResponseEntity
+               .status(HttpStatus.BAD_REQUEST)
+               .body(new ResponErorRequest(ex.getMessage(), 400));
+    }
 }

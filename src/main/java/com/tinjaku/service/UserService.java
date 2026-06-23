@@ -45,8 +45,13 @@ public class UserService {
             }
 
     public User deleteUserById(Long userId){
-        User user = getUserById(userId);
+        User user = userList.stream()
+                    .filter(u -> u.getUserId().equals(userId))
+                    .findFirst()
+                    .orElseThrow(() ->
+                    new ResourceNotFound("User tidak ditemukan!"));
         userList.remove(user);
+
         return user;
     }
 
@@ -57,7 +62,7 @@ public class UserService {
 
                 Pesanan pesanan = new Pesanan();
                 pesanan.setId((long) random.nextInt(10000));
-                pesanan.setUserId(userId);
+                pesanan.setUser(user);
                 pesanan.setKeluhan(request.getKeluhan());
                 pesanan.setStatus(StatusPesanan.MENUNGGU);
 

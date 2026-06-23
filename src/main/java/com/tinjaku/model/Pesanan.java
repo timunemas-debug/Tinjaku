@@ -5,10 +5,13 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 public class Pesanan {
-    private Long id, userId, mitraId;
+    private Long id;
 
     private String keluhan;
     private StatusPesanan status;
+    private Mitra mitra;
+    private User user;
+    private Kota kota;
 
     public Pesanan(){
     }
@@ -17,7 +20,6 @@ public class Pesanan {
     public String toString(){
         return "Pesanan{" +
                "id=" + id +
-               ",pelangganId=" + userId +
                ",keluhan=" + keluhan +
                ".status=" + status +
                "}";

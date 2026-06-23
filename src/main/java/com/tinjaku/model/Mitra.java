@@ -1,6 +1,9 @@
 package com.tinjaku.model;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 
 import lombok.*;
@@ -9,13 +12,16 @@ import lombok.*;
 @Setter
 public class Mitra {
     private Long mitraId;
-    private String namaMitra,alamatLengkap,kota;
+    private String namaMitra,alamatLengkap;
+    private Kota kota;
+    
+    @JsonIgnore
     private List<Pesanan> pesananList;
 
     public Mitra(){
     }
 
-    public Mitra(Long mitraId, String namaMitra, String alamatLengkap, String kota){
+    public Mitra(Long mitraId, String namaMitra, String alamatLengkap, Kota kota){
         this.mitraId = mitraId;
         this.namaMitra = namaMitra;
         this.alamatLengkap = alamatLengkap;

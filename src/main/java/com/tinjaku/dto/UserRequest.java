@@ -1,6 +1,8 @@
 package com.tinjaku.dto;
 
+import com.tinjaku.model.Kota;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +16,6 @@ public class UserRequest {
     @NotBlank(message = "Alamat user tidak boleh kosong!")
     private String alamatUser;
 
-    @NotBlank(message = "Kota user tidak boleh kosong!")
-    private String kota;
+    @NotNull(message = "Kota user tidak boleh kosong!")
+    private Kota kota;
 }

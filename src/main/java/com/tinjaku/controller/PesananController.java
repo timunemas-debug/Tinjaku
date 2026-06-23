@@ -13,6 +13,7 @@ import com.tinjaku.service.PesananService;
 
 import jakarta.validation.Valid;
 
+import com.tinjaku.dto.PesananRequest;
 import com.tinjaku.model.*;
 
 @RestController
@@ -24,9 +25,9 @@ public class PesananController {
         this.pesananService = pesananService;
     }
 
-    @PostMapping
-    public Pesanan tambah(@Valid @RequestBody Pesanan pesanan){
-        return pesananService.tambahPesanan(pesanan);
+    @PostMapping("/{userId}")
+    public Pesanan tambahPesanan(@Valid @RequestBody PesananRequest request, @PathVariable Long userId){
+        return pesananService.tambahPesananKeMitra(request, userId);
     }
 
     @GetMapping
@@ -44,10 +45,10 @@ public class PesananController {
         return pesananService.getPesananByStatus(status);
     }
 
-    @GetMapping("/idpelanggan/{pelangganId}")
-    public Pesanan pesananByNama(@PathVariable Long pelangganId){
-        return pesananService.getPesananByNama(pelangganId);
-    }
+    // @GetMapping("/idpelanggan/{pelangganId}")
+    // public Pesanan pesananByNama(@PathVariable Long pelangganId){
+    //     return pesananService.getPesananByNama(pelangganId);
+    // }
 
     @DeleteMapping("/{id}")
     public Pesanan hapusPesanan(@PathVariable Long id){
