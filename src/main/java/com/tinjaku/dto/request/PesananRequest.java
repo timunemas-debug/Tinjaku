@@ -1,4 +1,4 @@
-package com.tinjaku.dto;
+package com.tinjaku.dto.request;
 
 import com.tinjaku.model.Kota;
 import jakarta.validation.constraints.NotBlank;

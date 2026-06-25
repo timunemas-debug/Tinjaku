@@ -13,7 +13,7 @@ import com.tinjaku.service.PesananService;
 
 import jakarta.validation.Valid;
 
-import com.tinjaku.dto.PesananRequest;
+import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.model.*;
 
 @RestController

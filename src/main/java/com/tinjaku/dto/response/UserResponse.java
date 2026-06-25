@@ -1,4 +1,4 @@
-package com.tinjaku.dto;
+package com.tinjaku.dto.response;
 
 import com.tinjaku.model.Kota;
 import lombok.*;
@@ -6,8 +6,8 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-public class MitraResponse {
-    private Long id;
+public class UserResponse {
     private String nama;
+    private String alamat;
     private Kota kota;
 }

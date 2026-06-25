@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.tinjaku.dto.ResponErorRequest;
+import com.tinjaku.dto.request.ResponErorRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

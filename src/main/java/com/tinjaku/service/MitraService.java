@@ -3,8 +3,8 @@ package com.tinjaku.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tinjaku.dto.MitraRequest;
-import com.tinjaku.dto.MitraResponse;
+import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
@@ -40,14 +40,19 @@ public class MitraService {
                .toList();
     }
 
-    public MitraResponse getMitraById(Long id){
+    public Mitra getMitraById(Long id){
         Mitra mitra =  mitraList.stream()
                .filter(m -> m.getMitraId().equals(id))
                .findFirst()
                .orElseThrow(() ->
                 new ResourceNotFound("Mitra tidak ditemukan!"));
+        return mitra;
+    }
 
-        return new MitraResponse(mitra.getMitraId(), mitra.getNamaMitra(), mitra.getKota());
+    public MitraResponse getMitraResponseById(Long id){
+        Mitra mitra = getMitraById(id);
+
+        return new MitraResponse(mitra.getNamaMitra(), mitra.getKota());
     }
 
     public Mitra deleteMitraById(Long mitraId){

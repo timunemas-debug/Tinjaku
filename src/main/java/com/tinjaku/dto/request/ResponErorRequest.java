@@ -1,4 +1,4 @@
-package com.tinjaku.dto;
+package com.tinjaku.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

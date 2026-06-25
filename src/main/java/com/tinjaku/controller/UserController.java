@@ -16,8 +16,9 @@ import com.tinjaku.service.PesananService;
 
 import jakarta.validation.Valid;
 
-import com.tinjaku.dto.PesananRequest;
-import com.tinjaku.dto.UserRequest;
+import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.model.*;
 
 @RestController
@@ -48,8 +49,8 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User userById(@PathVariable Long userId){
-        return userService.getUserById(userId);
+    public UserResponse userById(@PathVariable Long userId){
+        return userService.getUserResponseById(userId);
     }
 
     @DeleteMapping("/{userId}")

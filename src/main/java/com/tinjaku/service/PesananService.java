@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
-import com.tinjaku.dto.MitraRequest;
-import com.tinjaku.dto.PesananRequest;
+import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.*;
 
@@ -78,14 +79,6 @@ public class PesananService {
     public Pesanan tambahPesananKeMitra(PesananRequest request, Long UserId){
         User user = userService.getUserById(UserId);
 
-        List<Mitra> mitraKota = mitraService.getMitraByKota(request.getKota());
-
-        if(mitraKota.isEmpty()){
-            throw new ResourceNotFound("Kota tidak ditemukan!");
-        }
-        
-        Mitra mitra = mitraKota.get(0);
-
         if(userMasihPunyaPesananMenunggu(user)){
             throw new BadRequestException("Masih ada pesanan yang menunggu!");
         }
@@ -95,15 +88,33 @@ public class PesananService {
         pesanan.setId((long) (Math.random() * 100000));
         pesanan.setKeluhan(request.getKeluhan());
         pesanan.setUser(user);
-        pesanan.setMitra(mitra);
+
+        pesanan.setMitra(null);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
         pesanan.setKota(request.getKota());
 
-        mitra.getPesananList().add(pesanan);
         user.getPesananList().add(pesanan);
         pesananList.add(pesanan);
 
         return pesanan;
     }
 
+    public Pesanan terimaPesanan(Long pesananId, Long mitraId){
+        Pesanan pesanan = getPesananById(pesananId);
+
+        Mitra mitra = mitraService.getMitraById(mitraId);
+
+        if(!mitra.getKota().equals(pesanan.getKota())){
+            throw new ResourceNotFound("Pesanan bukan di wilayah mitra!");
+        }
+
+        if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
+            throw new BadRequestException("Pesanan tidak bisa diterima!");
+        }
+
+        pesanan.setMitra(mitra);
+        pesanan.setStatus(StatusPesanan.DITERIMA);
+        mitra.getPesananList().add(pesanan);
+        return pesanan;
+    }
 }

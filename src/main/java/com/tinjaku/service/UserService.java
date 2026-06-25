@@ -8,8 +8,9 @@ import java.util.random.*;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.model.User;
-import com.tinjaku.dto.PesananRequest;
-import com.tinjaku.dto.UserRequest;
+import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.StatusPesanan;
@@ -37,12 +38,19 @@ public class UserService {
     }
 
     public User getUserById(Long userId){
-        return userList.stream()
+        User user = userList.stream()
                .filter(u -> u.getUserId().equals(userId))
                .findFirst()
                .orElseThrow(() ->
                 new ResourceNotFound("User tidak ditemukan"));
-            }
+        return user;
+    }
+
+    public UserResponse getUserResponseById(Long userId){
+        User user = getUserById(userId);
+
+        return new UserResponse(user.getNamaUser(), user.getAlamatLengkap(), user.getKota());
+    }
 
     public User deleteUserById(Long userId){
         User user = userList.stream()
