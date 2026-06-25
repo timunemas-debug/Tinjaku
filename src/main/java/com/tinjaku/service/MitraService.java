@@ -10,6 +10,7 @@ import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
 
+import com.tinjaku.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,8 +19,16 @@ public class MitraService {
     private Long nextId = 1L;
 
     public Mitra tambahMitra(MitraRequest request){
-        Mitra mitra = new Mitra();
 
+        boolean sudahAda = mitraList.stream()
+                .anyMatch(m -> m.getNamaMitra().equalsIgnoreCase(request.getNamaMitra()));
+                
+        if(sudahAda){
+            throw new BadRequestException("Mitra sudah terdaftar!");
+        }
+        
+        Mitra mitra = new Mitra();
+        
         mitra.setMitraId(nextId++);
         mitra.setNamaMitra(request.getNamaMitra());
         mitra.setAlamatLengkap(request.getAlamatMitra());

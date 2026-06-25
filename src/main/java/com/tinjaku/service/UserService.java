@@ -7,6 +7,7 @@ import java.util.random.*;
 
 import org.springframework.stereotype.Service;
 
+import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.request.UserRequest;
@@ -20,6 +21,14 @@ public class UserService {
     private List<User> userList = new ArrayList<>();
 
     public User tambahUser(UserRequest request){
+
+        boolean sudahAda = userList.stream()
+                .anyMatch(m -> m.getNamaUser().equalsIgnoreCase(request.getNamaUser()));
+                
+        if(sudahAda){
+            throw new BadRequestException("User sudah terdaftar!");
+        }
+
         User user = new User();
 
         user.setUserId((long) (userList.size() + 1));
