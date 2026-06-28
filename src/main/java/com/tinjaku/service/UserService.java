@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
+import com.tinjaku.repository.PesananRepository;
+import com.tinjaku.repository.UserRepository;
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
@@ -18,41 +20,39 @@ import com.tinjaku.model.StatusPesanan;
 
 @Service
 public class UserService {
-    private List<User> userList = new ArrayList<>();
+    private UserRepository userRepository;
+    private PesananRepository pesananRepository;
+    private Long nextId = 1L;
+
+    public UserService(UserRepository userRepository, PesananRepository pesananRepository){
+        this.userRepository = userRepository;
+        this.pesananRepository = pesananRepository;
+    }
 
     public User tambahUser(UserRequest request){
-
-        boolean sudahAda = userList.stream()
-                .anyMatch(m -> m.getNamaUser().equalsIgnoreCase(request.getNamaUser()));
-                
-        if(sudahAda){
+        if(userRepository.existsByNamaUserIgonoreCase(request.getNamaUser())){
             throw new BadRequestException("User sudah terdaftar!");
         }
 
         User user = new User();
 
-        user.setUserId((long) (userList.size() + 1));
+        user.setUserId(nextId++);
         user.setNamaUser(request.getNamaUser());
         user.setAlamatLengkap(request.getAlamatUser());
         user.setKota(request.getKota());
         user.setPesananList(new ArrayList<>());
 
-        userList.add(user);
-
-        return user;
+        return userRepository.save(user);
     }
 
     public List<User> getAllUser(){
-        return userList;
+        return userRepository.findAll();
     }
 
     public User getUserById(Long userId){
-        User user = userList.stream()
-               .filter(u -> u.getUserId().equals(userId))
-               .findFirst()
-               .orElseThrow(() ->
-                new ResourceNotFound("User tidak ditemukan"));
-        return user;
+        return userRepository.findById(userId)
+                .orElseThrow(() ->
+                    new ResourceNotFound("User tidak ditemukan!"));
     }
 
     public UserResponse getUserResponseById(Long userId){
@@ -61,34 +61,26 @@ public class UserService {
         return new UserResponse(user.getNamaUser(), user.getAlamatLengkap(), user.getKota());
     }
 
-    public User deleteUserById(Long userId){
-        User user = userList.stream()
-                    .filter(u -> u.getUserId().equals(userId))
-                    .findFirst()
-                    .orElseThrow(() ->
-                    new ResourceNotFound("User tidak ditemukan!"));
-        userList.remove(user);
-
-        return user;
+    public void deleteUserById(Long userId){
+        if(!userRepository.existsById(userId)){
+            throw new ResourceNotFound("User tidak ditemukan!");
+        }
+        userRepository.deleteById(userId);
     }
 
     public User tambahPesananUser(Long userId, PesananRequest request){
-        for(User user : userList){
-            if(user.getUserId().equals(userId)){
-                Random random = new Random();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                    new ResourceNotFound("User tidak ditemukan!"));
 
                 Pesanan pesanan = new Pesanan();
-                pesanan.setId((long) random.nextInt(10000));
                 pesanan.setUser(user);
                 pesanan.setKeluhan(request.getKeluhan());
                 pesanan.setStatus(StatusPesanan.MENUNGGU);
 
-                user.getPesananList().add(pesanan);
-
+                pesananRepository.save(pesanan);
                 return user;
 
-            }
-        }
-        throw new ResourceNotFound("User dengan Id : " + userId + " tidak ditemukan");
     }
 }

@@ -37,8 +37,8 @@ public class MitraController {
         return mitraService.tambahMitra(request);
     }
 
-    @GetMapping("/kota/{kota}")
-    public List<Mitra> getMitraByKota(@PathVariable Kota kota){
+    @GetMapping
+    public List<Mitra> getMitraByKota(@RequestParam Kota kota){
         return mitraService.getMitraByKota(kota);
     }
 

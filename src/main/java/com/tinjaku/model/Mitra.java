@@ -1,23 +1,26 @@
 package com.tinjaku.model;
-
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
-
+import java.util.List;
+import jakarta.persistence.*;
 import lombok.*;
 
+@Entity
 @Getter
 @Setter
 public class Mitra {
-    private Long mitraId;
-    private String namaMitra,alamatLengkap;
-    private Kota kota;
-    
-    @JsonIgnore
-    private List<Pesanan> pesananList;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long mitraId;
+
+    private String namaMitra,alamatLengkap;
+
+    @Enumerated(EnumType.STRING)
+    private Kota kota;
+
+    @OneToMany(mappedBy = "mitra")
+    private List<Pesanan> pesanan;
+    
     public Mitra(){
     }
 
@@ -26,6 +29,6 @@ public class Mitra {
         this.namaMitra = namaMitra;
         this.alamatLengkap = alamatLengkap;
         this.kota = kota;
-        this.pesananList = new ArrayList<>();
+        this.pesanan = new ArrayList<>();
     }
 }

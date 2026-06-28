@@ -45,11 +45,6 @@ public class PesananController {
         return pesananService.getPesananByStatus(status);
     }
 
-    // @GetMapping("/idpelanggan/{pelangganId}")
-    // public Pesanan pesananByNama(@PathVariable Long pelangganId){
-    //     return pesananService.getPesananByNama(pelangganId);
-    // }
-
     @DeleteMapping("/{id}")
     public Pesanan hapusPesanan(@PathVariable Long id){
         return pesananService.hapusPesananService(id);

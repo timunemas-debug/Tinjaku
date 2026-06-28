@@ -11,16 +11,18 @@ import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.*;
+import com.tinjaku.repository.PesananRepository;
 
 @Service
 public class PesananService {
     private final UserService userService;
     private final MitraService mitraService;
-    private List<Pesanan> pesananList = new ArrayList<>();
+    private final PesananRepository pesananRepository;
 
-    public PesananService(UserService userService, MitraService mitraService){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository){
         this.userService = userService;
         this.mitraService = mitraService;
+        this.pesananRepository = pesananRepository;
     }
     public Pesanan tambahPesanan(Pesanan pesanan){
         pesananList.add(pesanan);
@@ -28,14 +30,13 @@ public class PesananService {
     }
 
     public List<Pesanan> getAllPesanan(){
-        return pesananList;
+        return pesananRepository.findAll();
     }
 
     public Pesanan getPesananById(Long id){
-        return pesananList.stream()
-               .filter(p -> p.getId().equals(id))
-               .findFirst()
-               .orElseThrow(() -> new ResourceNotFound("Pesanan dengan id : " + id + " tidak ditemukan"));
+        return pesananRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFound("Pesanan tidak ditemukan!"));
     }
 
     public List<Pesanan> getPesananByStatus(StatusPesanan status){

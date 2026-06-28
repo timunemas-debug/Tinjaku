@@ -3,6 +3,7 @@ package com.tinjaku.dto.response;
 import com.tinjaku.model.Kota;
 import lombok.*;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

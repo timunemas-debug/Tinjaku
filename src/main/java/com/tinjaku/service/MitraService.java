@@ -1,6 +1,5 @@
 package com.tinjaku.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
@@ -9,79 +8,75 @@ import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
-
+import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MitraService {
-    private List<Mitra> mitraList = new ArrayList<>();
-    private Long nextId = 1L;
+    private final MitraRepository mitraRepository;
+
+    public MitraService(MitraRepository mitraRepository){
+        this.mitraRepository = mitraRepository;
+    }
 
     public Mitra tambahMitra(MitraRequest request){
 
-        boolean sudahAda = mitraList.stream()
-                .anyMatch(m -> m.getNamaMitra().equalsIgnoreCase(request.getNamaMitra()));
-                
-        if(sudahAda){
+        if(mitraRepository.existsByNamaMitraIgnoreCase(request.getNamaMitra())){
             throw new BadRequestException("Mitra sudah terdaftar!");
         }
-        
+
         Mitra mitra = new Mitra();
         
-        mitra.setMitraId(nextId++);
         mitra.setNamaMitra(request.getNamaMitra());
         mitra.setAlamatLengkap(request.getAlamatMitra());
         mitra.setKota(request.getKota());
-        mitra.setPesananList(new ArrayList<>());
 
-        mitraList.add(mitra);
-        return mitra;
+        return mitraRepository.save(mitra);
     }
 
     public List<Mitra> getAllMitra(){
-        return mitraList;
+        return mitraRepository.findAll();
     }
 
     public List<Mitra> getMitraByKota(Kota kota){
-        return mitraList.stream()
-               .filter(m -> m.getKota() == kota)
-               .toList();
+        List<Mitra> mitraList = mitraRepository.findByKota(kota);
+
+        if(mitraList.isEmpty()){
+            throw new ResourceNotFound("Mitra tidak ditemukan!");
+        }
+
+        return mitraList;
     }
 
     public Mitra getMitraById(Long id){
-        Mitra mitra =  mitraList.stream()
-               .filter(m -> m.getMitraId().equals(id))
-               .findFirst()
-               .orElseThrow(() ->
-                new ResourceNotFound("Mitra tidak ditemukan!"));
-        return mitra;
+        return mitraRepository.findById(id)
+                .orElseThrow(() ->
+                    new ResourceNotFound("Mitra tidak ditemukan!"));
     }
 
     public MitraResponse getMitraResponseById(Long id){
         Mitra mitra = getMitraById(id);
 
-        return new MitraResponse(mitra.getNamaMitra(), mitra.getKota());
+        return MitraResponse.builder()
+               .nama(mitra.getNamaMitra())
+               .kota(mitra.getKota())
+               .build();
     }
 
-    public Mitra deleteMitraById(Long mitraId){
-        Mitra mitra = mitraList.stream()
-                      .filter(m -> m.getMitraId().equals(mitraId))
-                      .findFirst()
-                      .orElseThrow(() ->
-                      new ResourceNotFound("Mitra tidak ditemukan!"));
-        mitraList.remove(mitra);
+    public void deleteMitraById(Long mitraId){
 
-        return mitra;
+        if(!mitraRepository.existsById(mitraId)){
+            throw new ResourceNotFound("Mitra tidak ditemukan!");
+        }
+        mitraRepository.deleteById(mitraId);
     }
 
     public List<Pesanan> getPesananMitra(Long mitraId){
-        Mitra mitra = mitraList.stream()
-                      .filter(m -> m.getMitraId().equals(mitraId))
-                      .findFirst()
-                      .orElseThrow(() ->
-                      new ResourceNotFound("Mitra dengan id tersebut tidak ditemukan!"));
-
-        return mitra.getPesananList();
+        Mitra mitra = mitraRepository.findById(mitraId)
+                .orElseThrow(() ->
+                    new ResourceNotFound("Mitra tidak ditemukan!"));
+                    
+        return mitra.getPesanan();
     }
 }
