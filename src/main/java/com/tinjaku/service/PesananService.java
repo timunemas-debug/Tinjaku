@@ -1,14 +1,10 @@
 package com.tinjaku.service;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
-import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.request.PesananRequest;
-import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
@@ -24,9 +20,9 @@ public class PesananService {
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
     }
+
     public Pesanan tambahPesanan(Pesanan pesanan){
-        pesananList.add(pesanan);
-        return pesanan;
+        return pesananRepository.save(pesanan);
     }
 
     public List<Pesanan> getAllPesanan(){
@@ -40,36 +36,32 @@ public class PesananService {
     }
 
     public List<Pesanan> getPesananByStatus(StatusPesanan status){
-        return pesananList.stream()
-               .filter(p -> p.getStatus().equals(status))
-               .collect(Collectors.toList());
+        List<Pesanan> pesananList = pesananRepository.findPesananByStatus(status);
+
+        if(pesananList.isEmpty()){
+            throw new ResourceNotFound("Pesanan tidak ditemukan!");
+        }
+
+        return pesananList;
     }
 
-    public int hitungTotalPesanan(){
-        return pesananList.size();
+    public long hitungTotalPesanan(){
+        return pesananRepository.count();
     }
 
     public Pesanan updatePesananService(Long id, Pesanan pesananBaru){
-        for(Pesanan pesanan : pesananList){
-            if(pesanan.getId().equals(id)){
-                pesanan.setKeluhan(pesananBaru.getKeluhan());
-                pesanan.setStatus(pesananBaru.getStatus());
+        Pesanan pesanan = pesananRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFound("Pesanan tidak ditemukan!"));
 
-                return pesanan;
-            }
-        }
-        throw new ResourceNotFound("Pesanan dengan id : " + id + " tidak ditemukan");
+        pesanan.setKeluhan(pesananBaru.getKeluhan());
+        pesanan.setStatus(pesananBaru.getStatus());
+
+        return pesananRepository.save(pesanan);
     }
 
-    public Pesanan hapusPesananService(Long id){
-        Pesanan pesanan = pesananList.stream()
-                          .filter(p -> p.getId().equals(id))
-                          .findFirst()
-                          .orElseThrow(() ->
-                          new ResourceNotFound("Pesanan tidak ditemukan!"));
-        pesananList.remove(pesanan);
-
-        return pesanan;
+    public void hapusPesananService(Long id){
+        pesananRepository.deleteById(id);
     }
 
     public boolean userMasihPunyaPesananMenunggu(User user){
@@ -86,7 +78,6 @@ public class PesananService {
 
         Pesanan pesanan = new Pesanan();
 
-        pesanan.setId((long) (Math.random() * 100000));
         pesanan.setKeluhan(request.getKeluhan());
         pesanan.setUser(user);
 
@@ -95,9 +86,7 @@ public class PesananService {
         pesanan.setKota(request.getKota());
 
         user.getPesananList().add(pesanan);
-        pesananList.add(pesanan);
-
-        return pesanan;
+        return pesananRepository.save(pesanan);
     }
 
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){
@@ -115,7 +104,8 @@ public class PesananService {
 
         pesanan.setMitra(mitra);
         pesanan.setStatus(StatusPesanan.DITERIMA);
-        mitra.getPesananList().add(pesanan);
-        return pesanan;
+        mitra.getPesanan().add(pesanan);
+
+        return pesananRepository.save(pesanan);
     }
 }

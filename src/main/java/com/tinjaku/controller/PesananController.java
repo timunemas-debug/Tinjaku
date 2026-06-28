@@ -46,8 +46,8 @@ public class PesananController {
     }
 
     @DeleteMapping("/{id}")
-    public Pesanan hapusPesanan(@PathVariable Long id){
-        return pesananService.hapusPesananService(id);
+    public void hapusPesanan(@PathVariable Long id){
+        pesananService.hapusPesananService(id);
     }
 
     @PutMapping("/{id}")
@@ -57,7 +57,7 @@ public class PesananController {
     }
 
     @GetMapping("/total")
-    public int totalPesanan(){
+    public long totalPesanan(){
         return pesananService.hitungTotalPesanan();
     }
 

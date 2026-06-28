@@ -2,8 +2,6 @@ package com.tinjaku.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.random.*;
 
 import org.springframework.stereotype.Service;
 
@@ -30,7 +28,7 @@ public class UserService {
     }
 
     public User tambahUser(UserRequest request){
-        if(userRepository.existsByNamaUserIgonoreCase(request.getNamaUser())){
+        if(userRepository.existsByNamaUserIgnoreCase(request.getNamaUser())){
             throw new BadRequestException("User sudah terdaftar!");
         }
 
@@ -81,6 +79,5 @@ public class UserService {
 
                 pesananRepository.save(pesanan);
                 return user;
-
     }
 }
