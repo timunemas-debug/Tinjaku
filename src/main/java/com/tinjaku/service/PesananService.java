@@ -7,6 +7,7 @@ import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
+import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
 
@@ -15,11 +16,13 @@ public class PesananService {
     private final UserService userService;
     private final MitraService mitraService;
     private final PesananRepository pesananRepository;
+    private final PesananMapper pesananMapper;
 
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
+        this.pesananMapper = pesananMapper;
     }
 
     public Pesanan tambahPesanan(Pesanan pesanan){
@@ -29,7 +32,7 @@ public class PesananService {
     public List<PesananResponse> getAllPesanan(){
         return pesananRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(pesananMapper::mapToResponse)
                 .toList();
     }
 
@@ -40,7 +43,7 @@ public class PesananService {
     }
 
     public PesananResponse getPesananById(Long id){
-        return mapToResponse(getPesananEntityById(id));
+        return pesananMapper.mapToResponse(getPesananEntityById(id));
     }
 
     public List<PesananResponse> getPesananByStatus(StatusPesanan status){
@@ -51,7 +54,7 @@ public class PesananService {
         }
 
         return pesananList.stream()
-                .map(this::mapToResponse)
+                .map(pesananMapper::mapToResponse)
                 .toList();
     }
 
@@ -119,17 +122,19 @@ public class PesananService {
         return pesananRepository.save(pesanan);
     }
 
-    public PesananResponse mapToResponse(Pesanan pesanan){
-        PesananResponse response = new PesananResponse();
+    public Pesanan selesaiPesanan(Long pesananId, Long mitraId){
+        Pesanan pesanan = getPesananEntityById(pesananId);
 
-        response.setId(pesanan.getId());
-        response.setKeluhan(pesanan.getKeluhan());
-        response.setStatus(pesanan.getStatus());
-        response.setKota(pesanan.getKota());
+        Mitra mitra = mitraService.getMitraById(mitraId);
 
-        response.setNamaUser(pesanan.getUser() != null ? pesanan.getUser().getNamaUser() : null);
-        response.setNamaMitra(pesanan.getMitra() != null ? pesanan.getMitra().getNamaMitra() : null);
+        if(pesanan.getStatus() != StatusPesanan.DITERIMA){
+            throw new BadRequestException("Pesanan tidak bisa diselesaikan!");
+        }
 
-        return response;
+        pesanan.setMitra(mitra);
+        pesanan.setStatus(StatusPesanan.SELESAI);
+        mitra.getPesanan().add(pesanan);
+
+        return pesananRepository.save(pesanan);
     }
 }

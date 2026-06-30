@@ -54,4 +54,11 @@ public class MitraController {
 
         return pesananService.getPesananById(pesanan.getId());
     }
+
+    @PatchMapping("/{mitraId}/pesanan/{pesananId}/selesai")
+    public PesananResponse selesaiPesananUserByPesananId(@PathVariable Long pesananId, @PathVariable Long mitraId){
+        Pesanan pesanan = pesananService.selesaiPesanan(pesananId, mitraId);
+
+        return pesananService.getPesananById(pesanan.getId());
+    }
 }

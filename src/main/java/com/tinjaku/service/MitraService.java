@@ -6,9 +6,10 @@ import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
+import com.tinjaku.mapper.MitraMapper;
+import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
-import com.tinjaku.model.Pesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.exception.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MitraService {
     private final MitraRepository mitraRepository;
-    private final PesananService pesananService;
+    private final PesananMapper pesananMapper;
+    private final MitraMapper mitraMapper;
 
-    public MitraService(MitraRepository mitraRepository, PesananService pesananService){
+    public MitraService(MitraRepository mitraRepository, PesananMapper pesananMapper, MitraMapper mitraMapper){
         this.mitraRepository = mitraRepository;
-        this.pesananService = pesananService;
+        this.pesananMapper = pesananMapper;
+        this.mitraMapper = mitraMapper;
     }
 
     public Mitra tambahMitra(MitraRequest request){
@@ -41,14 +44,14 @@ public class MitraService {
     public List<MitraResponse> getAllMitra(){
         return mitraRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(mitraMapper::mapToResponse)
                 .toList();
     }
 
     public List<MitraResponse> getMitraByKota(Kota kota){
         return mitraRepository.findByKota(kota)
                 .stream()
-                .map(this::mapToResponse)
+                .map(mitraMapper::mapToResponse)
                 .toList();
     }
 
@@ -61,10 +64,7 @@ public class MitraService {
     public MitraResponse getMitraResponseById(Long id){
         Mitra mitra = getMitraById(id);
 
-        return MitraResponse.builder()
-               .nama(mitra.getNamaMitra())
-               .kota(mitra.getKota())
-               .build();
+        return mitraMapper.mapToResponse(mitra);
     }
 
     public void deleteMitraById(Long mitraId){
@@ -82,16 +82,7 @@ public class MitraService {
                     
         return mitra.getPesanan()
                 .stream()
-                .map(pesananService::mapToResponse)
+                .map(pesananMapper::mapToResponse)
                 .toList();
-    }
-    
-    public MitraResponse mapToResponse(Mitra mitra){
-        MitraResponse response = new MitraResponse();
-
-        response.setKota(mitra.getKota());
-        response.setNama(mitra.getNamaMitra());
-
-        return response;
     }
 }
