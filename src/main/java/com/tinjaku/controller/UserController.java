@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.model.*;
 
@@ -38,9 +39,11 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/pesanan")
-    public Pesanan tambahPesanan(@PathVariable Long userId,
+    public PesananResponse tambahPesanan(@PathVariable Long userId,
                               @RequestBody PesananRequest request){
-        return pesananService.tambahPesananKeMitra(request, userId);
+            Pesanan pesanan = pesananService.tambahPesananKeMitra(request, userId);
+
+            return pesananService.getPesananById(pesanan.getId());
     }
 
     @GetMapping

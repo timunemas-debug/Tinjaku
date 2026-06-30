@@ -6,6 +6,7 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserResponse {
     private String nama;
     private String alamat;

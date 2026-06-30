@@ -14,6 +14,7 @@ import com.tinjaku.service.PesananService;
 import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.model.*;
 
 @RestController
@@ -26,22 +27,24 @@ public class PesananController {
     }
 
     @PostMapping("/{userId}")
-    public Pesanan tambahPesanan(@Valid @RequestBody PesananRequest request, @PathVariable Long userId){
-        return pesananService.tambahPesananKeMitra(request, userId);
+    public PesananResponse tambahPesanan(@Valid @RequestBody PesananRequest request, @PathVariable Long userId){
+        Pesanan pesanan = pesananService.tambahPesananKeMitra(request, userId);
+
+        return pesananService.getPesananById(pesanan.getId());
     }
 
     @GetMapping
-    public List<Pesanan> getAll(){
+    public List<PesananResponse> getAll(){
         return pesananService.getAllPesanan();
     }
 
     @GetMapping("/{id}")
-    public Pesanan pesananbyid(@PathVariable Long id){
+    public PesananResponse pesananbyid(@PathVariable Long id){
         return pesananService.getPesananById(id);
     }
 
     @GetMapping("/status/{status}")
-    public List<Pesanan> pesananByStatus(@PathVariable StatusPesanan status){
+    public List<PesananResponse> pesananByStatus(@PathVariable StatusPesanan status){
         return pesananService.getPesananByStatus(status);
     }
 
@@ -51,9 +54,11 @@ public class PesananController {
     }
 
     @PutMapping("/{id}")
-    public Pesanan updatePesanan(@PathVariable Long id,
-                                 @RequestBody Pesanan pesananDiupdate){
-        return pesananService.updatePesananService(id, pesananDiupdate);
+    public PesananResponse updatePesanan(@PathVariable Long id,
+                                         @RequestBody Pesanan pesananDiupdate){
+            Pesanan pesanan = pesananService.updatePesananService(id, pesananDiupdate);
+
+            return pesananService.getPesananById(pesanan.getId());
     }
 
     @GetMapping("/total")

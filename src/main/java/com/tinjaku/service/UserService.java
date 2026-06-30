@@ -20,7 +20,6 @@ import com.tinjaku.model.StatusPesanan;
 public class UserService {
     private UserRepository userRepository;
     private PesananRepository pesananRepository;
-    private Long nextId = 1L;
 
     public UserService(UserRepository userRepository, PesananRepository pesananRepository){
         this.userRepository = userRepository;
@@ -34,7 +33,6 @@ public class UserService {
 
         User user = new User();
 
-        user.setUserId(nextId++);
         user.setNamaUser(request.getNamaUser());
         user.setAlamatLengkap(request.getAlamatUser());
         user.setKota(request.getKota());

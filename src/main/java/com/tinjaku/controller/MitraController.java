@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.MitraResponse;
+import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.service.MitraService;
@@ -38,17 +39,19 @@ public class MitraController {
     }
 
     @GetMapping
-    public List<Mitra> getMitraByKota(@RequestParam Kota kota){
+    public List<MitraResponse> getMitraByKota(@RequestParam Kota kota){
         return mitraService.getMitraByKota(kota);
     }
 
     @GetMapping("/{mitraId}/pesanan")
-    public List<Pesanan> getPesananMitraById(@PathVariable Long mitraId){
+    public List<PesananResponse> getPesananMitraById(@PathVariable Long mitraId){
         return mitraService.getPesananMitra(mitraId);
     }
 
     @PatchMapping("/{mitraId}/pesanan/{pesananId}/diterima")
-    public Pesanan teirmaPesananUserByPesananId(@PathVariable Long pesananId, @PathVariable Long mitraId){
-        return pesananService.terimaPesanan(pesananId, mitraId);
+    public PesananResponse terimaPesananUserByPesananId(@PathVariable Long pesananId, @PathVariable Long mitraId){
+        Pesanan pesanan = pesananService.terimaPesanan(pesananId, mitraId);
+
+        return pesananService.getPesananById(pesanan.getId());
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
@@ -25,24 +26,33 @@ public class PesananService {
         return pesananRepository.save(pesanan);
     }
 
-    public List<Pesanan> getAllPesanan(){
-        return pesananRepository.findAll();
+    public List<PesananResponse> getAllPesanan(){
+        return pesananRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public Pesanan getPesananById(Long id){
+    private Pesanan getPesananEntityById(Long id){
         return pesananRepository.findById(id)
-                    .orElseThrow(() ->
-                        new ResourceNotFound("Pesanan tidak ditemukan!"));
+                .orElseThrow(() ->
+                    new ResourceNotFound("Pesanan tidak ditemukan!"));
     }
 
-    public List<Pesanan> getPesananByStatus(StatusPesanan status){
+    public PesananResponse getPesananById(Long id){
+        return mapToResponse(getPesananEntityById(id));
+    }
+
+    public List<PesananResponse> getPesananByStatus(StatusPesanan status){
         List<Pesanan> pesananList = pesananRepository.findPesananByStatus(status);
 
         if(pesananList.isEmpty()){
             throw new ResourceNotFound("Pesanan tidak ditemukan!");
         }
 
-        return pesananList;
+        return pesananList.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     public long hitungTotalPesanan(){
@@ -90,7 +100,7 @@ public class PesananService {
     }
 
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){
-        Pesanan pesanan = getPesananById(pesananId);
+        Pesanan pesanan = getPesananEntityById(pesananId);
 
         Mitra mitra = mitraService.getMitraById(mitraId);
 
@@ -107,5 +117,19 @@ public class PesananService {
         mitra.getPesanan().add(pesanan);
 
         return pesananRepository.save(pesanan);
+    }
+
+    public PesananResponse mapToResponse(Pesanan pesanan){
+        PesananResponse response = new PesananResponse();
+
+        response.setId(pesanan.getId());
+        response.setKeluhan(pesanan.getKeluhan());
+        response.setStatus(pesanan.getStatus());
+        response.setKota(pesanan.getKota());
+
+        response.setNamaUser(pesanan.getUser() != null ? pesanan.getUser().getNamaUser() : null);
+        response.setNamaMitra(pesanan.getMitra() != null ? pesanan.getMitra().getNamaMitra() : null);
+
+        return response;
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.MitraResponse;
+import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
@@ -15,9 +16,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class MitraService {
     private final MitraRepository mitraRepository;
+    private final PesananService pesananService;
 
-    public MitraService(MitraRepository mitraRepository){
+    public MitraService(MitraRepository mitraRepository, PesananService pesananService){
         this.mitraRepository = mitraRepository;
+        this.pesananService = pesananService;
     }
 
     public Mitra tambahMitra(MitraRequest request){
@@ -35,18 +38,18 @@ public class MitraService {
         return mitraRepository.save(mitra);
     }
 
-    public List<Mitra> getAllMitra(){
-        return mitraRepository.findAll();
+    public List<MitraResponse> getAllMitra(){
+        return mitraRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public List<Mitra> getMitraByKota(Kota kota){
-        List<Mitra> mitraList = mitraRepository.findByKota(kota);
-
-        if(mitraList.isEmpty()){
-            throw new ResourceNotFound("Mitra tidak ditemukan!");
-        }
-
-        return mitraList;
+    public List<MitraResponse> getMitraByKota(Kota kota){
+        return mitraRepository.findByKota(kota)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     public Mitra getMitraById(Long id){
@@ -72,11 +75,23 @@ public class MitraService {
         mitraRepository.deleteById(mitraId);
     }
 
-    public List<Pesanan> getPesananMitra(Long mitraId){
+    public List<PesananResponse> getPesananMitra(Long mitraId){
         Mitra mitra = mitraRepository.findById(mitraId)
                 .orElseThrow(() ->
                     new ResourceNotFound("Mitra tidak ditemukan!"));
                     
-        return mitra.getPesanan();
+        return mitra.getPesanan()
+                .stream()
+                .map(pesananService::mapToResponse)
+                .toList();
+    }
+    
+    public MitraResponse mapToResponse(Mitra mitra){
+        MitraResponse response = new MitraResponse();
+
+        response.setKota(mitra.getKota());
+        response.setNama(mitra.getNamaMitra());
+
+        return response;
     }
 }
