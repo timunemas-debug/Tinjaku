@@ -11,14 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tinjaku.service.UserService;
-import com.tinjaku.service.PesananService;
-
 
 import jakarta.validation.Valid;
 
-import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.request.UserRequest;
-import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.model.*;
 
@@ -26,24 +22,14 @@ import com.tinjaku.model.*;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-    private final PesananService pesananService;
 
-    public UserController(UserService userService, PesananService pesananService){
+    public UserController(UserService userService){
         this.userService = userService;
-        this.pesananService = pesananService;
     }
 
     @PostMapping
     public User tambahUser(@Valid @RequestBody UserRequest request){
         return userService.tambahUser(request);
-    }
-
-    @PostMapping("/{userId}/pesanan")
-    public PesananResponse tambahPesanan(@PathVariable Long userId,
-                              @RequestBody PesananRequest request){
-            Pesanan pesanan = pesananService.tambahPesananKeMitra(request, userId);
-
-            return pesananService.getPesananById(pesanan.getId());
     }
 
     @GetMapping

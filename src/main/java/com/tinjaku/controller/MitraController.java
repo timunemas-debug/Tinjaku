@@ -1,7 +1,7 @@
 package com.tinjaku.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,8 +17,6 @@ import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.service.MitraService;
-import com.tinjaku.service.PesananService;
-import com.tinjaku.model.Pesanan;
 
 import jakarta.validation.Valid;
 
@@ -26,11 +24,9 @@ import jakarta.validation.Valid;
 @RequestMapping("/mitra")
 public class MitraController {
     private final MitraService mitraService;
-    private final PesananService pesananService;
 
-    public MitraController(MitraService mitraService, PesananService pesananService){
+    public MitraController(MitraService mitraService){
         this.mitraService = mitraService;
-        this.pesananService = pesananService;
     }
 
     @PostMapping
@@ -38,9 +34,19 @@ public class MitraController {
         return mitraService.tambahMitra(request);
     }
 
-    @GetMapping
+    @GetMapping("{mitraId}")
+    public MitraResponse getMitraById(@PathVariable Long mitraId){
+        return mitraService.getMitraResponseById(mitraId);
+    }
+
+    @GetMapping("/kota")
     public List<MitraResponse> getMitraByKota(@RequestParam Kota kota){
         return mitraService.getMitraByKota(kota);
+    }
+
+    @GetMapping
+    public List<MitraResponse> getAllMitra(){
+        return mitraService.getAllMitra();
     }
 
     @GetMapping("/{mitraId}/pesanan")
@@ -48,17 +54,9 @@ public class MitraController {
         return mitraService.getPesananMitra(mitraId);
     }
 
-    @PatchMapping("/{mitraId}/pesanan/{pesananId}/diterima")
-    public PesananResponse terimaPesananUserByPesananId(@PathVariable Long pesananId, @PathVariable Long mitraId){
-        Pesanan pesanan = pesananService.terimaPesanan(pesananId, mitraId);
-
-        return pesananService.getPesananById(pesanan.getId());
+    @DeleteMapping("{mitraId}")
+    public void hapusMitraById(@PathVariable Long mitraId){
+        mitraService.deleteMitraById(mitraId);
     }
 
-    @PatchMapping("/{mitraId}/pesanan/{pesananId}/selesai")
-    public PesananResponse selesaiPesananUserByPesananId(@PathVariable Long pesananId, @PathVariable Long mitraId){
-        Pesanan pesanan = pesananService.selesaiPesanan(pesananId, mitraId);
-
-        return pesananService.getPesananById(pesanan.getId());
-    }
 }

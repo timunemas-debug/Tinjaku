@@ -7,23 +7,17 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
-import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.UserRepository;
-import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
-import com.tinjaku.model.Pesanan;
-import com.tinjaku.model.StatusPesanan;
 
 @Service
 public class UserService {
     private UserRepository userRepository;
-    private PesananRepository pesananRepository;
 
-    public UserService(UserRepository userRepository, PesananRepository pesananRepository){
+    public UserService(UserRepository userRepository){
         this.userRepository = userRepository;
-        this.pesananRepository = pesananRepository;
     }
 
     public User tambahUser(UserRequest request){
@@ -62,20 +56,5 @@ public class UserService {
             throw new ResourceNotFound("User tidak ditemukan!");
         }
         userRepository.deleteById(userId);
-    }
-
-    public User tambahPesananUser(Long userId, PesananRequest request){
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                    new ResourceNotFound("User tidak ditemukan!"));
-
-                Pesanan pesanan = new Pesanan();
-                pesanan.setUser(user);
-                pesanan.setKeluhan(request.getKeluhan());
-                pesanan.setStatus(StatusPesanan.MENUNGGU);
-
-                pesananRepository.save(pesanan);
-                return user;
     }
 }
