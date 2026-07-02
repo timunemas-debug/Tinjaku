@@ -22,7 +22,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    private String namaUser, alamatLengkap;
+    private String namaUser;
+
+    @OneToMany(mappedBy = "user")
+    private List<Alamat> alamatList;
 
     @Enumerated(EnumType.STRING)
     private Kota kota;
@@ -36,7 +39,7 @@ public class User {
     public User(Long userId, String namaUser, String alamatLengkap, Kota kota){
         this.userId = userId;
         this.namaUser = namaUser;
-        this.alamatLengkap = alamatLengkap;
+        this.alamatList = new ArrayList<>();
         this.kota = kota;
         this.pesananList = new ArrayList<>();
     }

@@ -28,9 +28,8 @@ public class UserService {
         User user = new User();
 
         user.setNamaUser(request.getNamaUser());
-        user.setAlamatLengkap(request.getAlamatUser());
-        user.setKota(request.getKota());
         user.setPesananList(new ArrayList<>());
+        user.setAlamatList(new ArrayList<>());
 
         return userRepository.save(user);
     }
@@ -48,7 +47,7 @@ public class UserService {
     public UserResponse getUserResponseById(Long userId){
         User user = getUserById(userId);
 
-        return new UserResponse(user.getNamaUser(), user.getAlamatLengkap(), user.getKota());
+        return new UserResponse(user.getNamaUser(), user.getAlamatList(), user.getKota());
     }
 
     public void deleteUserById(Long userId){
