@@ -11,13 +11,16 @@ import com.tinjaku.repository.UserRepository;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
+import com.tinjaku.mapper.UserMapper;
 
 @Service
 public class UserService {
     private UserRepository userRepository;
+    private UserMapper userMapper;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, UserMapper userMapper){
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     public User tambahUser(UserRequest request){
@@ -34,8 +37,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUser(){
-        return userRepository.findAll();
+    public List<UserResponse> getAllUser(){
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::toResponse)
+                .toList();
     }
 
     public User getUserById(Long userId){
@@ -47,7 +53,7 @@ public class UserService {
     public UserResponse getUserResponseById(Long userId){
         User user = getUserById(userId);
 
-        return new UserResponse(user.getNamaUser(), user.getAlamatList(), user.getKota());
+        return userMapper.toResponse(user);
     }
 
     public void deleteUserById(Long userId){
