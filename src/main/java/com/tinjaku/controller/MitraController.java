@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.service.MitraService;
@@ -51,6 +53,11 @@ public class MitraController {
     @GetMapping("/{mitraId}/pesanan")
     public List<PesananResponse> getPesananMitraById(@PathVariable Long mitraId){
         return mitraService.getPesananMitra(mitraId);
+    }
+
+    @GetMapping("/{mitraId}/dashboard")
+    public DashboardResponse getDashboard(@PathVariable Long mitraId){
+        return mitraService.getDashboard(mitraId);
     }
 
     @DeleteMapping("{mitraId}")
