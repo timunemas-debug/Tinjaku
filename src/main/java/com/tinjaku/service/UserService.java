@@ -23,18 +23,14 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public User tambahUser(UserRequest request){
-        if(userRepository.existsByNamaUserIgnoreCase(request.getNamaUser())){
+    public UserResponse tambahUser(UserRequest request){
+        if(userRepository.existsByNamaDepanIgnoreCaseAndNamaBelakangIgnoreCase(request.getNamaDepan(), request.getNamaBelakang())){
             throw new BadRequestException("User sudah terdaftar!");
         }
 
-        User user = new User();
+        User user = userMapper.toEntity(request);
 
-        user.setNamaUser(request.getNamaUser());
-        user.setPesananList(new ArrayList<>());
-        user.setAlamatList(new ArrayList<>());
-
-        return userRepository.save(user);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     public List<UserResponse> getAllUser(){

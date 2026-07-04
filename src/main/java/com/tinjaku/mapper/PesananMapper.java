@@ -12,9 +12,14 @@ public class PesananMapper {
         response.setId(pesanan.getId());
         response.setKeluhan(pesanan.getKeluhan());
         response.setStatus(pesanan.getStatus());
+        response.setNamaPenerima(pesanan.getNamaPenerima() != null ? pesanan.getNamaPenerima() : pesanan.getUser().getNamaLengkap());
+        response.setAlamatLengkap(pesanan.getAlamatLengkap());
+        response.setKelurahan(pesanan.getKelurahan());
+        response.setKecamatan(pesanan.getKecamatan());
         response.setKota(pesanan.getKota());
+        response.setProvinsi(pesanan.getProvinsi());
 
-        response.setNamaUser(pesanan.getUser() != null ? pesanan.getUser().getNamaUser() : null);
+        response.setNamaLengkap(pesanan.getUser() != null ? pesanan.getUser().getNamaLengkap() : null);
         response.setNamaMitra(pesanan.getMitra() != null ? pesanan.getMitra().getNamaMitra() : null);
 
         return response;

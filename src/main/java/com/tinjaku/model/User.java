@@ -22,25 +22,27 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    private String namaUser;
+    private String namaDepan;
+    private String namaBelakang;
 
     @OneToMany(mappedBy = "user")
-    private List<Alamat> alamatList;
+    private List<Alamat> alamatList = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    private Kota kota;
-    
     @OneToMany(mappedBy = "user")
-    private List<Pesanan> pesananList;
+    private List<Pesanan> pesananList = new ArrayList<>();
 
     public User(){
     }
 
-    public User(Long userId, String namaUser, String alamatLengkap, Kota kota){
+    public User(Long userId, String namaDepan, String namaBelakang){
         this.userId = userId;
-        this.namaUser = namaUser;
+        this.namaDepan = namaDepan;
+        this.namaBelakang = namaBelakang;
         this.alamatList = new ArrayList<>();
-        this.kota = kota;
         this.pesananList = new ArrayList<>();
+    }
+
+    public String getNamaLengkap(){
+        return getNamaDepan() + " " + getNamaBelakang();
     }
 }

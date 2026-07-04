@@ -32,8 +32,16 @@ public class Pesanan {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String namaPenerima;
+    private String noHp;
+    private String alamatLengkap;
+    private String kelurahan;
+    private String kecamatan;
+
     @Enumerated(EnumType.STRING)
     private Kota kota;
+    
+    private String provinsi;
 
     public Pesanan(){
     }

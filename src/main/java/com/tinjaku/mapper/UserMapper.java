@@ -19,8 +19,8 @@ public class UserMapper {
     public User toEntity(UserRequest request){
         User user = new User();
 
-        user.setNamaUser(request.getNamaUser());
-        user.setKota(request.getKota());
+        user.setNamaDepan(request.getNamaDepan());
+        user.setNamaBelakang(request.getNamaBelakang());
 
         return user;
     }
@@ -30,9 +30,10 @@ public class UserMapper {
                 .stream()
                 .map(alamatMapper::toResponse)
                 .toList();
-
-        return new UserResponse(user.getNamaUser(),
-                                alamatResponse,
-                                user.getKota());
+        
+        return new UserResponse(user.getNamaDepan(),
+                                user.getNamaBelakang(),
+                                user.getNamaLengkap(),
+                                alamatResponse);
     }
 }

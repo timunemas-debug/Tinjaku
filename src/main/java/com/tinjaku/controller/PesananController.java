@@ -16,22 +16,25 @@ import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 
 @RestController
 @RequestMapping("/pesanan")
 public class PesananController {
     private final PesananService pesananService;
+    private final PesananMapper pesananMapper;
 
-    public PesananController(PesananService pesananService){
+    public PesananController(PesananService pesananService, PesananMapper pesananMapper){
         this.pesananService = pesananService;
+        this.pesananMapper = pesananMapper;
     }
 
     @PostMapping("/{userId}")
     public PesananResponse tambahPesanan(@Valid @RequestBody PesananRequest request, @PathVariable Long userId){
-        Pesanan pesanan = pesananService.tambahPesananKeMitra(request, userId);
+        Pesanan pesanan = pesananService.createPesanan(request, userId);
 
-        return pesananService.getPesananById(pesanan.getId());
+        return pesananMapper.mapToResponse(pesanan);
     }
 
     @GetMapping

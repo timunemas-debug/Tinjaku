@@ -1,6 +1,5 @@
 package com.tinjaku.dto.response;
 
-import com.tinjaku.model.Kota;
 import lombok.*;
 import java.util.List;
 
@@ -9,7 +8,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponse {
-    private String nama;
+    private String namaDepan;
+    private String namaBelakang;
+    private String namaLengkap;
     private List<AlamatResponse> alamat;
-    private Kota kota;
 }

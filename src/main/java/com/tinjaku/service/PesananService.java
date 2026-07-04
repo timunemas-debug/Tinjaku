@@ -10,26 +10,21 @@ import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
-import com.tinjaku.repository.UserRepository;
 
 @Service
 public class PesananService {
     private final UserService userService;
-    private final UserRepository userRepository;
     private final MitraService mitraService;
     private final PesananRepository pesananRepository;
     private final PesananMapper pesananMapper;
+    private final AlamatService alamatService;
 
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, UserRepository userRepository){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
         this.pesananMapper = pesananMapper;
-        this.userRepository = userRepository;
-    }
-
-    public Pesanan tambahPesanan(Pesanan pesanan){
-        return pesananRepository.save(pesanan);
+        this.alamatService = alamatService;
     }
 
     public List<PesananResponse> getAllPesanan(){
@@ -85,40 +80,32 @@ public class PesananService {
                .anyMatch(u -> u.getStatus() == StatusPesanan.MENUNGGU);
     }
 
-    public Pesanan tambahPesananKeMitra(PesananRequest request, Long UserId){
+    public Pesanan createPesanan(PesananRequest request, Long UserId){
         User user = userService.getUserById(UserId);
+        Alamat alamat = alamatService.getAlamatById(request.getAlamatId());
+
+        if(!alamat.getUser().getUserId().equals(user.getUserId())){
+            throw new BadRequestException("Alamat bukan milik user!");
+        }
 
         if(userMasihPunyaPesananMenunggu(user)){
             throw new BadRequestException("Masih ada pesanan yang menunggu!");
         }
 
         Pesanan pesanan = new Pesanan();
-
+        
+        pesanan.setNamaPenerima(request.getNamaPenerima());
+        pesanan.setAlamatLengkap(alamat.getJalan());
+        pesanan.setKelurahan(alamat.getKelurahan());
+        pesanan.setKecamatan(alamat.getKecamatan());
+        pesanan.setKota(alamat.getKota());
+        pesanan.setProvinsi(alamat.getProvinsi());
         pesanan.setKeluhan(request.getKeluhan());
         pesanan.setUser(user);
 
         pesanan.setMitra(null);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
-        pesanan.setKota(request.getKota());
-
-        user.getPesananList().add(pesanan);
         return pesananRepository.save(pesanan);
-    }
-
-    public PesananResponse createPesanan(Long userId, PesananRequest request){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                    new ResourceNotFound("User tidak ditemukan!"));
-
-        Pesanan pesanan = new Pesanan();
-        pesanan.setUser(user);
-        pesanan.setKeluhan(request.getKeluhan());
-        pesanan.setStatus(StatusPesanan.MENUNGGU);
-        pesanan.setKota(request.getKota());
-
-        Pesanan saved = pesananRepository.save(pesanan);
-
-        return pesananMapper.mapToResponse(saved);
     }
 
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){

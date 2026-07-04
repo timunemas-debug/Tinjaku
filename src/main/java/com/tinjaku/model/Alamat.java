@@ -22,6 +22,7 @@ public class Alamat {
     @Enumerated(EnumType.STRING)
     private Label label;
 
+    private String namaPenerima;
     private String jalan;
     private String kelurahan;
     private String kecamatan;

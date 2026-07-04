@@ -16,7 +16,6 @@ import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
-import com.tinjaku.model.*;
 
 @RestController
 @RequestMapping("/user")
@@ -28,12 +27,12 @@ public class UserController {
     }
 
     @PostMapping
-    public User tambahUser(@Valid @RequestBody UserRequest request){
+    public UserResponse tambahUser(@Valid @RequestBody UserRequest request){
         return userService.tambahUser(request);
     }
 
     @GetMapping
-    public List<User> getAllUser(){
+    public List<UserResponse> getAllUser(){
         return userService.getAllUser();
     }
 
