@@ -14,7 +14,6 @@ import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.PesananResponse;
-import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.service.MitraService;

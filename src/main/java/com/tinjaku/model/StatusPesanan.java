@@ -4,6 +4,7 @@ public enum StatusPesanan {
     MENUNGGU,
     DITERIMA,
     DALAM_PERJALANAN,
+    DIKERJAKAN,
     DITOLAK,
     SELESAI
 }

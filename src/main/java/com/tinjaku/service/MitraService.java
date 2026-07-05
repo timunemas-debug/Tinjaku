@@ -11,7 +11,7 @@ import com.tinjaku.mapper.MitraMapper;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
-import com.tinjaku.model.Pesanan;
+import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.exception.BadRequestException;
@@ -92,10 +92,18 @@ public class MitraService {
     }
 
     public DashboardResponse getDashboard(Long mitraId){
-        Mitra mitra = mitraRepository.findById(mitraId)
-                .orElseThrow(() ->
-                    new ResourceNotFound("Mitra tidak ditemukan!"));
+        getMitraById(mitraId);
         
-        Long totalPesanan = pesananRepository.countByMitraId(mitraId);
+        Long totalPesanan = pesananRepository.countByMitraMitraId(mitraId);
+        Long pesananMenunggu = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU);
+        Long pesananDiTerima = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DITERIMA);
+        Long pesananDiKerjakan = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DIKERJAKAN);
+        Long pesananSelesai = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.SELESAI);
+
+        return new DashboardResponse(totalPesanan,
+                                     pesananMenunggu,
+                                     pesananDiTerima,
+                                     pesananDiKerjakan,
+                                     pesananSelesai);
     }
 }
