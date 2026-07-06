@@ -14,6 +14,7 @@ import com.tinjaku.model.Mitra;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
+import com.tinjaku.repository.RatingRepository;
 import com.tinjaku.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +22,16 @@ import org.springframework.stereotype.Service;
 public class MitraService {
     private final MitraRepository mitraRepository;
     private final PesananRepository pesananRepository;
+    private final RatingRepository ratingRepository;
     private final PesananMapper pesananMapper;
     private final MitraMapper mitraMapper;
 
-    public MitraService(MitraRepository mitraRepository, PesananRepository pesananRepository, PesananMapper pesananMapper, MitraMapper mitraMapper){
+    public MitraService(MitraRepository mitraRepository, PesananRepository pesananRepository, RatingRepository ratingRepository ,PesananMapper pesananMapper, MitraMapper mitraMapper){
         this.mitraRepository = mitraRepository;
+        this.pesananRepository = pesananRepository;
+        this.ratingRepository = ratingRepository;
         this.pesananMapper = pesananMapper;
         this.mitraMapper = mitraMapper;
-        this.pesananRepository = pesananRepository;
     }
 
     public Mitra tambahMitra(MitraRequest request){
@@ -49,14 +52,22 @@ public class MitraService {
     public List<MitraResponse> getAllMitra(){
         return mitraRepository.findAll()
                 .stream()
-                .map(mitraMapper::mapToResponse)
+                .map(mitra -> {
+                    Double ratingMitra = ratingRepository.getAvargeRating(mitra.getMitraId());
+                    Long totalRating = ratingRepository.getTotalRating(mitra.getMitraId());
+                    return mitraMapper.toResponse(mitra, ratingMitra, totalRating);
+                })
                 .toList();
     }
 
     public List<MitraResponse> getMitraByKota(Kota kota){
         return mitraRepository.findByKota(kota)
                 .stream()
-                .map(mitraMapper::mapToResponse)
+                .map(mitra -> {
+                    Double ratingMitra = ratingRepository.getAvargeRating(mitra.getMitraId());
+                    Long totalRating = ratingRepository.getTotalRating(mitra.getMitraId());
+                    return mitraMapper.toResponse(mitra, ratingMitra, totalRating);
+                })
                 .toList();
     }
 
@@ -69,7 +80,10 @@ public class MitraService {
     public MitraResponse getMitraResponseById(Long id){
         Mitra mitra = getMitraById(id);
 
-        return mitraMapper.mapToResponse(mitra);
+        Double ratingMitra = ratingRepository.getAvargeRating(id);
+        Long totalRating = ratingRepository.getTotalRating(id);
+
+        return mitraMapper.toResponse(mitra, ratingMitra != null ? ratingMitra : 0.0, totalRating);
     }
 
     public void deleteMitraById(Long mitraId){

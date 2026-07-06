@@ -1,18 +1,27 @@
 package com.tinjaku.mapper;
 
 import org.springframework.stereotype.Component;
+
+import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.model.Mitra;
 
 @Component
 public class MitraMapper {
     
-    public MitraResponse mapToResponse(Mitra mitra){
-        MitraResponse response = new MitraResponse();
+    public Mitra toEntity(MitraRequest request){
+        Mitra mitra = new Mitra();
 
-        response.setKota(mitra.getKota());
-        response.setNama(mitra.getNamaMitra());
+        mitra.setKota(request.getKota());
+        mitra.setNamaMitra(request.getNamaMitra());
 
-        return response;
+        return mitra;
+    }
+
+    public MitraResponse toResponse(Mitra mitra, Double ratingMitra, Long totalRating){
+        return new MitraResponse(mitra.getNamaMitra(),
+                                 mitra.getKota(),
+                                 ratingMitra,
+                                 totalRating);
     }
 }

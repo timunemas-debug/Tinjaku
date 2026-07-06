@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import com.tinjaku.service.PesananService;
+import com.tinjaku.service.RatingService;
 
 import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.request.RatingRequest;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 
@@ -23,11 +26,13 @@ import com.tinjaku.model.*;
 @RequestMapping("/pesanan")
 public class PesananController {
     private final PesananService pesananService;
+    private final RatingService ratingService;
     private final PesananMapper pesananMapper;
 
-    public PesananController(PesananService pesananService, PesananMapper pesananMapper){
+    public PesananController(PesananService pesananService, PesananMapper pesananMapper, RatingService ratingService){
         this.pesananService = pesananService;
         this.pesananMapper = pesananMapper;
+        this.ratingService = ratingService;
     }
 
     @PostMapping("/{userId}")
@@ -35,6 +40,11 @@ public class PesananController {
         Pesanan pesanan = pesananService.createPesanan(request, userId);
 
         return pesananMapper.mapToResponse(pesanan);
+    }
+
+    @PostMapping("/{pesananId}/rating")
+    public RatingResponse tambahRatingMitra(@PathVariable Long pesananId, @Valid  @RequestBody RatingRequest request){
+        return ratingService.tambahRating(pesananId, request);
     }
 
     @GetMapping

@@ -14,9 +14,11 @@ import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.service.MitraService;
+import com.tinjaku.service.RatingService;
 
 import jakarta.validation.Valid;
 
@@ -24,9 +26,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/mitra")
 public class MitraController {
     private final MitraService mitraService;
+    private final RatingService ratingService;
 
-    public MitraController(MitraService mitraService){
+    public MitraController(MitraService mitraService, RatingService ratingService){
         this.mitraService = mitraService;
+        this.ratingService = ratingService;
     }
 
     @PostMapping
@@ -57,6 +61,16 @@ public class MitraController {
     @GetMapping("/{mitraId}/dashboard")
     public DashboardResponse getDashboard(@PathVariable Long mitraId){
         return mitraService.getDashboard(mitraId);
+    }
+
+    @GetMapping("/{mitraId}/ratings")
+    public List<RatingResponse> getByMitraId(@PathVariable Long mitraId){
+        return ratingService.getRatingMitra(mitraId);
+    }
+
+    @GetMapping("{mitraId}/avg-ratings")
+    public double getAvgMitra(@PathVariable Long mitraId){
+        return ratingService.getAverageRating(mitraId);
     }
 
     @DeleteMapping("{mitraId}")
