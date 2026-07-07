@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
+import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
+import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.service.MitraService;
 import com.tinjaku.service.RatingService;
 
@@ -34,8 +37,13 @@ public class MitraController {
     }
 
     @PostMapping
-    public Mitra tambah(@Valid @RequestBody MitraRequest request){
+    public MitraResponse tambah(@Valid @RequestBody MitraRequest request){
         return mitraService.tambahMitra(request);
+    }
+
+    @PostMapping("/{mitraId}/online")
+    public OnlineResponse onlineMitra(@PathVariable Long mitraId, @RequestBody OnlineRequest request){
+        return mitraService.getMitraOnline(mitraId, request);
     }
 
     @GetMapping("{mitraId}")

@@ -3,8 +3,10 @@ package com.tinjaku.service;
 import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
+import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.MitraMapper;
@@ -34,19 +36,15 @@ public class MitraService {
         this.mitraMapper = mitraMapper;
     }
 
-    public Mitra tambahMitra(MitraRequest request){
+    public MitraResponse tambahMitra(MitraRequest request){
 
         if(mitraRepository.existsByNamaMitraIgnoreCase(request.getNamaMitra())){
             throw new BadRequestException("Mitra sudah terdaftar!");
         }
 
-        Mitra mitra = new Mitra();
+        Mitra mitra = mitraMapper.toEntity(request);
         
-        mitra.setNamaMitra(request.getNamaMitra());
-        mitra.setAlamatLengkap(request.getAlamatMitra());
-        mitra.setKota(request.getKota());
-
-        return mitraRepository.save(mitra);
+        return mitraMapper.toResponse(mitra, null, null);
     }
 
     public List<MitraResponse> getAllMitra(){
@@ -61,7 +59,7 @@ public class MitraService {
     }
 
     public List<MitraResponse> getMitraByKota(Kota kota){
-        return mitraRepository.findByKota(kota)
+        return mitraRepository.findByAlamatList_Kota(kota)
                 .stream()
                 .map(mitra -> {
                     Double ratingMitra = ratingRepository.getAvargeRating(mitra.getMitraId());
@@ -99,10 +97,21 @@ public class MitraService {
                 .orElseThrow(() ->
                     new ResourceNotFound("Mitra tidak ditemukan!"));
                     
-        return mitra.getPesanan()
+        return mitra.getPesananList()
                 .stream()
                 .map(pesananMapper::mapToResponse)
                 .toList();
+    }
+
+    public OnlineResponse getMitraOnline(Long mitraId, OnlineRequest request){
+
+        Mitra mitra = getMitraById(mitraId);
+
+        mitra.setStatusOnOff(request.getStatusOnOff());
+
+        Mitra savedMitra = mitraRepository.save(mitra);
+
+        return mitraMapper.toOnlineResponse(savedMitra);
     }
 
     public DashboardResponse getDashboard(Long mitraId){

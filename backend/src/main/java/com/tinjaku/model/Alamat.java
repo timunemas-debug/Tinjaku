@@ -15,6 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Alamat {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAlamat;
@@ -34,4 +35,7 @@ public class Alamat {
 
     @ManyToOne
     private User user;
+
+    @ManyToOne
+    private Mitra mitra;
 }

@@ -11,5 +11,6 @@ public interface MitraRepository extends JpaRepository<Mitra, Long> {
     boolean existsByNamaMitraIgnoreCase(String namaMitra);
     boolean existsById(Long mitraId);
 
-    List<Mitra> findByKota(Kota kota);
+    List<Mitra> findByAlamatList_Kota(Kota kota);
+    List<Mitra> findByAlamatList_KotaAndAlamatList_Kecamatan(Kota kota, String kecamatan);
 }

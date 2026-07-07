@@ -14,7 +14,9 @@ import com.tinjaku.service.UserService;
 
 import jakarta.validation.Valid;
 
+import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.UserResponse;
 
 @RestController
@@ -29,6 +31,11 @@ public class UserController {
     @PostMapping
     public UserResponse tambahUser(@Valid @RequestBody UserRequest request){
         return userService.tambahUser(request);
+    }
+
+    @PostMapping("/{userId}/online")
+    public OnlineResponse onlineMitra(@PathVariable Long userId, @RequestBody OnlineRequest request){
+        return userService.getUserOnline(userId, request);
     }
 
     @GetMapping

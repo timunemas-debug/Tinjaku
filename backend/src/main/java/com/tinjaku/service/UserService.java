@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.UserMapper;
@@ -56,5 +58,15 @@ public class UserService {
             throw new ResourceNotFound("User tidak ditemukan!");
         }
         userRepository.deleteById(userId);
+    }
+
+    public OnlineResponse getUserOnline(Long userId, OnlineRequest request){
+        User user = getUserById(userId);
+
+        user.setStatusOnOff(request.getStatusOnOff());
+        
+        User savedUser = userRepository.save(user);
+
+        return userMapper.toOnlineResponse(savedUser);
     }
 }

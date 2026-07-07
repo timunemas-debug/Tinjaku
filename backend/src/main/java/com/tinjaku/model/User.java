@@ -2,14 +2,7 @@ package com.tinjaku.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -17,6 +10,9 @@ import lombok.*;
 @Setter
 @Table(name = "users")
 public class User {
+
+    @Enumerated(EnumType.STRING)
+    private StatusOnOff statusOnOff = StatusOnOff.OFFLINE;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +34,6 @@ public class User {
         this.userId = userId;
         this.namaDepan = namaDepan;
         this.namaBelakang = namaBelakang;
-        this.alamatList = new ArrayList<>();
-        this.pesananList = new ArrayList<>();
     }
 
     public String getNamaLengkap(){
