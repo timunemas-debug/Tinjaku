@@ -1,6 +1,5 @@
 package com.tinjaku.dto.response;
-
-import com.tinjaku.model.Kota;
+import java.util.List;
 
 import lombok.*;
 
@@ -11,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class MitraResponse {
     private String nama;
-    private Kota kota;
+    private List<AlamatMitraResponse> alamat;
     private Double ratingMitra;
     private Long totalRating;
 }

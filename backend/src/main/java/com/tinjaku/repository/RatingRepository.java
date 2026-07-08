@@ -19,9 +19,9 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     Double getAvargeRating(Long mitraId);
 
     @Query("""
-            SELECT COUNT(r.rating)
+            SELECT COUNT(r)
             FROM Rating r
             WHERE r.mitra.mitraId = :mitraId
-    """)
+            """)
     Long getTotalRating(Long mitraId);
 }

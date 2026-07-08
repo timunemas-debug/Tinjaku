@@ -11,26 +11,26 @@ import lombok.*;
 @Setter
 public class Mitra {
 
+    @Enumerated(EnumType.STRING)
+    private StatusOnOff statusOnOff = StatusOnOff.OFFLINE;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long mitraId;
 
-    private String namaMitra,alamatLengkap;
-
-    @Enumerated(EnumType.STRING)
-    private Kota kota;
+    private String namaMitra;
 
     @OneToMany(mappedBy = "mitra")
-    private List<Pesanan> pesanan;
+    private List<AlamatMitra> alamatList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "mitra")
+    private List<Pesanan> pesananList = new ArrayList<>();
     
     public Mitra(){
     }
 
-    public Mitra(Long mitraId, String namaMitra, String alamatLengkap, Kota kota){
+    public Mitra(Long mitraId, String namaMitra){
         this.mitraId = mitraId;
         this.namaMitra = namaMitra;
-        this.alamatLengkap = alamatLengkap;
-        this.kota = kota;
-        this.pesanan = new ArrayList<>();
     }
 }

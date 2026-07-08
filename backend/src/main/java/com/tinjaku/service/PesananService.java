@@ -72,6 +72,10 @@ public class PesananService {
     }
 
     public void hapusPesananService(Long id){
+        if(!pesananRepository.existsById(id)){
+            throw new ResourceNotFound("Pesanan tidak ditemukan!");
+        }
+        
         pesananRepository.deleteById(id);
     }
 
@@ -83,6 +87,10 @@ public class PesananService {
     public Pesanan createPesanan(PesananRequest request, Long UserId){
         User user = userService.getUserById(UserId);
         Alamat alamat = alamatService.getAlamatById(request.getAlamatId());
+
+        if(user.getStatusOnOff() != StatusOnOff.ONLINE){
+            throw new BadRequestException("User sedang offline!");
+        }
 
         if(!alamat.getUser().getUserId().equals(user.getUserId())){
             throw new BadRequestException("Alamat bukan milik user!");
@@ -113,8 +121,18 @@ public class PesananService {
 
         Mitra mitra = mitraService.getMitraById(mitraId);
 
-        if(!mitra.getKota().equals(pesanan.getKota())){
-            throw new ResourceNotFound("Pesanan bukan di wilayah mitra!");
+        if(mitra.getStatusOnOff() != StatusOnOff.ONLINE){
+            throw new BadRequestException("Anda sedang offline!");
+        }
+        
+        boolean sesuaiWilayah = mitra.getAlamatList().stream()
+                    .anyMatch(alamat ->
+                        alamat.getKota() == pesanan.getKota() &&
+                        alamat.getKecamatan().equals(pesanan.getKecamatan())
+                    );
+
+        if(!sesuaiWilayah){
+            throw new BadRequestException("Pesanan bukan di wilayah mitra!");
         }
 
         if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
@@ -123,7 +141,6 @@ public class PesananService {
 
         pesanan.setMitra(mitra);
         pesanan.setStatus(StatusPesanan.DITERIMA);
-        mitra.getPesanan().add(pesanan);
 
         return pesananRepository.save(pesanan);
     }

@@ -7,23 +7,25 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Alamat {
-
+public class AlamatMitra {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAlamat;
 
     @Enumerated(EnumType.STRING)
-    private Label label;
+    private LabelMitra labelMitra;
 
-    private String namaPenerima;
     private String jalan;
     private String kelurahan;
     private String kecamatan;
@@ -34,5 +36,5 @@ public class Alamat {
     private String provinsi;
 
     @ManyToOne
-    private User user;
+    private Mitra mitra;
 }

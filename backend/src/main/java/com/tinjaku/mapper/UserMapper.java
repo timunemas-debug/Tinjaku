@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.dto.response.AlamatResponse;
+import com.tinjaku.dto.response.OnlineResponse;
+
 import java.util.List;
+
 import com.tinjaku.model.User;
 @Component
 public class UserMapper {
@@ -35,5 +38,9 @@ public class UserMapper {
                                 user.getNamaBelakang(),
                                 user.getNamaLengkap(),
                                 alamatResponse);
+    }
+
+    public OnlineResponse toOnlineResponse(User user){
+        return new OnlineResponse(user.getStatusOnOff());
     }
 }
