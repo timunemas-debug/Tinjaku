@@ -72,6 +72,10 @@ public class PesananService {
     }
 
     public void hapusPesananService(Long id){
+        if(!pesananRepository.existsById(id)){
+            throw new ResourceNotFound("Pesanan tidak ditemukan!");
+        }
+        
         pesananRepository.deleteById(id);
     }
 

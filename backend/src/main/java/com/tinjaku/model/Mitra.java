@@ -21,7 +21,7 @@ public class Mitra {
     private String namaMitra;
 
     @OneToMany(mappedBy = "mitra")
-    private List<Alamat> alamatList = new ArrayList<>();
+    private List<AlamatMitra> alamatList = new ArrayList<>();
 
     @OneToMany(mappedBy = "mitra")
     private List<Pesanan> pesananList = new ArrayList<>();

@@ -5,17 +5,17 @@ import org.springframework.stereotype.Component;
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
-import com.tinjaku.dto.response.AlamatResponse;
+import com.tinjaku.dto.response.AlamatMitraResponse;
 import java.util.List;
 import com.tinjaku.model.Mitra;
 
 @Component
 public class MitraMapper {
     
-    private final AlamatMapper alamatMapper;
+    private final AlamatMitraMapper alamatMitraMapper;
     
-    public MitraMapper(AlamatMapper alamatMapper){
-        this.alamatMapper = alamatMapper;
+    public MitraMapper(AlamatMitraMapper alamatMitraMapper){
+        this.alamatMitraMapper = alamatMitraMapper;
     }
 
     public Mitra toEntity(MitraRequest request){
@@ -27,9 +27,9 @@ public class MitraMapper {
     }
 
     public MitraResponse toResponse(Mitra mitra, Double ratingMitra, Long totalRating){
-        List<AlamatResponse> alamatResponse = mitra.getAlamatList()
+        List<AlamatMitraResponse> alamatResponse = mitra.getAlamatList()
                 .stream()
-                .map(alamatMapper::toResponse)
+                .map(alamatMitraMapper::toResponse)
                 .toList();
 
         return new MitraResponse(mitra.getNamaMitra(),

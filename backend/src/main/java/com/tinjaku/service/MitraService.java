@@ -43,8 +43,10 @@ public class MitraService {
         }
 
         Mitra mitra = mitraMapper.toEntity(request);
+
+        Mitra savedMitra = mitraRepository.save(mitra);
         
-        return mitraMapper.toResponse(mitra, null, null);
+        return mitraMapper.toResponse(savedMitra, null, null);
     }
 
     public List<MitraResponse> getAllMitra(){

@@ -75,4 +75,8 @@ public class RatingService {
 
         return avarge != null ? avarge : 0.0;
     }
+
+    public void hapusRating(Long mitraId){
+        ratingRepository.deleteById(mitraId);
+    }
 }

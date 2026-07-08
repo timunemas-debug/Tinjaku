@@ -18,8 +18,6 @@ import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.model.Kota;
-import com.tinjaku.model.Mitra;
-import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.service.MitraService;
 import com.tinjaku.service.RatingService;
 
@@ -86,4 +84,8 @@ public class MitraController {
         mitraService.deleteMitraById(mitraId);
     }
 
+    @DeleteMapping("{ratingId}/hapus-rating")
+    public void deleteRating(@PathVariable Long ratingId){
+        ratingService.hapusRating(ratingId);
+    }
 }
