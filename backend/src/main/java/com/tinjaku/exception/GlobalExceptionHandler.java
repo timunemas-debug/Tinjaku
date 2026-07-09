@@ -21,4 +21,11 @@ public class GlobalExceptionHandler {
                .status(HttpStatus.BAD_REQUEST)
                .body(new ResponErorRequest(ex.getMessage(), 400));
     }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ResponErorRequest> handleBusiness(BusinessException ex){
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT.value())
+                .body(new ResponErorRequest(ex.getMessage(), 409));
+    }
 }
