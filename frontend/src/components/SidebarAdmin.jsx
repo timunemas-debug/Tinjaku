@@ -6,7 +6,7 @@ function SidebarAdmin() {
 
       <div className="p-6 border-b border-blue-600">
         <h1 className="text-3xl font-bold">
-          🚽 Tinjaku
+          Tinjaku
         </h1>
 
         <p className="text-sm mt-2 text-blue-200">
@@ -20,28 +20,28 @@ function SidebarAdmin() {
           to="/admin"
           className="px-6 py-4 hover:bg-blue-600 transition"
         >
-          📊 Dashboard
+          Dashboard
         </Link>
 
         <Link
           to="/admin/pesanan"
           className="px-6 py-4 hover:bg-blue-600 transition"
         >
-          📦 Data Pesanan
+          Data Pesanan
         </Link>
 
         <Link
           to="/admin/pelanggan"
           className="px-6 py-4 hover:bg-blue-600 transition"
         >
-          👤 Data Pelanggan
+          Data Pelanggan
         </Link>
 
         <Link
           to="/admin/mitra"
           className="px-6 py-4 hover:bg-blue-600 transition"
         >
-          🚛 Data Mitra
+          Data Mitra
         </Link>
 
         <hr className="my-5 border-blue-500"/>
@@ -50,7 +50,7 @@ function SidebarAdmin() {
           to="/"
           className="px-6 py-4 hover:bg-red-600 transition"
         >
-          🚪 Keluar
+          Keluar
         </Link>
 
       </nav>
