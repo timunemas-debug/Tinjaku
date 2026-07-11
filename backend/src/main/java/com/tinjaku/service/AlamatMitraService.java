@@ -3,14 +3,11 @@ package com.tinjaku.service;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.AlamatMitraRequest;
-import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.response.AlamatMitraResponse;
-import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.AlamatMitraMapper;
 import com.tinjaku.repository.AlamatMitraRepository;
 import com.tinjaku.repository.MitraRepository;
-import com.tinjaku.model.Alamat;
 import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Mitra;
 
