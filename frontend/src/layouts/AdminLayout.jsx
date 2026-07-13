@@ -1,24 +1,17 @@
+import { Outlet } from "react-router-dom";
 import SidebarAdmin from "../components/SidebarAdmin";
 import TopbarAdmin from "../components/TopbarAdmin";
 
-function AdminLayout({ children }) {
+export default function AdminLayout() {
   return (
-    <div className="flex bg-gray-100 min-h-screen">
-
+    <div className="flex bg-[#F7F5F0] min-h-screen">
       <SidebarAdmin />
-
-      <div className="flex-1">
-
+      <div className="flex-1 ml-64">
         <TopbarAdmin />
-
-        <div className="p-8">
-          {children}
-        </div>
-
+        <main className="p-6">
+          <Outlet />
+        </main>
       </div>
-
     </div>
   );
 }
-
-export default AdminLayout;

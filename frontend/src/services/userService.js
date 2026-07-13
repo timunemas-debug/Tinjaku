@@ -1,13 +1,12 @@
 import api from "./api";
 
-export const getUser = () =>
-  api.get("/user");
+export const getUsers = () => api.get("/user").then((res) => res.data);
 
-export const getUserById = (id) =>
-  api.get(`/user/${id}`);
+export const getUserById = (userId) =>
+  api.get(`/user/${userId}`).then((res) => res.data);
 
-export const tambahUser = (data) =>
-  api.post("/user", data);
+export const createUser = (data) =>
+  api.post("/user", data).then((res) => res.data);
 
-export const hapusUser = (id) =>
-  api.delete(`/user/${id}`);
+export const deleteUser = (userId) =>
+  api.delete(`/user/${userId}`).then((res) => res.data);

@@ -1,45 +1,46 @@
-import { Link } from "react-router-dom";
-import AdminLayout from "../../layouts/AdminLayout";
+import { useEffect, useState } from "react";
+import { getTotalPesanan } from "../../services/pesananService";
+import { getUsers } from "../../services/userService";
+import { getMitra } from "../../services/mitraService";
 
-function Dashboard() {
+export default function Dashboard() {
+  const [totalPesanan, setTotalPesanan] = useState(0);
+  const [totalUser, setTotalUser] = useState(0);
+  const [totalMitra, setTotalMitra] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const statistik = [
-    {
-      title: "Total Pelanggan",
-      value: 120,
-      color: "bg-blue-500",
-      icon: "👤",
-    },
-    {
-      title: "Total Mitra",
-      value: 25,
-      color: "bg-green-500",
-      icon: "🚛",
-    },
-    {
-      title: "Total Pesanan",
-      value: 350,
-      color: "bg-yellow-500",
-      icon: "📦",
-    },
-    {
-      title: "Pesanan Hari Ini",
-      value: 12,
-      color: "bg-red-500",
-      icon: "📅",
-    },
-  ];
+  useEffect(() => {
+    Promise.all([getTotalPesanan(), getUsers(), getMitra()])
+      .then(([pesanan, users, mitra]) => {
+        setTotalPesanan(pesanan);
+        setTotalUser(users.length);
+        setTotalMitra(mitra.length);
+      })
+      .catch((err) => setError(err.response?.data?.message || err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p className="p-4">Loading...</p>;
+  if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
-
-    <AdminLayout>
-
-      {/* isi dashboard */}
-
-    </AdminLayout>
-
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Dashboard Admin</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl shadow p-5">
+          <p className="text-gray-500 text-sm">Total Pesanan</p>
+          <p className="text-3xl font-bold">{totalPesanan}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow p-5">
+          <p className="text-gray-500 text-sm">Total Pelanggan</p>
+          <p className="text-3xl font-bold">{totalUser}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow p-5">
+          <p className="text-gray-500 text-sm">Total Mitra</p>
+          <p className="text-3xl font-bold">{totalMitra}</p>
+        </div>
+      </div>
+    </div>
   );
-
 }
-
-export default Dashboard;

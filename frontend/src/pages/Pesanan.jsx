@@ -1,149 +1,104 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { createPesanan } from "../services/pesananService";
+import Button from "../components/Button";
 
-function Pesanan() {
-  const [form, setForm] = useState({
-    nama: "",
-    noHp: "",
-    alamat: "",
-    kota: "",
-    tanggal: "",
-    jam: "",
-    catatan: "",
-  });
+// ⚠️ SEMENTARA: hardcode userId, ganti setelah auth/JWT sudah jalan
+const TEMP_USER_ID = 1;
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+export default function Pesanan() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ nama: "", noHp: "", alamat: "" });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(form);
-
-    alert("Pesanan berhasil dikirim!");
+    setLoading(true);
+    setError(null);
+    try {
+      await createPesanan(TEMP_USER_ID, form);
+      navigate("/riwayat");
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-5">
-
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-
-        <h1 className="text-3xl font-bold text-center text-blue-600">
-        Form Pemesanan
+    <div className="min-h-[80vh] flex items-center justify-center bg-[#FAFAFA] px-4 py-12">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white border-2 border-[#0A0A0A]/10 rounded-3xl shadow-sm w-full max-w-md p-8"
+      >
+        <h1 className="font-[Baloo_2] font-extrabold text-2xl text-[#0A0A0A] text-center mb-2">
+          Form Pemesanan
         </h1>
-
-        <p className="text-center text-gray-500 mt-2">
+        <p className="text-sm text-[#6B7280] text-center mb-8">
           Isi data berikut untuk melakukan pemesanan layanan.
         </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5 mt-8"
+        {error && (
+          <p className="text-sm text-[#D64545] bg-[#D64545]/10 rounded-lg px-3 py-2 mb-4">
+            {error}
+          </p>
+        )}
+
+        <div className="mb-4">
+          <label className="block text-sm font-bold text-[#0A0A0A] mb-1.5">
+            Nama
+          </label>
+          <input
+            name="nama"
+            value={form.nama}
+            onChange={handleChange}
+            className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800]"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-bold text-[#0A0A0A] mb-1.5">
+            No HP
+          </label>
+          <input
+            name="noHp"
+            type="tel"
+            value={form.noHp}
+            onChange={handleChange}
+            className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800]"
+            required
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-bold text-[#0A0A0A] mb-1.5">
+            Alamat
+          </label>
+          <textarea
+            name="alamat"
+            value={form.alamat}
+            onChange={handleChange}
+            rows={3}
+            className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800] resize-none"
+            required
+          />
+        </div>
+
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full"
+          disabled={loading}
         >
-
-          <div>
-            <label>Nama</label>
-
-            <input
-              type="text"
-              name="nama"
-              value={form.nama}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          <div>
-            <label>No HP</label>
-
-            <input
-              type="text"
-              name="noHp"
-              value={form.noHp}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          <div>
-            <label>Alamat</label>
-
-            <textarea
-              name="alamat"
-              value={form.alamat}
-              onChange={handleChange}
-              rows="3"
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          <div>
-            <label>Kota</label>
-
-            <input
-              type="text"
-              name="kota"
-              value={form.kota}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-
-            <div>
-              <label>Tanggal</label>
-
-              <input
-                type="date"
-                name="tanggal"
-                value={form.tanggal}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-3 mt-2"
-              />
-            </div>
-
-            <div>
-              <label>Jam</label>
-
-              <input
-                type="time"
-                name="jam"
-                value={form.jam}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-3 mt-2"
-              />
-            </div>
-
-          </div>
-
-          <div>
-            <label>Catatan</label>
-
-            <textarea
-              name="catatan"
-              value={form.catatan}
-              onChange={handleChange}
-              rows="4"
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          <button
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
-          >
-            Pesan Sekarang
-          </button>
-
-        </form>
-
-      </div>
-
+          {loading ? "Memproses..." : "Kirim Pesanan"}
+        </Button>
+      </form>
     </div>
   );
 }
-
-export default Pesanan;

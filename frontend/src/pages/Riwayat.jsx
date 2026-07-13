@@ -1,72 +1,55 @@
-function Riwayat() {
-  const riwayat = [
-    {
-      id: 1,
-      tanggal: "07 Juli 2026",
-      alamat: "Jl. Merdeka No.10",
-      status: "Selesai",
-    },
-    {
-      id: 2,
-      tanggal: "08 Juli 2026",
-      alamat: "Jl. Sudirman No.20",
-      status: "Diproses",
-    },
-  ];
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getPesanan } from "../services/pesananService";
+import CardPesanan from "../components/CardPesanan";
+
+const TEMP_USER_ID = 1;
+
+export default function Riwayat() {
+  const navigate = useNavigate();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    getPesanan()
+      .then((all) => {
+        const milikSaya = all.filter((p) => p.userId === TEMP_USER_ID);
+        setData(milikSaya);
+      })
+      .catch((err) => setError(err.response?.data?.message || err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-
-      <div className="max-w-5xl mx-auto">
-
-        <h1 className="text-3xl font-bold text-blue-600 mb-8">
+    <div className="min-h-[80vh] bg-[#FAFAFA] px-4 py-12">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="font-[Baloo_2] font-extrabold text-2xl text-[#0A0A0A] mb-6">
           Riwayat Pesanan
         </h1>
 
-        <div className="space-y-5">
+        {loading && <p className="text-sm text-[#6B7280]">Memuat...</p>}
+        {error && (
+          <p className="text-sm text-[#D64545] bg-[#D64545]/10 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
+        {!loading && !error && data.length === 0 && (
+          <div className="bg-white border-2 border-dashed border-[#0A0A0A]/15 rounded-2xl p-10 text-center">
+            <p className="text-[#6B7280] text-sm">Belum ada pesanan.</p>
+          </div>
+        )}
 
-          {riwayat.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl shadow p-6"
-            >
-              <h2 className="font-bold text-lg">
-                Pesanan #{item.id}
-              </h2>
-
-              <p className="mt-2">
-                <b>Tanggal:</b> {item.tanggal}
-              </p>
-
-              <p>
-                <b>Alamat:</b> {item.alamat}
-              </p>
-
-              <p className="mt-2">
-                <b>Status:</b>{" "}
-                <span
-                  className={
-                    item.status === "Selesai"
-                      ? "text-green-600 font-semibold"
-                      : "text-yellow-600 font-semibold"
-                  }
-                >
-                  {item.status}
-                </span>
-              </p>
-
-              <button className="mt-5 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
-                Lihat Detail
-              </button>
-            </div>
+        <div className="space-y-3">
+          {data.map((p) => (
+            <CardPesanan
+              key={p.id}
+              pesanan={p}
+              onClick={() => navigate(`/admin/pesanan/${p.id}`)}
+            />
           ))}
-
         </div>
-
       </div>
-
     </div>
   );
 }
-
-export default Riwayat;

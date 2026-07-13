@@ -1,10 +1,12 @@
 import api from "./api";
 
-export const getAlamat = () =>
-  api.get("/alamat");
+export const createAlamat = (userId, data) =>
+  api.post(`/alamat/${userId}`, data).then((res) => res.data);
 
-export const tambahAlamat = (userId, data) =>
-  api.post(`/alamat/${userId}`, data);
+export const getAlamat = () => api.get("/alamat").then((res) => res.data);
 
-export const hapusAlamat = (id) =>
-  api.delete(`/alamat/${id}`);
+export const getAlamatById = (id) =>
+  api.get(`/alamat/${id}`).then((res) => res.data);
+
+export const deleteAlamat = (id) =>
+  api.delete(`/alamat/${id}`).then((res) => res.data);

@@ -1,68 +1,36 @@
-import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
+import { FiBell, FiChevronDown } from "react-icons/fi";
+import { useState } from "react";
 
-function TopbarAdmin() {
+export default function TopbarAdmin({ title = "Dashboard", adminName = "Admin" }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="bg-white shadow flex items-center justify-between px-8 py-4">
+    <header className="h-20 bg-white border-b border-[#0A0A0A]/10 flex items-center justify-between px-6 ml-64 sticky top-0 z-40">
+      <h1 className="font-[Baloo_2] font-bold text-lg text-[#0A0A0A]">{title}</h1>
 
-      
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          Dashboard Admin
-        </h1>
-
-        <p className="text-gray-500 text-sm">
-          Selamat datang kembali 👋
-        </p>
-      </div>
-
-      
-      <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2 w-80">
-
-        <FaSearch className="text-gray-400 mr-2" />
-
-        <input
-          type="text"
-          placeholder="Cari..."
-          className="bg-transparent outline-none w-full"
-        />
-
-      </div>
-
-      
-      <div className="flex items-center gap-6">
-
-        <button className="relative">
-
-          <FaBell size={22} />
-
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-            3
-          </span>
-
+      <div className="flex items-center gap-4">
+        <button className="text-[#6B7280] hover:text-[#0A0A0A] relative" aria-label="Notifikasi">
+          <FiBell size={20} />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#FFC800] rounded-full" />
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="relative">
+          <button onClick={() => setOpen(!open)} className="flex items-center gap-2 text-sm font-[Baloo_2] font-semibold text-[#0A0A0A]">
+            <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-xs font-bold">
+              {adminName.charAt(0).toUpperCase()}
+            </div>
+            {adminName}
+            <FiChevronDown size={14} />
+          </button>
 
-          <FaUserCircle size={35} />
-
-          <div className="hidden md:block">
-
-            <p className="font-semibold">
-              Admin
-            </p>
-
-            <p className="text-sm text-gray-500">
-              Administrator
-            </p>
-
-          </div>
-
+          {open && (
+            <div className="absolute right-0 mt-2 w-40 bg-white border-2 border-[#0A0A0A]/10 rounded-xl shadow-lg py-1">
+              <button className="w-full text-left px-4 py-2 text-sm text-[#0A0A0A] hover:bg-[#FAFAFA]">Pengaturan</button>
+              <button className="w-full text-left px-4 py-2 text-sm text-[#D64545] hover:bg-[#FAFAFA]">Keluar</button>
+            </div>
+          )}
         </div>
-
       </div>
-
-    </div>
+    </header>
   );
 }
-
-export default TopbarAdmin;
