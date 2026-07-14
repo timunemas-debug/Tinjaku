@@ -95,9 +95,7 @@ public class MitraService {
     }
 
     public List<PesananResponse> getPesananMitra(Long mitraId){
-        Mitra mitra = mitraRepository.findById(mitraId)
-                .orElseThrow(() ->
-                    new ResourceNotFound("Mitra tidak ditemukan!"));
+        Mitra mitra = getMitraById(mitraId);
                     
         return mitra.getPesananList()
                 .stream()

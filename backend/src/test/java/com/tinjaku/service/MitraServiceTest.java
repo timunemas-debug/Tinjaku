@@ -14,7 +14,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
+import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
@@ -23,6 +26,8 @@ import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
+import com.tinjaku.model.StatusOnOff;
+import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
@@ -301,5 +306,76 @@ public class MitraServiceTest {
 
         verify(mitraRepository).findById(mitraId);
         verify(pesananMapper).mapToResponse(pesanan);
+    }
+
+    @Test
+    public void shouldGetMitraOnline(){
+
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(mitraId);
+
+        OnlineRequest request = new OnlineRequest();
+        request.setStatusOnOff(StatusOnOff.ONLINE);
+
+        OnlineResponse response = new OnlineResponse();
+        response.setStatusOnOff(StatusOnOff.ONLINE);
+
+        when(mitraRepository.findById(mitraId))
+                .thenReturn(Optional.of(mitra));
+
+        when(mitraRepository.save(mitra))
+                .thenReturn(mitra);
+
+        when(mitraMapper.toOnlineResponse(mitra))
+                .thenReturn(response);
+
+        OnlineResponse result = mitraService.getMitraOnline(mitraId, request);
+
+        assertEquals(StatusOnOff.ONLINE, result.getStatusOnOff());
+
+        verify(mitraRepository).findById(mitraId);
+        verify(mitraRepository).save(mitra);
+        verify(mitraMapper).toOnlineResponse(mitra);
+    }
+
+    @Test
+    public void shouldGetDashboard(){
+
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(mitraId);
+
+        when(mitraRepository.findById(mitraId))
+                .thenReturn(Optional.of(mitra));
+
+        when(pesananRepository.countByMitraMitraId(mitraId))
+                .thenReturn(3L);
+
+        when(pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU))
+                .thenReturn(2L);
+        
+        when(pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DITERIMA))
+                .thenReturn(3L);
+        
+        when(pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DIKERJAKAN))
+                .thenReturn(4L);
+
+        when(pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.SELESAI))
+                .thenReturn(0L);
+
+        DashboardResponse result = mitraService.getDashboard(mitraId);
+
+        assertEquals(3L, result.getTotalPesanan());
+        assertEquals(2L, result.getPesananMenunggu());
+        assertEquals(3L, result.getPesananDiTerima());
+        assertEquals(4L, result.getPesananDiKerjakan());
+        assertEquals(0L, result.getPesananSelesai());
+
+        verify(mitraRepository).findById(mitraId);
+        verify(pesananRepository).countByMitraMitraId(mitraId);
+        verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU);
+        verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DITERIMA);
+        verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DIKERJAKAN);
+        verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.SELESAI);
+
     }
 }
