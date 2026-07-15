@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,9 @@ import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Alamat;
+import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Kota;
+import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
@@ -44,6 +45,9 @@ public class PesananServiceTest {
 
     @Mock
     AlamatService alamatService;
+
+    @Mock
+    RatingService ratingService;
 
     @InjectMocks
     PesananService pesananService;
@@ -284,6 +288,112 @@ public class PesananServiceTest {
         assertEquals("Jamsuy", result.getNamaPenerima());
         assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
         assertEquals(user, result.getUser());
+
+        verify(pesananRepository).save(any(Pesanan.class));
+    }
+
+    @Test
+    public void shouldTerimaPesanan(){
+
+        AlamatMitra alamat = new AlamatMitra();
+        alamat.setIdAlamat(22L);
+        alamat.setJalan("TEST JALAN");
+        alamat.setKelurahan("KELURAHAN");
+        alamat.setKecamatan("KECAMATAN");
+        alamat.setKota(Kota.TANGERANG);
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setId(1L);
+        pesanan.setKeluhan("WC mampet");
+        pesanan.setKota(Kota.TANGERANG);
+        pesanan.setKecamatan("KECAMATAN");
+        pesanan.setStatus(StatusPesanan.MENUNGGU);
+
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(1L);
+        mitra.setNamaMitra("Sedot Wc");
+        mitra.setStatusOnOff(StatusOnOff.ONLINE);
+
+        mitra.setAlamatList(List.of(alamat));
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.of(pesanan));
+
+        when(pesananRepository.save(any(Pesanan.class)))
+                .thenReturn(pesanan);
+
+        when(mitraService.getMitraById(1L))
+                .thenReturn(mitra);
+
+        when(ratingService.getAverageRating(1L))
+                .thenReturn(3.0);
+
+        Pesanan result = pesananService.terimaPesanan(1L, 1L);
+
+        assertEquals(Kota.TANGERANG, result.getKota());
+        assertEquals("KECAMATAN", result.getKecamatan());
+        assertEquals(StatusPesanan.DITERIMA, result.getStatus());
+        assertEquals(mitra, result.getMitra());
+
+        verify(pesananRepository).save(any(Pesanan.class));
+    }
+
+    @Test
+    public void shouldSelesaiPesanan(){
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setId(1L);
+        pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.of(pesanan));
+        
+        when(pesananRepository.save(any(Pesanan.class)))
+                .thenReturn(pesanan);
+
+        Pesanan result = pesananService.selesaiPesanan(1L);
+
+        assertEquals(StatusPesanan.SELESAI, result.getStatus());
+
+        verify(pesananRepository).save(any(Pesanan.class));
+    }
+
+    @Test
+    public void shouldTolakPesanan(){
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setId(1L);
+        pesanan.setStatus(StatusPesanan.MENUNGGU);
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.of(pesanan));
+        
+        when(pesananRepository.save(any(Pesanan.class)))
+                .thenReturn(pesanan);
+
+        Pesanan result = pesananService.tolakPesanan(1L);
+        
+        assertEquals(StatusPesanan.DITOLAK, result.getStatus());
+
+        verify(pesananRepository).save(any(Pesanan.class));
+    }
+
+    @Test
+    public void shouldDalamPerjalanan(){
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setId(1L);
+        pesanan.setStatus(StatusPesanan.DITERIMA);
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.of(pesanan));
+
+        when(pesananRepository.save(any(Pesanan.class)))
+                .thenReturn(pesanan);
+
+        Pesanan result = pesananService.dalamPerjalanan(1L);
+
+        assertEquals(StatusPesanan.DALAM_PERJALANAN, result.getStatus());
 
         verify(pesananRepository).save(any(Pesanan.class));
     }

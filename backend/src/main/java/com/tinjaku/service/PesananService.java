@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.PesananResponse;
-import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
-import com.tinjaku.repository.RatingRepository;
 
 @Service
 public class PesananService {
