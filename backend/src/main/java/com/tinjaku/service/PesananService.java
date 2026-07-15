@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
+import com.tinjaku.repository.RatingRepository;
 
 @Service
 public class PesananService {
@@ -18,13 +20,15 @@ public class PesananService {
     private final PesananRepository pesananRepository;
     private final PesananMapper pesananMapper;
     private final AlamatService alamatService;
+    private final RatingService ratingService;
 
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
         this.pesananMapper = pesananMapper;
         this.alamatService = alamatService;
+        this.ratingService = ratingService;
     }
 
     public List<PesananResponse> getAllPesanan(){
@@ -121,10 +125,16 @@ public class PesananService {
 
         Mitra mitra = mitraService.getMitraById(mitraId);
 
+        Double rating = ratingService.getAverageRating(mitraId);
+
         if(mitra.getStatusOnOff() != StatusOnOff.ONLINE){
             throw new BadRequestException("Anda sedang offline!");
         }
-        
+
+        if(rating < 2){
+            throw new BadRequestException("Rating Anda dibawah 2");
+        }
+
         boolean sesuaiWilayah = mitra.getAlamatList().stream()
                     .anyMatch(alamat ->
                         alamat.getKota() == pesanan.getKota() &&

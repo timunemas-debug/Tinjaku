@@ -71,9 +71,9 @@ public class RatingService {
                 .orElseThrow(() ->
                     new ResourceNotFound("Mitra tidak ditemukan!"));
 
-        Double avarge = ratingRepository.getAvargeRating(mitraId);
+        Double average = ratingRepository.getAvargeRating(mitraId);
 
-        return avarge != null ? avarge : 0.0;
+        return average != null ? average : 5.0;
     }
 
     public void hapusRating(Long mitraId){

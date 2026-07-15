@@ -3,6 +3,7 @@ package com.tinjaku.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -14,11 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
+import com.tinjaku.model.Alamat;
+import com.tinjaku.model.Kota;
 import com.tinjaku.model.Pesanan;
+import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
+import com.tinjaku.model.User;
 import com.tinjaku.repository.PesananRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -158,5 +164,127 @@ public class PesananServiceTest {
         assertEquals(2L, result);
 
         verify(pesananRepository).count();
+    }
+
+    @Test
+    public void shouldUpdatePesananService(){
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setId(1L);
+        pesanan.setKeluhan("Wc mampet");
+        pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
+
+        Pesanan pesananBaru = new Pesanan();
+        pesananBaru.setKeluhan("Wc luber luber");
+        pesananBaru.setStatus(StatusPesanan.DIKERJAKAN);
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.of(pesanan));
+
+        when(pesananRepository.save(pesanan))
+                .thenReturn(pesanan);
+
+        Pesanan result = pesananService.updatePesananService(1L, pesananBaru);
+
+        assertEquals("Wc luber luber", result.getKeluhan());
+        assertEquals(StatusPesanan.DIKERJAKAN, result.getStatus());
+
+        verify(pesananRepository).findById(1L);
+        verify(pesananRepository).save(pesanan);
+    }
+
+    @Test
+    public void shoulUpdatePesananResourceNotFound(){
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setId(1L);
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFound.class, () -> pesananService.updatePesananService(1L, pesanan));
+
+        verify(pesananRepository).findById(1L);
+        verify(pesananRepository, never()).save(any());
+    }
+
+    @Test
+    public void shouldHapusPesananService(){
+
+        when(pesananRepository.existsById(1L))
+                .thenReturn(true);
+
+        pesananService.hapusPesananService(1L);
+
+        verify(pesananRepository).existsById(1L);
+        verify(pesananRepository).deleteById(1L);
+    }
+
+    @Test
+    public void shouldHapusPesananExistsById(){
+
+        when(pesananRepository.existsById(1L))
+                .thenReturn(false);
+
+        assertThrows(ResourceNotFound.class, () -> pesananService.hapusPesananService(1L));
+
+        verify(pesananRepository).existsById(1L);
+        verify(pesananRepository, never()).deleteById(any());
+    }
+
+    @Test
+    public void shouldUserMasihPunyaPesananMenunggu(){
+
+        User user = new User();
+        user.setUserId(1L);
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setStatus(StatusPesanan.MENUNGGU);
+
+        user.setPesananList(List.of(pesanan));
+
+        boolean result = pesananService.userMasihPunyaPesananMenunggu(user);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldCreatePesanan(){
+
+        User user = new User();
+        user.setUserId(1L);
+        user.setNamaDepan("Jeremy");
+        user.setStatusOnOff(StatusOnOff.ONLINE);
+        user.setPesananList(new ArrayList<>());
+
+        Alamat alamat = new Alamat();
+        alamat.setUser(user);
+        alamat.setJalan("jalan : A");
+        alamat.setKelurahan("Kelurahan : A");
+        alamat.setKecamatan("Kecamatan : B");
+        alamat.setKota(Kota.TANGERANG);
+        alamat.setProvinsi("Banten");
+
+        PesananRequest request = new PesananRequest();
+        request.setAlamatId(1L);
+        request.setNamaPenerima("Jamsuy");
+        request.setKeluhan("WC mampet");
+
+        when(userService.getUserById(1L))
+                .thenReturn(user);
+
+        when(alamatService.getAlamatById(1L))
+                .thenReturn(alamat);
+
+        when(pesananRepository.save(any(Pesanan.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Pesanan result = pesananService.createPesanan(request, 1L);
+
+        assertEquals("Jamsuy", result.getNamaPenerima());
+        assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
+        assertEquals(user, result.getUser());
+
+        verify(pesananRepository).save(any(Pesanan.class));
     }
 }
