@@ -15,14 +15,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateMitraProfileRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.UpdateMitraProfileResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.MitraMapper;
 import com.tinjaku.mapper.PesananMapper;
+import com.tinjaku.mapper.UpdateMitraProfileMapper;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
@@ -49,6 +52,9 @@ public class MitraServiceTest {
 
     @Mock
     PesananMapper pesananMapper;
+
+    @Mock
+    UpdateMitraProfileMapper updateMitraProfileMapper;
 
     @InjectMocks
     MitraService mitraService;
@@ -336,6 +342,44 @@ public class MitraServiceTest {
         verify(mitraRepository).findById(mitraId);
         verify(mitraRepository).save(mitra);
         verify(mitraMapper).toOnlineResponse(mitra);
+    }
+
+    @Test
+    public void shouldUpdateProfile(){
+
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(mitraId);
+        mitra.setEmail("Test@gmail.com");
+
+        UpdateMitraProfileRequest request = new UpdateMitraProfileRequest();
+        request.setEmail("Example@gmail.com");
+        request.setNamaMitra("WC MAKMUR");
+
+        UpdateMitraProfileResponse response = new UpdateMitraProfileResponse();
+        response.setEmail("Example@gmail.com");
+        response.setNamaMitra("WC MAKMUR");
+
+        when(mitraRepository.findById(mitraId))
+                .thenReturn(Optional.of(mitra));
+                
+        when(mitraRepository.existsByEmailIgnoreCase("Example@gmail.com"))
+                .thenReturn(false);
+                
+        when(mitraRepository.save(mitra))
+                .thenReturn(mitra);
+
+        when(updateMitraProfileMapper.mapToResponse(mitra))
+                .thenReturn(response);
+
+        UpdateMitraProfileResponse result = mitraService.updateProfile(mitraId, request);
+
+        assertEquals("Example@gmail.com", result.getEmail());
+        assertEquals("WC MAKMUR", result.getNamaMitra());
+
+        verify(mitraRepository).findById(mitraId);
+        verify(mitraRepository).existsByEmailIgnoreCase("Example@gmail.com");
+        verify(mitraRepository).save(mitra);
+        verify(updateMitraProfileMapper).mapToResponse(mitra);
     }
 
     @Test

@@ -4,13 +4,16 @@ import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateMitraProfileRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.UpdateMitraProfileResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.MitraMapper;
 import com.tinjaku.mapper.PesananMapper;
+import com.tinjaku.mapper.UpdateMitraProfileMapper;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.StatusPesanan;
@@ -27,13 +30,15 @@ public class MitraService {
     private final RatingRepository ratingRepository;
     private final PesananMapper pesananMapper;
     private final MitraMapper mitraMapper;
+    private final UpdateMitraProfileMapper updateMitraProfileMapper;
 
-    public MitraService(MitraRepository mitraRepository, PesananRepository pesananRepository, RatingRepository ratingRepository ,PesananMapper pesananMapper, MitraMapper mitraMapper){
+    public MitraService(MitraRepository mitraRepository, PesananRepository pesananRepository, RatingRepository ratingRepository ,PesananMapper pesananMapper, MitraMapper mitraMapper, UpdateMitraProfileMapper updateMitraProfileMapper){
         this.mitraRepository = mitraRepository;
         this.pesananRepository = pesananRepository;
         this.ratingRepository = ratingRepository;
         this.pesananMapper = pesananMapper;
         this.mitraMapper = mitraMapper;
+        this.updateMitraProfileMapper = updateMitraProfileMapper;
     }
 
     public MitraResponse tambahMitra(MitraRequest request){
@@ -116,6 +121,22 @@ public class MitraService {
         Mitra savedMitra = mitraRepository.save(mitra);
 
         return mitraMapper.toOnlineResponse(savedMitra);
+    }
+
+    public UpdateMitraProfileResponse updateProfile(Long mitraId, UpdateMitraProfileRequest request){
+        Mitra mitra = getMitraById(mitraId);
+
+        if(!mitra.getEmail().equalsIgnoreCase(request.getEmail())
+            && mitraRepository.existsByEmailIgnoreCase(request.getEmail())){
+                throw new BadRequestException("Email sudah terdaftar!");
+            }
+
+        mitra.setNamaMitra(request.getNamaMitra());
+        mitra.setEmail(request.getEmail());
+
+        mitraRepository.save(mitra);
+
+        return updateMitraProfileMapper.mapToResponse(mitra);
     }
 
     public DashboardResponse getDashboard(Long mitraId){

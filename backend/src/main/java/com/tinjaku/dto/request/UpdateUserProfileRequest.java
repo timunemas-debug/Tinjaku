@@ -1,0 +1,21 @@
+package com.tinjaku.dto.request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class UpdateUserProfileRequest {
+    
+    @NotBlank(message = "Nama tidak boleh kosong!")
+    private String namaDepan;
+
+    @NotBlank(message = "Nama tidak boleh kosong!")
+    private String namaBelakang;
+
+    @NotBlank(message = "Email tidak boleh kosong")
+    @Email
+    private String email;
+}

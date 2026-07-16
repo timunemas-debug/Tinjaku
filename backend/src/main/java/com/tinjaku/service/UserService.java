@@ -8,20 +8,25 @@ import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.OnlineResponse;
+import com.tinjaku.dto.response.UpdateUserProfileResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
+import com.tinjaku.mapper.UpdateUserProfileMapper;
 import com.tinjaku.mapper.UserMapper;
 
 @Service
 public class UserService {
     private UserRepository userRepository;
     private UserMapper userMapper;
+    private UpdateUserProfileMapper updateUserProfileMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper){
+    public UserService(UserRepository userRepository, UserMapper userMapper, UpdateUserProfileMapper updateUserProfileMapper){
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.updateUserProfileMapper = updateUserProfileMapper;
     }
 
     public UserResponse tambahUser(UserRequest request){
@@ -69,5 +74,22 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         return userMapper.toOnlineResponse(savedUser);
+    }
+    
+    public UpdateUserProfileResponse updateProfile(Long userId, UpdateUserProfileRequest request){
+        User user = getUserById(userId);
+
+        if(!user.getEmail().equalsIgnoreCase(request.getEmail())
+                && userRepository.existsByEmailIgnoreCase(request.getEmail())){
+            throw new BadRequestException("Email sudah terdaftar!");
+            }
+
+        user.setNamaDepan(request.getNamaDepan());
+        user.setNamaBelakang(request.getNamaBelakang());
+        user.setEmail(request.getEmail());
+
+        userRepository.save(user);
+        
+        return updateUserProfileMapper.mapToResponse(user);
     }
 }

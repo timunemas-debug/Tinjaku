@@ -14,11 +14,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.OnlineResponse;
+import com.tinjaku.dto.response.UpdateUserProfileResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
+import com.tinjaku.mapper.UpdateUserProfileMapper;
 import com.tinjaku.mapper.UserMapper;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
@@ -32,6 +35,9 @@ public class UserServiceTest {
 
     @Mock
     UserMapper userMapper;
+
+    @Mock
+    UpdateUserProfileMapper updateUserProfileMapper;
 
     @InjectMocks
     UserService userService;
@@ -233,5 +239,46 @@ public class UserServiceTest {
 
         verify(userRepository).save(user);
         verify(userMapper).toOnlineResponse(user);
+    }
+
+    @Test
+    public void shouldUpdateProfile(){
+
+        User user = new User();
+        user.setUserId(1L);
+        user.setEmail("test@gmail.com");
+
+        UpdateUserProfileRequest request = new UpdateUserProfileRequest();
+        request.setNamaDepan("Jeremy");
+        request.setNamaBelakang("Darma");
+        request.setEmail("Example@gmail.com");
+
+        UpdateUserProfileResponse response = new UpdateUserProfileResponse();
+        response.setNamaDepan("Jeremy");
+        response.setNamaBelakang("Darma");
+        response.setEmail("Example@gmail.com");
+
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+
+        when(userRepository.existsByEmailIgnoreCase("Example@gmail.com"))
+                .thenReturn(false);
+
+        when(userRepository.save(user))
+                .thenReturn(user);
+
+        when(updateUserProfileMapper.mapToResponse(user))
+                .thenReturn(response);
+
+        UpdateUserProfileResponse result = userService.updateProfile(1L, request);
+
+        assertEquals("Jeremy", result.getNamaDepan());
+        assertEquals("Darma", result.getNamaBelakang());
+        assertEquals("Example@gmail.com", result.getEmail());
+
+        verify(userRepository).findById(1L);
+        verify(userRepository).existsByEmailIgnoreCase("Example@gmail.com");
+        verify(userRepository).save(user);
+        verify(updateUserProfileMapper).mapToResponse(user);
     }
 }
