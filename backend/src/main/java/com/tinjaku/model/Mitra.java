@@ -20,6 +20,9 @@ public class Mitra {
 
     private String namaMitra;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @OneToMany(mappedBy = "mitra")
     private List<AlamatMitra> alamatList = new ArrayList<>();
 

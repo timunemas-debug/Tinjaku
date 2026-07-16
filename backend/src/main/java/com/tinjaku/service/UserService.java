@@ -25,8 +25,9 @@ public class UserService {
     }
 
     public UserResponse tambahUser(UserRequest request){
-        if(userRepository.existsByNamaDepanIgnoreCaseAndNamaBelakangIgnoreCase(request.getNamaDepan(), request.getNamaBelakang())){
-            throw new BadRequestException("User sudah terdaftar!");
+        
+        if(userRepository.existsByEmailIgnoreCase(request.getEmail())){
+            throw new BadRequestException("Email sudah terdaftar");
         }
 
         User user = userMapper.toEntity(request);

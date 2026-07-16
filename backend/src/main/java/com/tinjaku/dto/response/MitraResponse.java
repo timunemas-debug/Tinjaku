@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class MitraResponse {
     private String nama;
-    private List<AlamatMitraResponse> alamat;
     private Double ratingMitra;
     private Long totalRating;
+    private List<AlamatMitraResponse> alamat;
 }

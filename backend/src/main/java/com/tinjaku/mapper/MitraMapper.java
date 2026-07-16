@@ -22,6 +22,7 @@ public class MitraMapper {
         Mitra mitra = new Mitra();
 
         mitra.setNamaMitra(request.getNamaMitra());
+        mitra.setEmail(request.getEmail());
 
         return mitra;
     }
@@ -33,9 +34,9 @@ public class MitraMapper {
                 .toList();
 
         return new MitraResponse(mitra.getNamaMitra(),
-                                 alamatResponse,
                                  ratingMitra,
-                                 totalRating);
+                                 totalRating,
+                                 alamatResponse);
     }
 
     public OnlineResponse toOnlineResponse(Mitra mitra){

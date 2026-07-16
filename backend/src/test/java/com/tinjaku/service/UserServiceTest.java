@@ -40,20 +40,19 @@ public class UserServiceTest {
     public void shouldTambahUser(){
 
         User user = new User();
-        user.setNamaDepan("Jeremy");
-        user.setNamaBelakang("Darma");
+        user.setEmail("Example@gmail.com");
 
         UserRequest request = new UserRequest();
-        request.setNamaDepan("Jeremy");
-        request.setNamaBelakang("Darma");
+        request.setEmail("Example@gmail.com");
 
         UserResponse response = new UserResponse();
         response.setNamaDepan("Jeremy");
         response.setNamaBelakang("Darma");
+        response.setNamaLengkap("Jeremy Putra Darma");
 
-        when(userRepository.existsByNamaDepanIgnoreCaseAndNamaBelakangIgnoreCase("Jeremy", "Darma"))
+        when(userRepository.existsByEmailIgnoreCase("Example@gmail.com"))
                 .thenReturn(false);
-        
+
         when(userRepository.save(user))
                 .thenReturn(user);
         
@@ -68,7 +67,7 @@ public class UserServiceTest {
         assertEquals("Jeremy", result.getNamaDepan());
         assertEquals("Darma", result.getNamaBelakang());
 
-        verify(userRepository).existsByNamaDepanIgnoreCaseAndNamaBelakangIgnoreCase("Jeremy", "Darma");
+        verify(userRepository).existsByEmailIgnoreCase("Example@gmail.com");
         verify(userRepository).save(user);
         verify(userMapper).toEntity(request);
         verify(userMapper).toResponse(user);
@@ -78,15 +77,14 @@ public class UserServiceTest {
     public void shouldThrowBadRequestWhenUserAlreadyExists(){
 
         UserRequest request = new UserRequest();
-        request.setNamaDepan("Jeremy");
-        request.setNamaBelakang("Darma");
+        request.setEmail("Example@gmail.com");
 
-        when(userRepository.existsByNamaDepanIgnoreCaseAndNamaBelakangIgnoreCase("Jeremy", "Darma"))
+        when(userRepository.existsByEmailIgnoreCase("Example@gmail.com"))
                 .thenReturn(true);
         
         assertThrows(BadRequestException.class, () -> userService.tambahUser(request));
 
-        verify(userRepository).existsByNamaDepanIgnoreCaseAndNamaBelakangIgnoreCase("Jeremy", "Darma");
+        verify(userRepository).existsByEmailIgnoreCase("Example@gmail.com");
         verify(userMapper, never()).toEntity(any());
         verify(userMapper, never()).toResponse(any());
     }

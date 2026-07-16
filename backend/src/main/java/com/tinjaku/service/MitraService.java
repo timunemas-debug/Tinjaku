@@ -42,6 +42,10 @@ public class MitraService {
             throw new BadRequestException("Mitra sudah terdaftar!");
         }
 
+        if(mitraRepository.existsByEmailIgnoreCase(request.getEmail())){
+            throw new BadRequestException("Email sudah terdaftar!");
+        }
+
         Mitra mitra = mitraMapper.toEntity(request);
 
         Mitra savedMitra = mitraRepository.save(mitra);

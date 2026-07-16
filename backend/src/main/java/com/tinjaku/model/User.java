@@ -21,6 +21,9 @@ public class User {
     private String namaDepan;
     private String namaBelakang;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @OneToMany(mappedBy = "user")
     private List<Alamat> alamatList = new ArrayList<>();
 
