@@ -2,10 +2,12 @@ package com.tinjaku.mapper;
 
 import org.springframework.stereotype.Component;
 
+import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.dto.response.AlamatResponse;
 import com.tinjaku.dto.response.OnlineResponse;
+import com.tinjaku.dto.response.RegisterResponse;
 
 import java.util.List;
 
@@ -43,5 +45,22 @@ public class UserMapper {
 
     public OnlineResponse toOnlineResponse(User user){
         return new OnlineResponse(user.getStatusOnOff());
+    }
+    
+    public User toEntity(RegisterRequest request){
+        User user = new User();
+
+        user.setNamaDepan(request.getNamaDepan());
+        user.setNamaBelakang(request.getNamaBelakang());
+        user.setEmail(request.getEmail());
+
+        return user;
+    }
+
+    public RegisterResponse toRegisterResponse(User user){
+        return new RegisterResponse(user.getUserId(),
+                                    user.getNamaDepan(),
+                                    user.getNamaBelakang(),
+                                    user.getEmail());
     }
 }

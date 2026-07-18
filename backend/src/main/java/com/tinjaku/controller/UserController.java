@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/online")
-    public OnlineResponse onlineMitra(@PathVariable Long userId, @RequestBody OnlineRequest request){
+    public OnlineResponse onlineUser(@PathVariable Long userId, @RequestBody OnlineRequest request){
         return userService.getUserOnline(userId, request);
     }
 

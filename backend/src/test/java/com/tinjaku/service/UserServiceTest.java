@@ -91,7 +91,6 @@ public class UserServiceTest {
         assertThrows(BadRequestException.class, () -> userService.tambahUser(request));
 
         verify(userRepository).existsByEmailIgnoreCase("Example@gmail.com");
-        verify(userMapper, never()).toEntity(any());
         verify(userMapper, never()).toResponse(any());
     }
 

@@ -14,6 +14,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private StatusOnOff statusOnOff = StatusOnOff.OFFLINE;
 
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.ROLE_USER;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -23,6 +26,8 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    private String password;
 
     @OneToMany(mappedBy = "user")
     private List<Alamat> alamatList = new ArrayList<>();
