@@ -6,6 +6,7 @@ import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.dto.response.AlamatResponse;
+import com.tinjaku.dto.response.LoginResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 
@@ -62,5 +63,15 @@ public class UserMapper {
                                     user.getNamaDepan(),
                                     user.getNamaBelakang(),
                                     user.getEmail());
+    }
+
+    public LoginResponse toLoginResponse(User user, String token){
+
+        LoginResponse response = new LoginResponse();
+        response.setToken(token);
+        response.setNama(user.getNamaDepan());
+        response.setEmail(user.getEmail());
+
+        return response;
     }
 }
