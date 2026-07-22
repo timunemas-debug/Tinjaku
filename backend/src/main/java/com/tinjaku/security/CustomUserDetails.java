@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.tinjaku.model.Role;
 import com.tinjaku.model.User;
 
 public class CustomUserDetails implements UserDetails{
@@ -54,4 +55,11 @@ public class CustomUserDetails implements UserDetails{
         return true;
     }
 
+    public Long getUserId(){
+        return user.getUserId();
+    }
+
+    public Role getRole(){
+        return user.getRole();
+    }
 }
