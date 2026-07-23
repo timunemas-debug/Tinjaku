@@ -2,11 +2,13 @@ package com.tinjaku.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
 
+@Service
 public class CustomUserDetailsService implements UserDetailsService{
     
     private final UserRepository userRepository;

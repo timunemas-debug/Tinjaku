@@ -69,8 +69,6 @@ public class UserMapper {
 
         LoginResponse response = new LoginResponse();
         response.setToken(token);
-        response.setNama(user.getNamaDepan());
-        response.setEmail(user.getEmail());
 
         return response;
     }
