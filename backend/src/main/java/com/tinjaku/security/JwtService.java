@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -53,7 +54,7 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    public boolean isTokenValid(String token, CustomUserDetails userDetails){
+    public boolean isTokenValid(String token, UserDetails userDetails){
 
         String username = extractUsername(token);
 
