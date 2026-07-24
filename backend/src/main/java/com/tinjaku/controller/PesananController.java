@@ -1,5 +1,6 @@
 package com.tinjaku.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,11 +48,13 @@ public class PesananController {
         return ratingService.tambahRating(pesananId, request);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public List<PesananResponse> getAll(){
         return pesananService.getAllPesanan();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public PesananResponse pesananbyid(@PathVariable Long id){
         return pesananService.getPesananById(id);

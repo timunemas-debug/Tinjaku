@@ -2,6 +2,7 @@ package com.tinjaku.controller;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,21 +34,25 @@ public class UserController {
         return userService.tambahUser(request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/online")
     public OnlineResponse onlineUser(@PathVariable Long userId, @RequestBody OnlineRequest request){
         return userService.getUserOnline(userId, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<UserResponse> getAllUser(){
         return userService.getAllUser();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}")
     public UserResponse userById(@PathVariable Long userId){
         return userService.getUserResponseById(userId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{userId}")
     public void deleteUserById(@PathVariable Long userId){
         userService.deleteUserById(userId);
