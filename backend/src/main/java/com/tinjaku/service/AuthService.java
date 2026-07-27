@@ -1,7 +1,9 @@
 package com.tinjaku.service;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +71,14 @@ public class AuthService {
         String jwt = jwtService.generateToken(userDetails);
 
         return new LoginResponse(jwt);
+    }
+
+    public void logOut(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        setOffline(userDetails.getUser());
     }
 }

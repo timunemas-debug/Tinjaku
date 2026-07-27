@@ -1,5 +1,6 @@
 package com.tinjaku.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,5 +33,11 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@RequestBody @Valid LoginRequest request){
         return authService.login(request);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(){
+        authService.logOut();
+        return ResponseEntity.ok().build();
     }
 }
