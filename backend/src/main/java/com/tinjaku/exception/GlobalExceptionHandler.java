@@ -28,4 +28,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT.value())
                 .body(new ResponErorRequest(ex.getMessage(), 409));
     }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ResponErorRequest> handleBusiness(UsernameNotFoundException ex){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ResponErorRequest(ex.getMessage(), 404));
+    }
 }

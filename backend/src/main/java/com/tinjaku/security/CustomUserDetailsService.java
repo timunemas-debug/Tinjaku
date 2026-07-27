@@ -4,7 +4,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import com.tinjaku.exception.BadRequestException;
+import com.tinjaku.exception.UsernameNotFoundException;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
 
@@ -19,11 +19,12 @@ public class CustomUserDetailsService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(String email){
-
+        
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() ->
-                    new BadRequestException("Email tidak ditemukan!"));
+                    new UsernameNotFoundException("Email tidak ditemukan!"));
 
         return new CustomUserDetails(user);
     }
+
 }

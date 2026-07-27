@@ -24,15 +24,15 @@ public class CustomUserDetails implements UserDetails{
             new SimpleGrantedAuthority(user.getRole().name())
         );
     }
-    
-    @Override
-    public String getUsername(){
-        return user.getEmail();
-    }
 
     @Override
     public String getPassword(){
         return user.getPassword();
+    }
+
+    @Override
+    public String getUsername(){
+        return user.getEmail();
     }
 
     @Override
@@ -55,11 +55,11 @@ public class CustomUserDetails implements UserDetails{
         return true;
     }
 
-    public Long getUserId(){
-        return user.getUserId();
-    }
-
     public Role getRole(){
         return user.getRole();
+    }
+
+    public Long getUserId(){
+        return user.getUserId();
     }
 }

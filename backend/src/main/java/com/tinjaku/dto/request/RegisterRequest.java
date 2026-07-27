@@ -8,14 +8,14 @@ import lombok.Setter;
 @Setter
 public class RegisterRequest {
     
-    @NotBlank(message = "Nama wajib di isi!")
+    @NotBlank(message = "Nama depan tidak boleh kosong!")
     private String namaDepan;
 
     private String namaBelakang;
 
-    @NotBlank(message = "Email wajib di isi!")
+    @NotBlank(message = "Email tidak boleh kosong!")
     private String email;
 
-    @NotBlank(message = "Password wajib di isi!")
+    @NotBlank(message = "Password tidak boleh kosong")
     private String password;
 }

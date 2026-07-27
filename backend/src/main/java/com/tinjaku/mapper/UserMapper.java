@@ -6,7 +6,6 @@ import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.dto.response.AlamatResponse;
-import com.tinjaku.dto.response.LoginResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 
@@ -47,29 +46,21 @@ public class UserMapper {
     public OnlineResponse toOnlineResponse(User user){
         return new OnlineResponse(user.getStatusOnOff());
     }
-    
+
     public User toEntity(RegisterRequest request){
         User user = new User();
-
         user.setNamaDepan(request.getNamaDepan());
         user.setNamaBelakang(request.getNamaBelakang());
         user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
 
         return user;
     }
 
     public RegisterResponse toRegisterResponse(User user){
-        return new RegisterResponse(user.getUserId(),
-                                    user.getNamaDepan(),
+        return new RegisterResponse(user.getNamaDepan(),
                                     user.getNamaBelakang(),
-                                    user.getEmail());
-    }
-
-    public LoginResponse toLoginResponse(User user, String token){
-
-        LoginResponse response = new LoginResponse();
-        response.setToken(token);
-
-        return response;
+                                    user.getEmail(),
+                                    user.getPassword());
     }
 }

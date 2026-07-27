@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
     
     private final JwtService jwtService;
-
     private final CustomUserDetailsService customUserDetailsService;
 
     public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService customUserDetailsService){
@@ -27,9 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)throws ServletException, IOException{
 
         String authHeader = request.getHeader("Authorization");
 
@@ -44,18 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
         if(jwtService.isTokenValid(jwt, userDetails)){
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                        userDetails,
-            null,
-                        userDetails.getAuthorities());
-            
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null ,userDetails.getAuthorities());
+
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
-
     }
 }

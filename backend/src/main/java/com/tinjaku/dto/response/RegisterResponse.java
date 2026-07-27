@@ -10,9 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterResponse {
-    
-    private Long userId;
     private String namaDepan;
     private String namaBelakang;
     private String email;
+    private String password;
 }
