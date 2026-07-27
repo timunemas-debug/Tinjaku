@@ -5,13 +5,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.tinjaku.config.SecurityConfig;
 import com.tinjaku.dto.request.LoginRequest;
 import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.response.LoginResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.mapper.UserMapper;
+import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.security.CustomUserDetails;
@@ -27,13 +27,23 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, UserMapper userMapper, SecurityConfig securityConfig, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder, JwtService jwtService){
+    public AuthService(UserRepository userRepository, UserMapper userMapper, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder, JwtService jwtService){
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
         this.customUserDetailsService = customUserDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+    }
+
+    private void setOnline(User user){
+        user.setStatusOnOff(StatusOnOff.ONLINE);
+        userRepository.save(user);
+    }
+
+    private void setOffline(User user){
+        user.setStatusOnOff(StatusOnOff.OFFLINE);
+        userRepository.save(user);
     }
 
     public RegisterResponse register(RegisterRequest request){
@@ -53,6 +63,8 @@ public class AuthService {
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(request.getEmail());
+
+        setOnline(userDetails.getUser());
 
         String jwt = jwtService.generateToken(userDetails);
 
