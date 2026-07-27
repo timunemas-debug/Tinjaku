@@ -10,7 +10,7 @@ import com.tinjaku.dto.response.LoginResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 import com.tinjaku.service.AuthService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
 
 @RestController
@@ -25,6 +25,7 @@ public class AuthController {
 
     @PostMapping("/regist")
     public RegisterResponse regist(@RequestBody @Valid RegisterRequest request){
+        System.out.println("postmapping masukkk");
         return authService.register(request);
     }
 
