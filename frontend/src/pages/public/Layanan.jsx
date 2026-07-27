@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FiHome, FiBriefcase, FiAlertCircle } from "react-icons/fi";
-import Button from "../components/Button";
+import Button from "../../components/common/Button";
 
 const layananList = [
   {

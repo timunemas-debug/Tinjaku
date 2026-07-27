@@ -1,61 +1,95 @@
+// src/App.jsx
 import { Routes, Route } from "react-router-dom";
 
+// Layouts
 import PublicLayout from "./layouts/PublicLayout";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Pesanan from "./pages/Pesanan";
-import Riwayat from "./pages/Riwayat";
-import Profile from "./pages/Profile";
-import TentangKami from "./pages/TentangKami";
-import Layanan from "./pages/Layanan";
-
-import AdminLayout from "./layouts/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
-import DataPesanan from "./pages/admin/DataPesanan";
-import DataPelanggan from "./pages/admin/DataPelanggan";
-import DataMitra from "./pages/admin/DataMitra";
-import DetailPesanan from "./pages/admin/DetailPesanan";
-
+import UserLayout from "./layouts/UserLayout";
 import MitraLayout from "./layouts/MitraLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// Public pages
+import Home from "./pages/public/Home";
+import Login from "./pages/public/Login";
+import Register from "./pages/public/Register";
+import Layanan from "./pages/public/Layanan";
+import TentangKami from "./pages/public/TentangKami";
+
+// User pages
+import Pesanan from "./pages/user/Pesanan";
+import Profile from "./pages/user/Profile";
+import Alamat from "./pages/user/Alamat";
+import Riwayat from "./pages/user/Riwayat";
+
+// Mitra pages
 import DashboardMitra from "./pages/mitra/DashboardMitra";
 import PesananMasuk from "./pages/mitra/PesananMasuk";
-import RiwayatMitra from "./pages/mitra/RiwayatMitra";
 import ProfileMitra from "./pages/mitra/ProfileMitra";
+import RiwayatMitra from "./pages/mitra/RiwayatMitra";
 
-function App() {
+// Admin pages
+import Dashboard from "./pages/admin/Dashboard";
+import DataMitra from "./pages/admin/DataMitra";
+import DataPelanggan from "./pages/admin/DataPelanggan";
+import DataPesanan from "./pages/admin/DataPesanan";
+import DetailPesanan from "./pages/admin/DetailPesanan";
+
+import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { ROLE } from "./utils/statusPesananMap";
+
+export default function App() {
   return (
     <Routes>
-      {/* Halaman pelanggan — dibungkus PublicLayout */}
-      <Route path="/" element={<PublicLayout />}>
-        <Route index element={<Home />} />
-        <Route path="tentang-kami" element={<TentangKami />} />
-        <Route path="layanan" element={<Layanan />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-        <Route path="pesanan" element={<Pesanan />} />
-        <Route path="riwayat" element={<Riwayat />} />
-        <Route path="profile" element={<Profile />} />
+      {/* Public, dibungkus PublicLayout (Navbar + Footer) */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/layanan" element={<Layanan />} />
+        <Route path="/tentang-kami" element={<TentangKami />} />
       </Route>
 
-      {/* Halaman admin */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="pesanan" element={<DataPesanan />} />
-        <Route path="pelanggan" element={<DataPelanggan />} />
-        <Route path="mitra" element={<DataMitra />} />
-        <Route path="pesanan/:id" element={<DetailPesanan />} />
+      {/* User, dibungkus UserLayout */}
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={[ROLE.USER]}>
+            <UserLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/pesanan" element={<Pesanan />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/alamat" element={<Alamat />} />
+        <Route path="/riwayat" element={<Riwayat />} />
       </Route>
 
-      {/* Halaman mitra */}
-      <Route path="/mitra" element={<MitraLayout />}>
-        <Route path="dashboard" element={<DashboardMitra />} />
-        <Route path="pesanan" element={<PesananMasuk />} />
-        <Route path="riwayat" element={<RiwayatMitra />} />
-        <Route path="profile" element={<ProfileMitra />} />
+      {/* Mitra, dibungkus MitraLayout */}
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={[ROLE.MITRA]}>
+            <MitraLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/mitra/dashboard" element={<DashboardMitra />} />
+        <Route path="/mitra/pesanan-masuk" element={<PesananMasuk />} />
+        <Route path="/mitra/profile" element={<ProfileMitra />} />
+        <Route path="/mitra/riwayat" element={<RiwayatMitra />} />
+      </Route>
+
+      {/* Admin, dibungkus AdminLayout */}
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={[ROLE.ADMIN]}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/data-mitra" element={<DataMitra />} />
+        <Route path="/admin/data-pelanggan" element={<DataPelanggan />} />
+        <Route path="/admin/data-pesanan" element={<DataPesanan />} />
+        <Route path="/admin/data-pesanan/:id" element={<DetailPesanan />} />
       </Route>
     </Routes>
   );
 }
-
-export default App;

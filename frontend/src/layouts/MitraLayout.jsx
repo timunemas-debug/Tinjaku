@@ -1,12 +1,23 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/layout/Sidebar";
+import Topbar from "../components/layout/Topbar";
+
+const MITRA_MENU = [
+  { label: "Dashboard", to: "/mitra/dashboard" },
+  { label: "Pesanan Masuk", to: "/mitra/pesanan-masuk" },
+  { label: "Riwayat", to: "/mitra/riwayat" },
+  { label: "Profile", to: "/mitra/profile" },
+];
 
 export default function MitraLayout() {
   return (
-    <div className="flex bg-[#F7F5F0] min-h-screen">
-      <Sidebar />
-      <div className="flex-1 md:ml-56 pb-16 md:pb-0">
-        <main className="p-6">
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar title="Tinjaku Mitra" menuItems={MITRA_MENU} />
+
+      <div className="flex-1 flex flex-col">
+        <Topbar pageTitle="Mitra Panel" />
+
+        <main className="flex-1 p-6">
           <Outlet />
         </main>
       </div>
