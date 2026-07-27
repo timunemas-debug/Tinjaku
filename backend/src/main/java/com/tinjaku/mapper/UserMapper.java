@@ -60,7 +60,6 @@ public class UserMapper {
     public RegisterResponse toRegisterResponse(User user){
         return new RegisterResponse(user.getNamaDepan(),
                                     user.getNamaBelakang(),
-                                    user.getEmail(),
-                                    user.getPassword());
+                                    user.getEmail());
     }
 }
