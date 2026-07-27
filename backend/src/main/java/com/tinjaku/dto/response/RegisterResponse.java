@@ -13,5 +13,4 @@ public class RegisterResponse {
     private String namaDepan;
     private String namaBelakang;
     private String email;
-    private String password;
 }
