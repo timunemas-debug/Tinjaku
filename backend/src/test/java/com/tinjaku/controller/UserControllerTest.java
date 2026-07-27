@@ -20,6 +20,8 @@ import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.model.StatusOnOff;
+import com.tinjaku.security.CustomUserDetailsService;
+import com.tinjaku.security.JwtService;
 import com.tinjaku.service.UserService;
 
 @AutoConfigureMockMvc(addFilters = false)
@@ -34,6 +36,12 @@ public class UserControllerTest {
 
     @MockitoBean
     UserService userService;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
 
     @Test
     public void shouldTambahUser() throws Exception {

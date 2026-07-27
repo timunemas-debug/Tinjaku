@@ -1,5 +1,6 @@
 package com.tinjaku.controller;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,6 +24,8 @@ import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.model.StatusOnOff;
+import com.tinjaku.security.CustomUserDetailsService;
+import com.tinjaku.security.JwtService;
 import com.tinjaku.service.MitraService;
 import com.tinjaku.service.RatingService;
 
@@ -41,6 +44,13 @@ public class MitraControllerTest {
 
     @MockitoBean
     RatingService ratingService;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
+
 
     @Test
     public void shouldTambahMitra() throws Exception {

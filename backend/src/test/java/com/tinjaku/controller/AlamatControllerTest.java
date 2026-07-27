@@ -23,13 +23,14 @@ import com.tinjaku.dto.response.AlamatResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Label;
 import com.tinjaku.model.LabelMitra;
+import com.tinjaku.security.CustomUserDetailsService;
+import com.tinjaku.security.JwtService;
 import com.tinjaku.service.AlamatMitraService;
 import com.tinjaku.service.AlamatService;
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(AlamatController.class)
 public class AlamatControllerTest {
-    
 
     @Autowired
     MockMvc mockMvc;
@@ -42,6 +43,12 @@ public class AlamatControllerTest {
 
     @MockitoBean
     AlamatMitraService alamatMitraService;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
 
     String jalan = "A";
     String kelurahan = "B";

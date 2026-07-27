@@ -23,6 +23,8 @@ import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.StatusPesanan;
+import com.tinjaku.security.CustomUserDetailsService;
+import com.tinjaku.security.JwtService;
 import com.tinjaku.service.PesananService;
 import com.tinjaku.service.RatingService;
 
@@ -45,6 +47,12 @@ public class PesananControllerTest {
 
     @MockitoBean
     RatingService ratingService;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
 
     @Test
     public void shouldTambahPesanan() throws Exception{
