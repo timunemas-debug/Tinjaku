@@ -1,18 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getPesananByStatus, terimaPesanan } from "../../services/pesananService";
+import { useAuth } from "../../hooks/useAuth";
 
 function PesananMasuk() {
-  const [pesanan, setPesanan] = useState([
-    { id: 1, nama: "Andi", alamat: "Jl. Merdeka No.10", tanggal: "08 Juli 2026", biaya: "Rp250.000", status: "Menunggu" },
-    { id: 2, nama: "Budi", alamat: "Jl. Sudirman No.25", tanggal: "09 Juli 2026", biaya: "Rp300.000", status: "Menunggu" },
-  ]);
+  const { user } = useAuth();
+  const [pesanan, setPesanan] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
 
-  const ambilPesanan = (id) => {
-    setPesanan(pesanan.map((item) => (item.id === id ? { ...item, status: "Diproses" } : item)));
+  useEffect(() => {
+    async function fetchPesanan() {
+      try {
+        const data = await getPesananByStatus("MENUNGGU");
+        setPesanan(data);
+      } catch (err) {
+        // Backend melempar 404 kalau list kosong (ResourceNotFound),
+        // jadi kita anggap itu bukan error, cuma "belum ada pesanan".
+        if (err.message.includes("tidak ditemukan")) {
+          setPesanan([]);
+        } else {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPesanan();
+  }, []);
+
+  const ambilPesanan = async (pesananId) => {
+    setActionError("");
+    try {
+      await terimaPesanan(pesananId, user.userId);
+      setPesanan((prev) => prev.filter((p) => p.id !== pesananId));
+    } catch (err) {
+      setActionError(err.message);
+    }
   };
 
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8">Pesanan Masuk</h1>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+          {error}
+        </p>
+      )}
+      {actionError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+          {actionError}
+        </p>
+      )}
 
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full">
@@ -20,29 +61,35 @@ function PesananMasuk() {
             <tr>
               <th className="p-4">Nama</th>
               <th>Alamat</th>
-              <th>Tanggal</th>
-              <th>Biaya</th>
-              <th>Status</th>
+              <th>Kota</th>
+              <th>Keluhan</th>
               <th>Aksi</th>
             </tr>
           </thead>
 
           <tbody>
+            {loading && (
+              <tr>
+                <td colSpan={5} className="p-6 text-center text-gray-500">
+                  Memuat pesanan...
+                </td>
+              </tr>
+            )}
+
+            {!loading && pesanan.length === 0 && (
+              <tr>
+                <td colSpan={5} className="p-6 text-center text-gray-500">
+                  Belum ada pesanan menunggu.
+                </td>
+              </tr>
+            )}
+
             {pesanan.map((item) => (
               <tr key={item.id} className="border-b text-center">
-                <td className="p-4">{item.nama}</td>
-                <td>{item.alamat}</td>
-                <td>{item.tanggal}</td>
-                <td>{item.biaya}</td>
-                <td>
-                  <span
-                    className={`px-3 py-1 rounded-full text-white ${
-                      item.status === "Menunggu" ? "bg-yellow-500" : "bg-blue-600"
-                    }`}
-                  >
-                    {item.status}
-                  </span>
-                </td>
+                <td className="p-4">{item.namaLengkap ?? item.namaPenerima}</td>
+                <td>{item.alamatLengkap}</td>
+                <td>{item.kota}</td>
+                <td>{item.keluhan}</td>
                 <td>
                   <button
                     onClick={() => ambilPesanan(item.id)}

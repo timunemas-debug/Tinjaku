@@ -39,8 +39,6 @@ import { ROLE } from "./utils/statusPesananMap";
 export default function App() {
   return (
     <Routes>
-      // src/App.jsx — bagian yang berubah
-
       {/* Public, dibungkus PublicLayout (Navbar + Footer) */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
@@ -50,7 +48,8 @@ export default function App() {
 
       {/* Login & Register full-page, TANPA Navbar/Footer */}
       <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
+      <Route path="/register" element={<Register />} />
+
       {/* User, dibungkus UserLayout */}
       <Route
         element={

@@ -19,3 +19,6 @@ export const getDashboardMitra = (mitraId) =>
 
 export const getKotaMitra = () =>
   api.get("/mitra/kota").then((res) => res.data);
+
+export const setMitraOnline = (mitraId, statusOnOff) =>
+  api.post(`/mitra/${mitraId}/online`, { statusOnOff }).then((res) => res.data);
