@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPesanan } from "../../services/pesananService";
-import CardPesanan from "../../components/CardPesanan";
+import CardPesanan from "../../components/pesanan/CardPesanan";
 
 const TEMP_USER_ID = 1;
 

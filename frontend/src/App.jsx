@@ -39,15 +39,18 @@ import { ROLE } from "./utils/statusPesananMap";
 export default function App() {
   return (
     <Routes>
+      // src/App.jsx — bagian yang berubah
+
       {/* Public, dibungkus PublicLayout (Navbar + Footer) */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route path="/layanan" element={<Layanan />} />
         <Route path="/tentang-kami" element={<TentangKami />} />
       </Route>
 
+      {/* Login & Register full-page, TANPA Navbar/Footer */}
+      <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
       {/* User, dibungkus UserLayout */}
       <Route
         element={

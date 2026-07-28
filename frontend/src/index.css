@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@theme {
+  --color-ink: #101014;
+  --color-accent: #ffc629;
+
+  --font-display: "Baloo 2", sans-serif;
+  --font-body: "Inter", sans-serif;
+}   

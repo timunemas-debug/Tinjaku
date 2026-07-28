@@ -1,66 +1,94 @@
 import { useEffect, useState } from "react";
-import { getMitra, deleteMitra } from "../../services/mitraService";
+import { getMitra } from "../../services/mitraService";
 
 export default function DataMitra() {
-  const [mitra, setMitra] = useState([]);
+  const [mitraList, setMitraList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchMitra = () => {
-    setLoading(true);
-    getMitra()
-      .then(setMitra)
-      .catch((err) => setError(err.response?.data?.message || err.message))
-      .finally(() => setLoading(false));
-  };
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    async function fetchMitra() {
+      try {
+        const data = await getMitra();
+        setMitraList(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchMitra();
   }, []);
 
-  const handleDelete = async (mitraId) => {
-    if (!confirm("Yakin ingin menghapus mitra ini?")) return;
-    try {
-      await deleteMitra(mitraId);
-      fetchMitra();
-    } catch (err) {
-      alert(err.response?.data?.message || err.message);
-    }
-  };
-
-  if (loading) return <p className="p-4">Loading...</p>;
-  if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Data Mitra</h1>
-      <table className="w-full bg-white rounded-xl shadow overflow-hidden">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="text-left p-3">ID</th>
-            <th className="text-left p-3">Nama</th>
-            <th className="text-left p-3">Kota</th>
-            <th className="text-left p-3">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mitra.map((m) => (
-            <tr key={m.id} className="border-t">
-              <td className="p-3">{m.id}</td>
-              <td className="p-3">{m.nama || m.name}</td>
-              <td className="p-3">{m.kota}</td>
-              <td className="p-3">
-                <button
-                  onClick={() => handleDelete(m.id)}
-                  className="text-red-500 hover:underline"
-                >
-                  Hapus
-                </button>
-              </td>
+    <div>
+      <h1 className="font-display font-bold text-2xl text-ink mb-2">
+        Data Mitra
+      </h1>
+
+      <p className="font-body text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-6 inline-block">
+        Aksi Detail/Hapus belum aktif — backend belum mengirim field
+        <code className="mx-1 font-mono">mitraId</code> di response daftar mitra.
+      </p>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+          {error}
+        </p>
+      )}
+
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-ink text-white">
+            <tr>
+              <th className="p-4 text-left font-body text-sm font-semibold">Nama Mitra</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Rating</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Total Rating</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Jumlah Alamat</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Aksi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {loading && (
+              <tr>
+                <td colSpan={5} className="p-6 text-center font-body text-sm text-ink/50">
+                  Memuat data mitra...
+                </td>
+              </tr>
+            )}
+
+            {!loading && mitraList.length === 0 && (
+              <tr>
+                <td colSpan={5} className="p-6 text-center font-body text-sm text-ink/50">
+                  Belum ada mitra terdaftar.
+                </td>
+              </tr>
+            )}
+
+            {mitraList.map((mitra, index) => (
+              <tr key={index} className="border-t border-gray-100">
+                <td className="p-4 font-body text-sm text-ink font-medium">{mitra.nama}</td>
+                <td className="p-4 font-body text-sm text-ink">
+                  {mitra.ratingMitra != null ? mitra.ratingMitra.toFixed(1) : "-"} ⭐
+                </td>
+                <td className="p-4 font-body text-sm text-ink">{mitra.totalRating ?? 0}</td>
+                <td className="p-4 font-body text-sm text-ink">{mitra.alamat?.length ?? 0}</td>
+                <td className="p-4">
+                  <button
+                    disabled
+                    title="Butuh mitraId dari backend"
+                    className="font-body text-xs text-red-400 cursor-not-allowed"
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

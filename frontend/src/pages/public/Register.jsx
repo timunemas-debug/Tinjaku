@@ -1,112 +1,144 @@
-import { Link } from "react-router-dom";
-import { FaUser, FaEnvelope, FaPhone, FaLock } from "react-icons/fa";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthCard from "../../components/auth/AuthCard";
+import { useAuth } from "../../hooks/useAuth";
 
-function Register() {
+export default function Register() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    namaDepan: "",
+    namaBelakang: "",
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      await register(form);
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center px-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-8">
+    <AuthCard title="Register">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
 
-        <h1 className="text-3xl font-bold text-center text-blue-600">
-        Tinjaku
-        </h1>
-
-        <p className="text-center text-gray-500 mt-2">
-          Buat akun baru untuk mulai menggunakan layanan
-        </p>
-
-        <form className="mt-8 space-y-5">
-
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="font-medium">Nama Lengkap</label>
-
-            <div className="flex items-center border rounded-lg mt-2 px-3">
-              <FaUser className="text-gray-400" />
-
-              <input
-                type="text"
-                placeholder="Masukkan nama lengkap"
-                className="w-full p-3 outline-none"
-              />
-            </div>
+            <label className="font-body font-semibold text-sm text-ink mb-1.5 block">
+              Nama Depan
+            </label>
+            <input
+              type="text"
+              name="namaDepan"
+              placeholder="Nama depan"
+              value={form.namaDepan}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 rounded-full px-4 py-2.5 outline-none font-body text-sm text-ink placeholder:text-gray-400 focus:border-ink"
+            />
           </div>
 
           <div>
-            <label className="font-medium">Email</label>
-
-            <div className="flex items-center border rounded-lg mt-2 px-3">
-              <FaEnvelope className="text-gray-400" />
-
-              <input
-                type="email"
-                placeholder="Masukkan email"
-                className="w-full p-3 outline-none"
-              />
-            </div>
+            <label className="font-body font-semibold text-sm text-ink mb-1.5 block">
+              Nama Belakang
+            </label>
+            <input
+              type="text"
+              name="namaBelakang"
+              placeholder="Nama belakang"
+              value={form.namaBelakang}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-full px-4 py-2.5 outline-none font-body text-sm text-ink placeholder:text-gray-400 focus:border-ink"
+            />
           </div>
+        </div>
 
-          <div>
-            <label className="font-medium">Nomor HP</label>
-
-            <div className="flex items-center border rounded-lg mt-2 px-3">
-              <FaPhone className="text-gray-400" />
-
-              <input
-                type="text"
-                placeholder="08xxxxxxxxxx"
-                className="w-full p-3 outline-none"
-              />
-            </div>
+        <div>
+          <label className="font-body font-semibold text-sm text-ink mb-1.5 block">
+            Email
+          </label>
+          <div className="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2.5 focus-within:border-ink">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path d="m22 7-10 5L2 7" />
+            </svg>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="w-full outline-none font-body text-sm text-ink placeholder:text-gray-400"
+            />
           </div>
+        </div>
 
-          {/* Password */}
-          <div>
-            <label className="font-medium">Password</label>
-
-            <div className="flex items-center border rounded-lg mt-2 px-3">
-              <FaLock className="text-gray-400" />
-
-              <input
-                type="password"
-                placeholder="Masukkan password"
-                className="w-full p-3 outline-none"
-              />
-            </div>
+        <div>
+          <label className="font-body font-semibold text-sm text-ink mb-1.5 block">
+            Password
+          </label>
+          <div className="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2.5 focus-within:border-ink">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
+              <rect x="3" y="11" width="18" height="10" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              className="w-full outline-none font-body text-sm text-ink placeholder:text-gray-400"
+            />
+            <button type="button" onClick={() => setShowPassword((s) => !s)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 shrink-0">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
           </div>
+        </div>
 
-          <div>
-            <label className="font-medium">Konfirmasi Password</label>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="font-body font-bold text-white bg-accent rounded-full py-3.5 hover:brightness-95 disabled:opacity-60 mt-2"
+        >
+          {isSubmitting ? "Memproses..." : "Register"}
+        </button>
 
-            <div className="flex items-center border rounded-lg mt-2 px-3">
-              <FaLock className="text-gray-400" />
-
-              <input
-                type="password"
-                placeholder="Ulangi password"
-                className="w-full p-3 outline-none"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-300"
-          >
-            Daftar
-          </button>
-        </form>
-
-        <p className="text-center mt-6 text-gray-600">
-          Sudah punya akun?
-          <Link
-            to="/login"
-            className="text-blue-600 font-semibold ml-2 hover:underline"
-          >
+        <p className="text-center font-body text-sm text-ink">
+          Sudah punya akun?{" "}
+          <Link to="/login" className="text-blue-600 hover:underline">
             Login
           </Link>
         </p>
-      </div>
-    </div>
+      </form>
+    </AuthCard>
   );
 }
-
-export default Register;

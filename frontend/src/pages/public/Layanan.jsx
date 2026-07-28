@@ -1,66 +1,65 @@
-import { Link } from "react-router-dom";
-import { FiHome, FiBriefcase, FiAlertCircle } from "react-icons/fi";
-import Button from "../../components/common/Button";
-
-const layananList = [
+const LAYANAN_LIST = [
   {
-    icon: FiHome,
+    icon: "🚛",
     title: "Sedot WC Rumah",
-    desc: "Layanan rutin untuk septic tank rumah tangga, proses cepat tanpa bikin berantakan.",
+    desc: "Layanan sedot septic tank untuk rumah tinggal, proses cepat dan bersih tanpa bau.",
   },
   {
-    icon: FiBriefcase,
-    title: "Sedot WC Komersial",
-    desc: "Untuk kantor, ruko, restoran, dan bangunan komersial dengan kapasitas lebih besar.",
+    icon: "🏢",
+    title: "Sedot WC Kantor",
+    desc: "Solusi untuk gedung perkantoran dengan jadwal fleksibel, tidak mengganggu jam kerja.",
   },
   {
-    icon: FiAlertCircle,
-    title: "Darurat 24 Jam",
-    desc: "Septic tank meluap mendadak? Tim kami siap datang kapan saja, termasuk malam hari.",
+    icon: "🏭",
+    title: "Sedot WC Pabrik & Gudang",
+    desc: "Penanganan skala besar untuk kawasan industri dengan peralatan kapasitas tinggi.",
+  },
+  {
+    icon: "🏨",
+    title: "Sedot WC Hotel",
+    desc: "Layanan rutin maupun darurat untuk menjaga kenyamanan tamu hotel Anda.",
+  },
+  {
+    icon: "🔧",
+    title: "Perawatan Berkala",
+    desc: "Paket langganan perawatan septic tank agar masalah tidak terjadi berulang.",
+  },
+  {
+    icon: "⚡",
+    title: "Panggilan Darurat",
+    desc: "Respons cepat untuk kondisi mendesak, tersedia di area jangkauan kami.",
   },
 ];
 
 export default function Layanan() {
   return (
-    <div>
-      <section className="bg-[#0A0A0A] text-white">
-        <div className="max-w-4xl mx-auto px-5 py-16 text-center">
-          <h1 className="font-[Baloo_2] font-extrabold text-4xl mb-4">
-            Layanan <span className="text-[#FFC800]">Kami</span>
-          </h1>
-          <p className="text-white/70 text-lg max-w-xl mx-auto">
-            Pilih layanan sesuai kebutuhanmu — semuanya ditangani teknisi
-            berpengalaman.
-          </p>
-        </div>
-      </section>
+    <div className="max-w-[1440px] mx-auto px-16 py-20 max-md:px-6 max-md:py-12">
+      <div className="text-center max-w-2xl mx-auto mb-16">
+        <h1 className="font-display font-extrabold text-[42px] text-ink mb-4 max-md:text-3xl">
+          Layanan Kami
+        </h1>
+        <p className="font-body text-ink/70 text-base leading-relaxed">
+          Tinjaku menyediakan berbagai layanan sedot WC profesional untuk
+          kebutuhan rumah, kantor, hingga kawasan industri.
+        </p>
+      </div>
 
-      <section className="max-w-5xl mx-auto px-5 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {layananList.map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="bg-white border-2 border-[#0A0A0A]/10 rounded-2xl p-6 hover:border-[#FFC800] transition-colors"
-            >
-              <div className="w-12 h-12 rounded-xl bg-[#FFC800] text-[#0A0A0A] flex items-center justify-center mb-4">
-                <Icon size={22} />
-              </div>
-              <h3 className="font-[Baloo_2] font-bold text-lg text-[#0A0A0A] mb-2">
-                {title}
-              </h3>
-              <p className="text-sm text-[#6B7280]">{desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link to="/pesanan">
-            <Button variant="secondary" size="lg">
-              Pesan Layanan Sekarang
-            </Button>
-          </Link>
-        </div>
-      </section>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {LAYANAN_LIST.map((item) => (
+          <div
+            key={item.title}
+            className="bg-white border border-gray-200 rounded-2xl p-7 hover:shadow-lg transition-shadow"
+          >
+            <div className="text-4xl mb-4">{item.icon}</div>
+            <h3 className="font-display font-bold text-lg text-ink mb-2">
+              {item.title}
+            </h3>
+            <p className="font-body text-sm text-ink/60 leading-relaxed">
+              {item.desc}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

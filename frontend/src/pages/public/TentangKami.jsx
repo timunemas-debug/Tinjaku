@@ -1,58 +1,55 @@
-import { FiTarget, FiUsers, FiAward } from "react-icons/fi";
+const NILAI_LIST = [
+  { title: "Cepat", desc: "Tim kami sigap merespons dan menyelesaikan pekerjaan tepat waktu." },
+  { title: "Transparan", desc: "Harga jelas di awal, tanpa biaya tersembunyi." },
+  { title: "Terpercaya", desc: "Mitra terverifikasi dengan rating dan ulasan dari pelanggan lain." },
+];
 
 export default function TentangKami() {
   return (
-    <div>
-      {/* Hero kecil */}
-      <section className="bg-[#0A0A0A] text-white">
-        <div className="max-w-4xl mx-auto px-5 py-16 text-center">
-          <h1 className="font-[Baloo_2] font-extrabold text-4xl mb-4">
-            Tentang <span className="text-[#FFC800]">Tinjaku</span>
-          </h1>
-          <p className="text-white/70 text-lg max-w-xl mx-auto">
-            Kami hadir untuk bikin urusan septic tank tidak lagi jadi masalah
-            besar — cepat, bersih, dan bisa dipercaya.
-          </p>
-        </div>
-      </section>
-
-      {/* Cerita singkat */}
-      <section className="max-w-3xl mx-auto px-5 py-16">
-        <h2 className="font-[Baloo_2] font-bold text-2xl text-[#0A0A0A] mb-4">
-          Cerita Kami
-        </h2>
-        <p className="text-[#6B7280] leading-relaxed mb-4">
-          Tinjaku berawal dari masalah sederhana yang sering dianggap remeh:
-          susahnya cari jasa sedot WC yang datang tepat waktu, kerjanya rapi,
-          dan harganya jelas dari awal. Kami membangun platform ini supaya
-          siapa pun bisa memanggil teknisi terpercaya hanya dengan beberapa
-          klik.
+    <div className="max-w-[1440px] mx-auto px-16 py-20 max-md:px-6 max-md:py-12">
+      <div className="max-w-2xl mb-16">
+        <h1 className="font-display font-extrabold text-[42px] text-ink mb-4 max-md:text-3xl">
+          Tentang Tinjaku
+        </h1>
+        <p className="font-body text-ink/70 text-base leading-relaxed">
+          Tinjaku hadir untuk menjawab masalah septic tank yang sering
+          diabaikan. Kami menghubungkan pelanggan dengan mitra sedot WC
+          profesional di sekitar mereka, cepat dan tanpa ribet.
         </p>
-        <p className="text-[#6B7280] leading-relaxed">
-          Sekarang, Tinjaku menghubungkan pelanggan dengan mitra teknisi di
-          berbagai kota, memastikan setiap pesanan ditangani dengan standar
-          kebersihan dan keamanan yang konsisten.
-        </p>
-      </section>
+      </div>
 
-      {/* Nilai-nilai */}
-      <section className="bg-[#FAFAFA] py-16">
-        <div className="max-w-5xl mx-auto px-5 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { icon: FiTarget, title: "Misi Kami", desc: "Membuat layanan sedot WC mudah diakses, cepat, dan transparan bagi semua orang." },
-            { icon: FiUsers, title: "Untuk Semua", desc: "Melayani rumah tangga, kantor, hingga bangunan komersial di berbagai kota." },
-            { icon: FiAward, title: "Standar Terjamin", desc: "Setiap mitra teknisi melalui proses verifikasi sebelum bergabung." },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="bg-white rounded-2xl p-6 border-2 border-[#0A0A0A]/10">
-              <div className="w-12 h-12 rounded-xl bg-[#FFC800] text-[#0A0A0A] flex items-center justify-center mb-4">
-                <Icon size={22} />
-              </div>
-              <h3 className="font-[Baloo_2] font-bold text-[#0A0A0A] mb-2">{title}</h3>
-              <p className="text-sm text-[#6B7280]">{desc}</p>
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
+        {NILAI_LIST.map((item) => (
+          <div key={item.title} className="bg-white border border-gray-200 rounded-2xl p-7">
+            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center mb-4">
+              <span className="w-4 h-1.5 bg-ink rounded-full" />
             </div>
-          ))}
-        </div>
-      </section>
+            <h3 className="font-display font-bold text-lg text-ink mb-2">
+              {item.title}
+            </h3>
+            <p className="font-body text-sm text-ink/60 leading-relaxed">
+              {item.desc}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-ink rounded-2xl p-10 text-center max-md:p-6">
+        <h2 className="font-display font-bold text-2xl text-white mb-3">
+          Bergabung Jadi Mitra Tinjaku
+        </h2>
+        <p className="font-body text-white/70 text-sm mb-6 max-w-lg mx-auto leading-relaxed">
+          Punya armada sedot WC? Daftarkan usaha Anda dan dapatkan pelanggan
+          baru setiap hari.
+        </p>
+        
+        <a
+          href="/register"
+          className="inline-block font-body font-bold text-sm uppercase text-ink bg-accent px-7 py-3.5 rounded-full hover:brightness-95"
+        >
+          Daftar Sekarang
+        </a>
+      </div>
     </div>
   );
 }

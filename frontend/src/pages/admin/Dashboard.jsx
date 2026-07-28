@@ -1,45 +1,69 @@
 import { useEffect, useState } from "react";
 import { getTotalPesanan } from "../../services/pesananService";
-import { getUsers } from "../../services/userService";
 import { getMitra } from "../../services/mitraService";
+import { getUsers } from "../../services/userService";
 
 export default function Dashboard() {
-  const [totalPesanan, setTotalPesanan] = useState(0);
-  const [totalUser, setTotalUser] = useState(0);
-  const [totalMitra, setTotalMitra] = useState(0);
+  const [stats, setStats] = useState({
+    totalPesanan: null,
+    totalMitra: null,
+    totalUser: null,
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([getTotalPesanan(), getUsers(), getMitra()])
-      .then(([pesanan, users, mitra]) => {
-        setTotalPesanan(pesanan);
-        setTotalUser(users.length);
-        setTotalMitra(mitra.length);
-      })
-      .catch((err) => setError(err.response?.data?.message || err.message))
-      .finally(() => setLoading(false));
+    async function fetchStats() {
+      try {
+        const [totalPesanan, mitraList, userList] = await Promise.all([
+          getTotalPesanan(),
+          getMitra(),
+          getUsers(),
+        ]);
+
+        setStats({
+          totalPesanan,
+          totalMitra: mitraList.length,
+          totalUser: userList.length,
+        });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStats();
   }, []);
 
-  if (loading) return <p className="p-4">Loading...</p>;
-  if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
+  const cards = [
+    { title: "Total Pesanan", value: stats.totalPesanan, icon: "📦", color: "bg-blue-500" },
+    { title: "Total Mitra", value: stats.totalMitra, icon: "🚛", color: "bg-green-500" },
+    { title: "Total Pelanggan", value: stats.totalUser, icon: "👤", color: "bg-purple-500" },
+  ];
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Dashboard Admin</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-gray-500 text-sm">Total Pesanan</p>
-          <p className="text-3xl font-bold">{totalPesanan}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-gray-500 text-sm">Total Pelanggan</p>
-          <p className="text-3xl font-bold">{totalUser}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-gray-500 text-sm">Total Mitra</p>
-          <p className="text-3xl font-bold">{totalMitra}</p>
-        </div>
+    <div>
+      <h1 className="font-display font-bold text-2xl text-ink mb-8">
+        Dashboard Admin
+      </h1>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-6">
+          {error}
+        </p>
+      )}
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {cards.map((card) => (
+          <div key={card.title} className={`${card.color} text-white rounded-2xl p-6 shadow`}>
+            <div className="text-4xl mb-3">{card.icon}</div>
+            <p className="font-body text-sm text-white/80">{card.title}</p>
+            <p className="font-display font-bold text-3xl mt-1">
+              {loading ? "..." : card.value}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
