@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPesanan } from "../../services/pesananService";
+import { getAlamat } from "../../services/alamatService";
 import Button from "../../components/common/Button";
-
-// ⚠️ SEMENTARA: hardcode userId, ganti setelah auth/JWT sudah jalan
-const TEMP_USER_ID = 1;
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Pesanan() {
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ nama: "", noHp: "", alamat: "" });
+
+  const [alamatList, setAlamatList] = useState([]);
+  const [loadingAlamat, setLoadingAlamat] = useState(true);
+
+  const [form, setForm] = useState({ namaPenerima: "", alamatId: "", keluhan: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getAlamat()
+      .then(setAlamatList)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoadingAlamat(false));
+  }, []);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,10 +31,13 @@ export default function Pesanan() {
     setLoading(true);
     setError(null);
     try {
-      await createPesanan(TEMP_USER_ID, form);
+      await createPesanan(user.userId, {
+        ...form,
+        alamatId: Number(form.alamatId),
+      });
       navigate("/riwayat");
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -50,11 +64,11 @@ export default function Pesanan() {
 
         <div className="mb-4">
           <label className="block text-sm font-bold text-[#0A0A0A] mb-1.5">
-            Nama
+            Nama Penerima
           </label>
           <input
-            name="nama"
-            value={form.nama}
+            name="namaPenerima"
+            value={form.namaPenerima}
             onChange={handleChange}
             className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800]"
             required
@@ -63,25 +77,39 @@ export default function Pesanan() {
 
         <div className="mb-4">
           <label className="block text-sm font-bold text-[#0A0A0A] mb-1.5">
-            No HP
+            Alamat
           </label>
-          <input
-            name="noHp"
-            type="tel"
-            value={form.noHp}
-            onChange={handleChange}
-            className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800]"
-            required
-          />
+          {loadingAlamat ? (
+            <p className="text-sm text-[#6B7280]">Memuat alamat...</p>
+          ) : alamatList.length === 0 ? (
+            <p className="text-sm text-[#D64545]">
+              Belum ada alamat tersimpan. Tambahkan dulu di halaman Profile.
+            </p>
+          ) : (
+            <select
+              name="alamatId"
+              value={form.alamatId}
+              onChange={handleChange}
+              className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800]"
+              required
+            >
+              <option value="" disabled>Pilih alamat</option>
+              {alamatList.map((a, i) => (
+                <option key={i} value={i}>
+                  {a.label} — {a.jalan}, {a.kecamatan}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="mb-6">
           <label className="block text-sm font-bold text-[#0A0A0A] mb-1.5">
-            Alamat
+            Keluhan
           </label>
           <textarea
-            name="alamat"
-            value={form.alamat}
+            name="keluhan"
+            value={form.keluhan}
             onChange={handleChange}
             rows={3}
             className="w-full border-2 border-[#0A0A0A]/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FFC800] resize-none"
@@ -89,13 +117,7 @@ export default function Pesanan() {
           />
         </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          className="w-full"
-          disabled={loading}
-        >
+        <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
           {loading ? "Memproses..." : "Kirim Pesanan"}
         </Button>
       </form>
