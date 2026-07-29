@@ -7,12 +7,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class SecurityService {
     
-    private final CustomUserDetails customUserDetails;
-
-    public SecurityService(CustomUserDetails customUserDetails){
-        this.customUserDetails = customUserDetails;
-    }
-
     public CustomUserDetails getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
