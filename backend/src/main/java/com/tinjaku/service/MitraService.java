@@ -20,6 +20,8 @@ import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.security.CustomUserDetails;
+import com.tinjaku.security.SecurityService;
 import com.tinjaku.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 
@@ -31,14 +33,16 @@ public class MitraService {
     private final PesananMapper pesananMapper;
     private final MitraMapper mitraMapper;
     private final UpdateMitraProfileMapper updateMitraProfileMapper;
+    private final SecurityService securityService;
 
-    public MitraService(MitraRepository mitraRepository, PesananRepository pesananRepository, RatingRepository ratingRepository ,PesananMapper pesananMapper, MitraMapper mitraMapper, UpdateMitraProfileMapper updateMitraProfileMapper){
+    public MitraService(MitraRepository mitraRepository, PesananRepository pesananRepository, RatingRepository ratingRepository ,PesananMapper pesananMapper, MitraMapper mitraMapper, UpdateMitraProfileMapper updateMitraProfileMapper, SecurityService securityService){
         this.mitraRepository = mitraRepository;
         this.pesananRepository = pesananRepository;
         this.ratingRepository = ratingRepository;
         this.pesananMapper = pesananMapper;
         this.mitraMapper = mitraMapper;
         this.updateMitraProfileMapper = updateMitraProfileMapper;
+        this.securityService = securityService;
     }
 
     public MitraResponse tambahMitra(MitraRequest request){
@@ -141,7 +145,9 @@ public class MitraService {
 
     public DashboardResponse getDashboard(Long mitraId){
         getMitraById(mitraId);
-        
+
+        CustomUserDetails currentUser = securityService.getCurrentUser();
+
         Long totalPesanan = pesananRepository.countByMitraMitraId(mitraId);
         Long pesananMenunggu = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU);
         Long pesananDiTerima = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DITERIMA);

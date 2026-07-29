@@ -27,6 +27,7 @@ import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.PesananRepository;
+import com.tinjaku.security.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
 public class PesananServiceTest {
@@ -48,6 +49,9 @@ public class PesananServiceTest {
 
     @Mock
     RatingService ratingService;
+
+    @Mock
+    SecurityService securityService;
 
     @InjectMocks
     PesananService pesananService;
@@ -274,6 +278,8 @@ public class PesananServiceTest {
         request.setNamaPenerima("Jamsuy");
         request.setKeluhan("WC mampet");
 
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
         when(userService.getUserById(1L))
                 .thenReturn(user);
 
@@ -283,7 +289,7 @@ public class PesananServiceTest {
         when(pesananRepository.save(any(Pesanan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Pesanan result = pesananService.createPesanan(request, 1L);
+        Pesanan result = pesananService.createPesanan(request);
 
         assertEquals("Jamsuy", result.getNamaPenerima());
         assertEquals(StatusPesanan.MENUNGGU, result.getStatus());

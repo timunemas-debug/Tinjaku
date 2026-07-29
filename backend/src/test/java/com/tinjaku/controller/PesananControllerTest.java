@@ -74,7 +74,7 @@ public class PesananControllerTest {
         response.setKelurahan("A");
         response.setKecamatan("B");
 
-        when(pesananService.createPesanan(any(PesananRequest.class), eq(1L)))
+        when(pesananService.createPesanan(any(PesananRequest.class)))
                 .thenReturn(pesanan);
 
         when(pesananMapper.mapToResponse(pesanan))

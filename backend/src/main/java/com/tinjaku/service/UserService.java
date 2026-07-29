@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.security.SecurityService;
 import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
@@ -22,11 +23,13 @@ public class UserService {
     private UserRepository userRepository;
     private UserMapper userMapper;
     private UpdateUserProfileMapper updateUserProfileMapper;
+    private final SecurityService securityService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, UpdateUserProfileMapper updateUserProfileMapper){
+    public UserService(UserRepository userRepository, UserMapper userMapper, UpdateUserProfileMapper updateUserProfileMapper, SecurityService securityService){
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.updateUserProfileMapper = updateUserProfileMapper;
+        this.securityService = securityService;
     }
 
     public UserResponse tambahUser(UserRequest request){
@@ -76,9 +79,12 @@ public class UserService {
         return userMapper.toOnlineResponse(savedUser);
     }
     
-    public UpdateUserProfileResponse updateProfile(Long userId, UpdateUserProfileRequest request){
-        User user = getUserById(userId);
+    public UpdateUserProfileResponse updateProfile(UpdateUserProfileRequest request){
+        
+        Long userId = securityService.getCurrentUserId();
 
+        User user = getUserById(userId);
+        
         if(!user.getEmail().equalsIgnoreCase(request.getEmail())
                 && userRepository.existsByEmailIgnoreCase(request.getEmail())){
             throw new BadRequestException("Email sudah terdaftar!");

@@ -12,4 +12,20 @@ public class SecurityService {
 
         return (CustomUserDetails) authentication.getPrincipal();
     }
+
+    public Long getCurrentUserId(){
+        return getCurrentUser().getUserId();
+    }
+
+    public String getCurrentEmail(){
+        return getCurrentUser().getUsername();
+    }
+
+    public String currentRole(){
+        return getCurrentUser()
+                .getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+    }
 }

@@ -26,6 +26,7 @@ import com.tinjaku.mapper.UserMapper;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.security.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -38,6 +39,9 @@ public class UserServiceTest {
 
     @Mock
     UpdateUserProfileMapper updateUserProfileMapper;
+
+    @Mock
+    SecurityService securityService;
 
     @InjectMocks
     UserService userService;
@@ -257,6 +261,9 @@ public class UserServiceTest {
         response.setNamaBelakang("Darma");
         response.setEmail("Example@gmail.com");
 
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
+                
         when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
 
@@ -269,7 +276,7 @@ public class UserServiceTest {
         when(updateUserProfileMapper.mapToResponse(user))
                 .thenReturn(response);
 
-        UpdateUserProfileResponse result = userService.updateProfile(1L, request);
+        UpdateUserProfileResponse result = userService.updateProfile(request);
 
         assertEquals("Jeremy", result.getNamaDepan());
         assertEquals("Darma", result.getNamaBelakang());

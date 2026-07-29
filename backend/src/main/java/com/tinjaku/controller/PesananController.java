@@ -36,13 +36,15 @@ public class PesananController {
         this.ratingService = ratingService;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{userId}")
     public PesananResponse tambahPesanan(@Valid @RequestBody PesananRequest request, @PathVariable Long userId){
-        Pesanan pesanan = pesananService.createPesanan(request, userId);
+        Pesanan pesanan = pesananService.createPesanan(request);
 
         return pesananMapper.mapToResponse(pesanan);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{pesananId}/rating")
     public RatingResponse tambahRatingMitra(@PathVariable Long pesananId, @Valid  @RequestBody RatingRequest request){
         return ratingService.tambahRating(pesananId, request);

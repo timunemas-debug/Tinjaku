@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,8 +17,10 @@ import com.tinjaku.service.UserService;
 import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
 import com.tinjaku.dto.response.OnlineResponse;
+import com.tinjaku.dto.response.UpdateUserProfileResponse;
 import com.tinjaku.dto.response.UserResponse;
 
 @RestController
@@ -56,5 +59,11 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public void deleteUserById(@PathVariable Long userId){
         userService.deleteUserById(userId);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/profile")
+    public UpdateUserProfileResponse updateProfile(@Valid @RequestBody UpdateUserProfileRequest request){
+        return userService.updateProfile(request);
     }
 }

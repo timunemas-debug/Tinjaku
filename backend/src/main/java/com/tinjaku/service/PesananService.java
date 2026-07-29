@@ -10,6 +10,7 @@ import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
+import com.tinjaku.security.SecurityService;
 
 @Service
 public class PesananService {
@@ -19,14 +20,16 @@ public class PesananService {
     private final PesananMapper pesananMapper;
     private final AlamatService alamatService;
     private final RatingService ratingService;
+    private final SecurityService securityService;
 
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
         this.pesananMapper = pesananMapper;
         this.alamatService = alamatService;
         this.ratingService = ratingService;
+        this.securityService = securityService;
     }
 
     public List<PesananResponse> getAllPesanan(){
@@ -86,8 +89,10 @@ public class PesananService {
                .anyMatch(u -> u.getStatus() == StatusPesanan.MENUNGGU);
     }
 
-    public Pesanan createPesanan(PesananRequest request, Long UserId){
-        User user = userService.getUserById(UserId);
+    public Pesanan createPesanan(PesananRequest request){
+
+        Long userId = securityService.getCurrentUserId();
+        User user = userService.getUserById(userId);
         Alamat alamat = alamatService.getAlamatById(request.getAlamatId());
 
         if(user.getStatusOnOff() != StatusOnOff.ONLINE){
