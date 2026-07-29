@@ -29,7 +29,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, UserMapper userMapper, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder, JwtService jwtService){
+    public AuthService(UserRepository userRepository, UserMapper userMapper,
+            AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService,
+            PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
@@ -38,19 +40,19 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    private void setOnline(User user){
+    private void setOnline(User user) {
         user.setStatusOnOff(StatusOnOff.ONLINE);
         userRepository.save(user);
     }
 
-    private void setOffline(User user){
+    private void setOffline(User user) {
         user.setStatusOnOff(StatusOnOff.OFFLINE);
         userRepository.save(user);
     }
 
-    public RegisterResponse register(RegisterRequest request){
+    public RegisterResponse register(RegisterRequest request) {
 
-        if(userRepository.existsByEmailIgnoreCase(request.getEmail())){
+        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new BadRequestException("Email sudah terdaftar!");
         }
 
@@ -61,10 +63,12 @@ public class AuthService {
         return userMapper.toRegisterResponse(userRepository.save(user));
     }
 
-    public LoginResponse login(LoginRequest request){
+    public LoginResponse login(LoginRequest request) {
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(request.getEmail());
+        authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService
+                .loadUserByUsername(request.getEmail());
 
         setOnline(userDetails.getUser());
 
@@ -73,7 +77,7 @@ public class AuthService {
         return new LoginResponse(jwt);
     }
 
-    public void logOut(){
+    public void logOut() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
