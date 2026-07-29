@@ -23,7 +23,7 @@ export default function Login() {
       const user = await login(form);
       if (user.role === ROLE.ADMIN) navigate("/admin/dashboard");
       else if (user.role === ROLE.MITRA) navigate("/mitra/dashboard");
-      else navigate("/pesanan");
+      else navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {

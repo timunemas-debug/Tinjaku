@@ -16,6 +16,7 @@ import TentangKami from "./pages/public/TentangKami";
 
 // User pages
 import Pesanan from "./pages/user/Pesanan";
+import UserDashboard from "./pages/user/Dashboard";
 import Profile from "./pages/user/Profile";
 import Alamat from "./pages/user/Alamat";
 import Riwayat from "./pages/user/Riwayat";
@@ -59,6 +60,7 @@ export default function App() {
         }
       >
         <Route path="/pesanan" element={<Pesanan />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/alamat" element={<Alamat />} />
         <Route path="/riwayat" element={<Riwayat />} />
