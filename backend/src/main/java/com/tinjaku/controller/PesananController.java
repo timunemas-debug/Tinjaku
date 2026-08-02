@@ -112,4 +112,16 @@ public class PesananController {
 
         return pesananService.getPesananById(pesanan.getId());
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("{userId}/riwayat")
+    public List<PesananResponse> riwayatPesananUser(@PathVariable Long userId){
+        return pesananService.getRiwayatMitra(userId);
+    }
+
+    @PreAuthorize("hasRole('MITRA')")
+    @GetMapping("{mitraId}/riwayat")
+    public List<PesananResponse> riwayatPesananMitra(@PathVariable Long mitraId){
+        return pesananService.getRiwayatMitra(mitraId);
+    }
 }

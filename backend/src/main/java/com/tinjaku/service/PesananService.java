@@ -194,4 +194,17 @@ public class PesananService {
         return pesananRepository.save(pesanan);
     }
 
+    public List<PesananResponse> getRiwayatUser(Long userId){
+        return pesananRepository.findByUserIdAndStatusPesanan(userId, StatusPesanan.SELESAI)
+                .stream()
+                .map(pesananMapper::mapToResponse)
+                .toList();
+    }
+
+    public List<PesananResponse> getRiwayatMitra(Long mitraId){
+        return pesananRepository.findByMitraMitraId(mitraId)
+                .stream()
+                .map(pesananMapper::mapToResponse)
+                .toList();
+    }
 }

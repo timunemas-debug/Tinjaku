@@ -1,7 +1,7 @@
 package com.tinjaku.security;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,9 +20,8 @@ public class CustomUserDetails implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        return List.of(
-            new SimpleGrantedAuthority(user.getRole().name())
-        );
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
+        return Collections.singletonList(authority);
     }
 
     @Override
