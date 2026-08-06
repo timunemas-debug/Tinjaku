@@ -23,16 +23,17 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentId;
+    private Long paymentId;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
+    
     @OneToOne
     @JoinColumn(name = "pesanan_id")
     private Pesanan pesanan;
 
     private BigDecimal amount;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
 
     @Enumerated(EnumType.STRING)
     private PaymentMehod paymentMehod;
