@@ -27,6 +27,7 @@ import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.security.CustomUserDetailsService;
 import com.tinjaku.security.JwtService;
 import com.tinjaku.service.MitraService;
+import com.tinjaku.service.PesananService;
 import com.tinjaku.service.RatingService;
 
 @AutoConfigureMockMvc(addFilters = false)

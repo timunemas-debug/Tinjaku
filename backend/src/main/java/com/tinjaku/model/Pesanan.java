@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.*;
 
 @Entity
@@ -31,6 +32,9 @@ public class Pesanan {
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToOne(mappedBy = "pesanan")
+    private Payment payment;
 
     private String namaPenerima;
     private String noHp;

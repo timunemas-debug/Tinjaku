@@ -20,7 +20,6 @@ import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.service.MitraService;
-import com.tinjaku.service.PesananService;
 import com.tinjaku.service.RatingService;
 
 import jakarta.validation.Valid;
@@ -30,12 +29,10 @@ import jakarta.validation.Valid;
 public class MitraController {
     private final MitraService mitraService;
     private final RatingService ratingService;
-    private final PesananService pesananService;
 
-    public MitraController(MitraService mitraService, RatingService ratingService, PesananService pesananService){
+    public MitraController(MitraService mitraService, RatingService ratingService){
         this.mitraService = mitraService;
         this.ratingService = ratingService;
-        this.pesananService = pesananService;
     }
 
     @PostMapping

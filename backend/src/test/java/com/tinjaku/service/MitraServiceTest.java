@@ -34,6 +34,7 @@ import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.security.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
 public class MitraServiceTest {
@@ -55,6 +56,9 @@ public class MitraServiceTest {
 
     @Mock
     UpdateMitraProfileMapper updateMitraProfileMapper;
+
+    @Mock
+    SecurityService securityService;
 
     @InjectMocks
     MitraService mitraService;

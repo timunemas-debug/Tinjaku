@@ -323,4 +323,50 @@ public class PesananControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SELESAI"));
     }
+
+    @Test
+    public void riwayatPesananUser() throws Exception{
+
+        PesananResponse response = new PesananResponse();
+        response.setId(1L);
+        response.setNamaLengkap("Jeremy");
+        response.setAlamatLengkap("Test");
+
+        PesananResponse response2 = new PesananResponse();
+        response2.setId(2L);
+        response2.setNamaLengkap("Pretty");
+        response2.setAlamatLengkap("Test");
+
+        when(pesananService.getRiwayatUser(1L))
+                .thenReturn(List.of(response, response2));
+
+        mockMvc.perform(get("/pesanan/1/riwayat-user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].namaLengkap").value("Jeremy"))
+                .andExpect(jsonPath("$[1].namaLengkap").value("Pretty"));
+
+    }
+
+    @Test
+    public void riwayatPesananMitra() throws Exception{
+
+        PesananResponse response = new PesananResponse();
+        response.setId(1L);
+        response.setNamaLengkap("Jeremy");
+        response.setAlamatLengkap("Test");
+
+        PesananResponse response2 = new PesananResponse();
+        response2.setId(2L);
+        response2.setNamaLengkap("Pretty");
+        response2.setAlamatLengkap("Test");
+
+        when(pesananService.getRiwayatMitra(1L))
+                .thenReturn(List.of(response, response2));
+
+        mockMvc.perform(get("/pesanan/1/riwayat-mitra"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].namaLengkap").value("Jeremy"))
+                .andExpect(jsonPath("$[1].namaLengkap").value("Pretty"));
+
+    }
 }

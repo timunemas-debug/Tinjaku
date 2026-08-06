@@ -114,13 +114,13 @@ public class PesananController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("{userId}/riwayat")
+    @GetMapping("/{userId}/riwayat-user")
     public List<PesananResponse> riwayatPesananUser(@PathVariable Long userId){
-        return pesananService.getRiwayatMitra(userId);
+        return pesananService.getRiwayatUser(userId);
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @GetMapping("{mitraId}/riwayat")
+    @GetMapping("/{mitraId}/riwayat-mitra")
     public List<PesananResponse> riwayatPesananMitra(@PathVariable Long mitraId){
         return pesananService.getRiwayatMitra(mitraId);
     }

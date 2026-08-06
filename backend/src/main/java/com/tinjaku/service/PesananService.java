@@ -195,7 +195,7 @@ public class PesananService {
     }
 
     public List<PesananResponse> getRiwayatUser(Long userId){
-        return pesananRepository.findByUserIdAndStatusPesanan(userId, StatusPesanan.SELESAI)
+        return pesananRepository.findByUserUserIdAndStatus(userId, StatusPesanan.SELESAI)
                 .stream()
                 .map(pesananMapper::mapToResponse)
                 .toList();
