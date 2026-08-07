@@ -1,4 +1,5 @@
 package com.tinjaku.model;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class Mitra {
     private Long mitraId;
 
     private String namaMitra;
+    private BigDecimal hargaJasa;
 
     @Column(nullable = false, unique = true)
     private String email;

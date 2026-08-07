@@ -3,12 +3,15 @@ package com.tinjaku.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -402,5 +405,67 @@ public class PesananServiceTest {
         assertEquals(StatusPesanan.DALAM_PERJALANAN, result.getStatus());
 
         verify(pesananRepository).save(any(Pesanan.class));
+    }
+
+    @Test
+    public void shouldHitungTotalHarga(){
+
+        User user = new User();
+        user.setCreatedAt(LocalDateTime.now());
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setHargaJasa(BigDecimal.valueOf(100000));
+
+        when(userService.getUserById(1L))
+                .thenReturn(user);
+
+        BigDecimal total = pesananService.hitungTotalHarga(1L, pesanan);
+
+        assertEquals(0, BigDecimal.valueOf(80000).compareTo(total));
+
+        assertEquals(0, BigDecimal.valueOf(5000).compareTo(pesanan.getBiayaAdmin()));
+    }
+
+    @Test
+    public void shouldHitungDiskon(){
+
+        User user = new User();
+        user.setCreatedAt(LocalDateTime.now().minusDays(3));
+
+        Pesanan pesanan = new Pesanan();
+
+        when(userService.getUserById(1L))
+                .thenReturn(user);
+
+        BigDecimal diskon = pesananService.hitungDiskon(1L, pesanan);
+
+        assertEquals(BigDecimal.valueOf(25000), diskon);
+
+        verify(userService).getUserById(1L);
+    }
+
+    @Test
+    public void shouldAjukanHarga(){
+
+        User user = new User();
+        user.setUserId(1L);
+        user.setCreatedAt(LocalDateTime.now().minusDays(3));
+
+        Pesanan pesanan = new Pesanan();
+        pesanan.setUser(user);
+
+        when(pesananRepository.findById(1L))
+                .thenReturn(Optional.of(pesanan));
+
+        when(userService.getUserById(1L))
+                .thenReturn(user);
+
+        pesananService.ajukanHarga(1L, BigDecimal.valueOf(100000));
+
+        assertEquals(BigDecimal.valueOf(100000), pesanan.getHargaJasa());
+        assertEquals(StatusPesanan.MENUNGGU_PEMBAYARAN, pesanan.getStatus());
+        assertNotNull(pesanan.getTotalHarga());
+
+        verify(pesananRepository).save(pesanan);
     }
 }

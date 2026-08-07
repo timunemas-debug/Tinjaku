@@ -1,4 +1,6 @@
 package com.tinjaku.model;
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -41,6 +43,11 @@ public class Pesanan {
     private String alamatLengkap;
     private String kelurahan;
     private String kecamatan;
+    private BigDecimal hargaJasa;
+    private BigDecimal biayaTransport;
+    private BigDecimal biayaAdmin;
+    private BigDecimal diskon;
+    private BigDecimal totalHarga;
 
     @Enumerated(EnumType.STRING)
     private Kota kota;

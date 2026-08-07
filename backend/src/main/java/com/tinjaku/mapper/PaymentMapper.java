@@ -12,10 +12,7 @@ public class PaymentMapper {
     public Payment toEntity(PaymentRequest request){
 
         Payment payment = new Payment();
-        payment.setTransactionId(request.getTransactionId());
-        payment.setAmount(request.getAmount());
         payment.setPaymentMehod(request.getPaymentMehod());
-        payment.setPaymentUrl(request.getPaymentUrl());
 
         return payment;
     }

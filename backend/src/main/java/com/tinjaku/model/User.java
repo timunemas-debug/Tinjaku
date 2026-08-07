@@ -1,4 +1,5 @@
 package com.tinjaku.model;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,17 +24,19 @@ public class User {
 
     private String namaDepan;
     private String namaBelakang;
-
+    
     @Column(nullable = false, unique = true)
     private String email;
-
+    
     private String password;
-
+    
     @OneToMany(mappedBy = "user")
     private List<Alamat> alamatList = new ArrayList<>();
-
+    
     @OneToMany(mappedBy = "user")
     private List<Pesanan> pesananList = new ArrayList<>();
+    
+    private LocalDateTime createdAt;
 
     public User(){
     }

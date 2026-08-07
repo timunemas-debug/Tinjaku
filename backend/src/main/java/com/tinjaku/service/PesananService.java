@@ -1,4 +1,7 @@
 package com.tinjaku.service;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -12,6 +15,8 @@ import com.tinjaku.model.*;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.security.SecurityService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class PesananService {
     private final UserService userService;
@@ -21,6 +26,8 @@ public class PesananService {
     private final AlamatService alamatService;
     private final RatingService ratingService;
     private final SecurityService securityService;
+
+    private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
 
     public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService){
         this.userService = userService;
@@ -39,7 +46,7 @@ public class PesananService {
                 .toList();
     }
 
-    private Pesanan getPesananEntityById(Long id){
+    public Pesanan getPesananEntityById(Long id){
         return pesananRepository.findById(id)
                 .orElseThrow(() ->
                     new ResourceNotFound("Pesanan tidak ditemukan!"));
@@ -76,6 +83,37 @@ public class PesananService {
         return pesananRepository.save(pesanan);
     }
 
+    public BigDecimal hitungTotalHarga(Long userId, Pesanan pesanan){
+
+        BigDecimal biayaAdmin = pesanan.getHargaJasa()
+                                .multiply(BigDecimal.valueOf(0.05))
+                                .setScale(0, RoundingMode.HALF_UP);
+
+        BigDecimal diskon = hitungDiskon(userId, pesanan);
+
+
+        BigDecimal total = pesanan.getHargaJasa()
+                            .add(biayaAdmin)
+                            .subtract(diskon);
+        
+        pesanan.setBiayaAdmin(biayaAdmin);
+
+        return total;
+    }
+
+    public BigDecimal hitungDiskon(Long userId, Pesanan pesanan){
+        
+        LocalDateTime sekarang = LocalDateTime.now();
+
+        User user = userService.getUserById(userId);
+
+        if(!user.getCreatedAt().plusDays(7).isAfter(sekarang)){
+            return BigDecimal.ZERO;
+        }
+
+        return DISKON_PENGGUNA_BARU;
+    }
+
     public void hapusPesananService(Long id){
         if(!pesananRepository.existsById(id)){
             throw new ResourceNotFound("Pesanan tidak ditemukan!");
@@ -89,6 +127,21 @@ public class PesananService {
                .anyMatch(u -> u.getStatus() == StatusPesanan.MENUNGGU);
     }
 
+    @Transactional
+    public void ajukanHarga(Long pesananId, BigDecimal hargaJasa){
+
+        Pesanan pesanan = getPesananEntityById(pesananId);
+        pesanan.setHargaJasa(hargaJasa);
+
+        BigDecimal total = hitungTotalHarga(pesanan.getUser().getUserId(), pesanan);
+        pesanan.setTotalHarga(total);
+
+        pesanan.setStatus(StatusPesanan.MENUNGGU_PEMBAYARAN);
+
+        pesananRepository.save(pesanan);
+    }
+
+    @Transactional
     public Pesanan createPesanan(PesananRequest request){
 
         Long userId = securityService.getCurrentUserId();
@@ -120,6 +173,7 @@ public class PesananService {
 
         pesanan.setMitra(null);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
+
         return pesananRepository.save(pesanan);
     }
 
