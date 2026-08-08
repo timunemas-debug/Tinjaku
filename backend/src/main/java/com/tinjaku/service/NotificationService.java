@@ -6,10 +6,14 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.response.NotificationResponse;
+import com.tinjaku.exception.BadRequestException;
+import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.NotificationMapper;
 import com.tinjaku.model.Notification;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.NotificationRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class NotificationService {
@@ -57,5 +61,30 @@ public class NotificationService {
     public boolean hasUnreadNotifications(Long userId){
         
         return notificationRepository.existsByUserUserIdAndIsRead(userId, false);
+    }
+
+    @Transactional
+    public NotificationResponse markAsRead(Long notificationId, Long userId){
+        
+        Notification notification = notificationRepository.findById(notificationId)
+                        .orElseThrow(() -> new ResourceNotFound("Notification tidak ditemukan!"));
+
+        if(!notification.getUser().getUserId().equals(userId)){
+            throw new BadRequestException("Notification bukan milik user!");
+        }
+
+        notification.setRead(true);
+
+        return notificationMapper.toResponse(notificationRepository.save(notification));
+    }
+
+    @Transactional
+    public void markAllRead(Long userId){
+
+        List<Notification> notifications = notificationRepository.findByUserUserIdAndIsRead(userId, false);
+
+        notifications.forEach(notification -> notification.setRead(true));
+
+        notificationRepository.saveAll(notifications);
     }
 }
