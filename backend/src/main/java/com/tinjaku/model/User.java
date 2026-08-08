@@ -35,6 +35,9 @@ public class User {
     
     @OneToMany(mappedBy = "user")
     private List<Pesanan> pesananList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notificationList = new ArrayList<>();
     
     private LocalDateTime createdAt;
 
