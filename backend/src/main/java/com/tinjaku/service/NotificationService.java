@@ -48,7 +48,7 @@ public class NotificationService {
     public List<NotificationResponse> getUnreadNotifications(Long userId){
 
         return notificationRepository
-                .findByUserUserIdIsRead(userId, false)
+                .findByUserUserIdAndIsRead(userId, false)
                 .stream()
                 .map(notificationMapper::toResponse)
                 .toList();
@@ -56,6 +56,6 @@ public class NotificationService {
 
     public boolean hasUnreadNotifications(Long userId){
         
-        return notificationRepository.existsByUserUserIdIsRead(userId, false);
+        return notificationRepository.existsByUserUserIdAndIsRead(userId, false);
     }
 }

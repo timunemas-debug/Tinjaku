@@ -8,7 +8,7 @@ import com.tinjaku.model.Notification;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long>{
     
-    boolean existsByUserUserIdIsRead(Long userId, boolean isRead);
+    boolean existsByUserUserIdAndIsRead(Long userId, boolean isRead);
     List<Notification> findByUserUserId(Long userId);
-    List<Notification> findByUserUserIdIsRead(Long userId, boolean isRead);
+    List<Notification> findByUserUserIdAndIsRead(Long userId, boolean isRead);
 }
