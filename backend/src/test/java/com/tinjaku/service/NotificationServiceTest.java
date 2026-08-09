@@ -40,32 +40,12 @@ public class NotificationServiceTest {
         User user = new User();
         user.setUserId(1L);
 
-        Notification notification = new Notification();
-        notification.setNotificationId(2L);
-        notification.setRead(false);
-        notification.setMessage("Test");
-
-        NotificationResponse response = new NotificationResponse();
-        response.setNotificationId(2L);
-        response.setRead(false);
-        response.setMessage("Test");
-
         when(userService.getUserById(1L))
                 .thenReturn(user);
 
-        when(notificationMapper.toResponse(notification))
-                .thenReturn(response);
-
-        when(notificationRepository.save(any(Notification.class)))
-                .thenReturn(notification);
-
-        NotificationResponse result = notificationService.sendNotification(1L, "Test");
-
-        assertEquals(2L, result.getNotificationId());
-        assertEquals("Test", result.getMessage());
+        notificationService.sendNotification(1L, "Berhasil");
 
         verify(userService).getUserById(1L);
-        verify(notificationMapper).toResponse(notification);
         verify(notificationRepository).save(any(Notification.class));
     }
 

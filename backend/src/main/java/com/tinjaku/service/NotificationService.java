@@ -3,6 +3,7 @@ package com.tinjaku.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.response.NotificationResponse;
@@ -28,7 +29,8 @@ public class NotificationService {
         this.userService = userService;
     }
 
-    public NotificationResponse sendNotification(Long userId, String message){
+    @Async
+    public void sendNotification(Long userId, String message){
 
         User user = userService.getUserById(userId);
 
@@ -38,7 +40,7 @@ public class NotificationService {
         notification.setRead(false);
         notification.setUser(user);
 
-        return notificationMapper.toResponse(notificationRepository.save(notification));
+        notificationRepository.save(notification);
     }
 
     public List<NotificationResponse> getMyNotifications(Long userId){

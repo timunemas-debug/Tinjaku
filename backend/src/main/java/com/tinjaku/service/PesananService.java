@@ -26,10 +26,11 @@ public class PesananService {
     private final AlamatService alamatService;
     private final RatingService ratingService;
     private final SecurityService securityService;
+    private final NotificationService notificationService;
 
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
 
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService, NotificationService notificationService){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
@@ -37,6 +38,7 @@ public class PesananService {
         this.alamatService = alamatService;
         this.ratingService = ratingService;
         this.securityService = securityService;
+        this.notificationService = notificationService;
     }
 
     public List<PesananResponse> getAllPesanan(){
@@ -173,8 +175,12 @@ public class PesananService {
 
         pesanan.setMitra(null);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
+        
+        Pesanan savedPesanan = pesananRepository.save(pesanan);
 
-        return pesananRepository.save(pesanan);
+        notificationService.sendNotification(userId, "Pesanan berhasil dibuat!");
+        
+        return savedPesanan;
     }
 
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){

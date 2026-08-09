@@ -56,6 +56,9 @@ public class PesananServiceTest {
     @Mock
     SecurityService securityService;
 
+    @Mock
+    NotificationService notificationService;
+
     @InjectMocks
     PesananService pesananService;
 
@@ -299,6 +302,7 @@ public class PesananServiceTest {
         assertEquals(user, result.getUser());
 
         verify(pesananRepository).save(any(Pesanan.class));
+        verify(notificationService).sendNotification(1L, "Pesanan berhasil dibuat!");
     }
 
     @Test
