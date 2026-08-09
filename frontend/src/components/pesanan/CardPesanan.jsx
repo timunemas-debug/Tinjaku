@@ -1,13 +1,14 @@
 const STATUS_CONFIG = {
-  menunggu: { label: "Menunggu", color: "#FFC800", fill: 25 },
-  diterima: { label: "Diterima", color: "#0A0A0A", fill: 50 },
-  "dalam-perjalanan": { label: "Dalam Perjalanan", color: "#2563EB", fill: 75 },
-  selesai: { label: "Selesai", color: "#2F855A", fill: 100 },
-  ditolak: { label: "Ditolak", color: "#D64545", fill: 100 },
+  MENUNGGU: { label: "Menunggu", color: "#FFC800", fill: 20 },
+  DITERIMA: { label: "Diterima", color: "#0A0A0A", fill: 40 },
+  DALAM_PERJALANAN: { label: "Dalam Perjalanan", color: "#2563EB", fill: 60 },
+  DIKERJAKAN: { label: "Dikerjakan", color: "#7C3AED", fill: 80 },
+  SELESAI: { label: "Selesai", color: "#2F855A", fill: 100 },
+  DITOLAK: { label: "Ditolak", color: "#D64545", fill: 100 },
 };
 
 function StatusGauge({ status }) {
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.menunggu;
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.MENUNGGU;
   return (
     <div className="flex items-center gap-2">
       <div className="w-16 h-2 rounded-full bg-[#0A0A0A]/10 overflow-hidden">
@@ -35,13 +36,13 @@ export default function CardPesanan({ pesanan, onClick }) {
             #{String(pesanan.id).padStart(4, "0")}
           </p>
           <p className="font-[Baloo_2] font-bold text-[#0A0A0A]">
-            {pesanan.alamat || "Alamat belum diisi"}
+            {pesanan.alamatLengkap || "Alamat belum diisi"}
           </p>
         </div>
       </div>
       <StatusGauge status={pesanan.status} />
-      {pesanan.catatan && (
-        <p className="text-sm text-[#6B7280] mt-3 line-clamp-2">{pesanan.catatan}</p>
+      {pesanan.keluhan && (
+        <p className="text-sm text-[#6B7280] mt-3 line-clamp-2">{pesanan.keluhan}</p>
       )}
     </div>
   );

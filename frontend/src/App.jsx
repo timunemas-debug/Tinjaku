@@ -40,18 +40,18 @@ import { ROLE } from "./utils/statusPesananMap";
 export default function App() {
   return (
     <Routes>
-      {/* Public, dibungkus PublicLayout (Navbar + Footer) */}
+    
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/layanan" element={<Layanan />} />
         <Route path="/tentang-kami" element={<TentangKami />} />
       </Route>
 
-      {/* Login & Register full-page, TANPA Navbar/Footer */}
+      
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* User, dibungkus UserLayout */}
+      
       <Route
         element={
           <ProtectedRoute allowedRoles={[ROLE.USER]}>
@@ -66,7 +66,7 @@ export default function App() {
         <Route path="/riwayat" element={<Riwayat />} />
       </Route>
 
-      {/* Mitra, dibungkus MitraLayout */}
+      
       <Route
         element={
           <ProtectedRoute allowedRoles={[ROLE.MITRA]}>
@@ -80,7 +80,7 @@ export default function App() {
         <Route path="/mitra/riwayat" element={<RiwayatMitra />} />
       </Route>
 
-      {/* Admin, dibungkus AdminLayout */}
+      
       <Route
         element={
           <ProtectedRoute allowedRoles={[ROLE.ADMIN]}>
