@@ -4,12 +4,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.LoginRequest;
+import com.tinjaku.dto.request.RegisterMitraRequest;
 import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.response.LoginResponse;
+import com.tinjaku.dto.response.RegisterMitraResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.mapper.MitraMapper;
@@ -19,6 +22,7 @@ import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.CustomUserDetails;
 import com.tinjaku.security.CustomUserDetailsService;
 import com.tinjaku.security.JwtService;
@@ -85,10 +89,15 @@ public class AuthService {
 
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService
-                .loadUserByUsername(request.getEmail());
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
 
-        setOnline(userDetails.getUser());
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+            setOnline(customUserDetails.getUser());
+        }
+
+        if(userDetails instanceof CustomMitraDetails customMitraDetails){
+            setOnline(customMitraDetails.getMitra());
+        }
 
         String jwt = jwtService.generateToken(userDetails);
 
@@ -99,8 +108,27 @@ public class AuthService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        setOffline(userDetails.getUser());
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+            setOffline(customUserDetails.getUser());
+        }
+
+        if (userDetails instanceof CustomMitraDetails customMitraDetails) {
+            setOffline(customMitraDetails.getMitra());
+        }
+    }
+
+    public RegisterMitraResponse registerMitra(RegisterMitraRequest request){
+        
+        if(mitraRepository.existsByEmailIgnoreCase(request.getEmail())){
+            throw new BadRequestException("Email sudah terdaftar!");
+        }
+
+        Mitra mitra = mitraMapper.toEntity(request);
+
+        mitra.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        return mitraMapper.toRegisterMitraResponse(mitraRepository.save(mitra));
     }
 }

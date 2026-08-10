@@ -52,4 +52,8 @@ public class CustomMitraDetails implements UserDetails{
     public boolean isEnabled(){
         return true;
     }
+
+    public Mitra getMitra() {
+        return mitra;
+    }
 }

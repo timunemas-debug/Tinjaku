@@ -28,12 +28,26 @@ public class JwtService {
         );
     }
 
-    public String generateToken(CustomUserDetails userDetails){
+    public String generateToken(UserDetails userDetails){
+
+        String role;
+        Long id;
+
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+            role = customUserDetails.getUser().getRole().name();
+            id = customUserDetails.getUser().getUserId();
+        }
+        else if(userDetails instanceof CustomMitraDetails customMitraDetails){
+            role = customMitraDetails.getMitra().getRole().name();
+            id = customMitraDetails.getMitra().getMitraId();
+        }else{
+            throw new IllegalArgumentException("Unknown UserDetails type!");
+        }
 
         return Jwts.builder()
                     .subject(userDetails.getUsername())
-                    .claim("role", userDetails.getRole())
-                    .claim("id", userDetails.getUserId())
+                    .claim("role", role)
+                    .claim("id", id)
                     .issuedAt(new Date(System.currentTimeMillis()))
                     .expiration(new Date(System.currentTimeMillis() + expiration))
                     .signWith(getSignKey())

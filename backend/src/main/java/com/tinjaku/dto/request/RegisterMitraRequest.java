@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReqisterMitraRequest {
+public class RegisterMitraRequest {
     
     @NotBlank(message = "Nama tidak boleh kosong!")
     private String namaMitra;

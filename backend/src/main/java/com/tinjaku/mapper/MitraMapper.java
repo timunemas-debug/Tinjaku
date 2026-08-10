@@ -3,8 +3,10 @@ package com.tinjaku.mapper;
 import org.springframework.stereotype.Component;
 
 import com.tinjaku.dto.request.MitraRequest;
+import com.tinjaku.dto.request.RegisterMitraRequest;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
+import com.tinjaku.dto.response.RegisterMitraResponse;
 import com.tinjaku.dto.response.AlamatMitraResponse;
 import java.util.List;
 import com.tinjaku.model.Mitra;
@@ -42,5 +44,21 @@ public class MitraMapper {
 
     public OnlineResponse toOnlineResponse(Mitra mitra){
         return new OnlineResponse(mitra.getStatusOnOff());
+    }
+
+    public Mitra toEntity(RegisterMitraRequest request){
+
+        Mitra mitra = new Mitra();
+        mitra.setNamaMitra(request.getNamaMitra());
+        mitra.setEmail(request.getEmail());
+        mitra.setPassword(request.getPassword());
+
+        return mitra;
+    }
+
+    public RegisterMitraResponse toRegisterMitraResponse(Mitra mitra){
+
+        return new RegisterMitraResponse(mitra.getNamaMitra(),
+                                         mitra.getEmail());
     }
 }

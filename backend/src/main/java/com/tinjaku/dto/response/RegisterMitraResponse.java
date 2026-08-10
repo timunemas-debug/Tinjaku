@@ -13,5 +13,4 @@ public class RegisterMitraResponse {
     
     private String namaMitra;
     private String email;
-    private String password;
 }

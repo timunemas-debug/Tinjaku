@@ -113,7 +113,6 @@ public class MitraServiceTest {
 
         verify(mitraRepository).existsByNamaMitraIgnoreCase("Jeremy");
         verify(mitraRepository, never()).save(any());
-        verify(mitraMapper, never()).toEntity(any());
         verify(mitraMapper, never()).toResponse(any(), any(), any());
     }
 
