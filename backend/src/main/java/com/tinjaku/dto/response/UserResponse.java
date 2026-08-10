@@ -8,6 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponse {
+    private Long userId;
     private String namaDepan;
     private String namaBelakang;
     private String namaLengkap;

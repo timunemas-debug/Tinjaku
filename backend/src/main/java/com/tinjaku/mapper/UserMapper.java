@@ -37,7 +37,8 @@ public class UserMapper {
                 .map(alamatMapper::toResponse)
                 .toList();
         
-        return new UserResponse(user.getNamaDepan(),
+        return new UserResponse(user.getUserId(),
+                                user.getNamaDepan(),
                                 user.getNamaBelakang(),
                                 user.getNamaLengkap(),
                                 alamatResponse);

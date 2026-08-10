@@ -23,7 +23,8 @@ public class AlamatMapper {
     }
 
     public AlamatResponse toResponse(Alamat alamat){
-        return new AlamatResponse(alamat.getLabel(),
+        return new AlamatResponse(alamat.getIdAlamat(),
+                                  alamat.getLabel(),
                                   alamat.getJalan(),
                                   alamat.getKelurahan(),
                                   alamat.getKecamatan(),

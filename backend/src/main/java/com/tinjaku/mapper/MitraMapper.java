@@ -33,7 +33,8 @@ public class MitraMapper {
                 .map(alamatMitraMapper::toResponse)
                 .toList();
 
-        return new MitraResponse(mitra.getNamaMitra(),
+        return new MitraResponse(mitra.getMitraId(),
+                                 mitra.getNamaMitra(),
                                  ratingMitra,
                                  totalRating,
                                  alamatResponse);

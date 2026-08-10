@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MitraResponse {
-    private String nama;
+    private Long mitraId;    private String nama;
     private Double ratingMitra;
     private Long totalRating;
     private List<AlamatMitraResponse> alamat;

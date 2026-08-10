@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class PesananResponse {
     private Long id;
+    private Long userId;
     private String keluhan;
     private StatusPesanan status;
     private String namaPenerima;

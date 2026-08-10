@@ -9,6 +9,7 @@ import com.tinjaku.model.Kota;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlamatResponse {
+    private Long idALamat;
     private Label label;
     private String jalan;
     private String kelurahan;

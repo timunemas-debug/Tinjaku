@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,5 +53,10 @@ public class AlamatController {
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id){
         alamatService.deleteAlamat(id);
+    }
+
+    @PutMapping("/{userId}/update-alamat")
+    public AlamatResponse updateAlamat(@PathVariable Long userId, @Valid AlamatRequest request){
+        return alamatService.updateAlamat(userId, request);
     }
 }
