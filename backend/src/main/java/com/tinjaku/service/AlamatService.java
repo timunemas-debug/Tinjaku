@@ -12,17 +12,20 @@ import com.tinjaku.model.Alamat;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.AlamatRepository;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.security.SecurityService;
 
 @Service
 public class AlamatService {
     private final AlamatRepository alamatRepository;
     private final UserRepository userRepository;
     private final AlamatMapper alamatMapper;
+    private final SecurityService securityService;
 
-    public AlamatService(AlamatRepository alamatRepository, AlamatMapper alamatMapper, UserRepository userRepository){
+    public AlamatService(AlamatRepository alamatRepository, AlamatMapper alamatMapper, UserRepository userRepository, SecurityService securityService){
         this.alamatRepository = alamatRepository;
         this.alamatMapper = alamatMapper;
         this.userRepository = userRepository;
+        this.securityService = securityService;
     }
 
     public AlamatResponse tambahAlamat(Long userId, AlamatRequest request){
@@ -46,7 +49,13 @@ public class AlamatService {
     }
 
     public AlamatResponse getAlamatResponseById(Long id){
+        Long userId = securityService.getCurrentUserId();
+
         Alamat alamat = getAlamatById(id);
+
+        if(!alamat.getUser().getUserId().equals(userId)){
+            throw new BadRequestException("Alamat bukan milik user!");
+        }
 
         return alamatMapper.toResponse(alamat);
     }
