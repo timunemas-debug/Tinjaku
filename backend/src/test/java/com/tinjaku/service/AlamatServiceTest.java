@@ -22,6 +22,7 @@ import com.tinjaku.model.Label;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.AlamatRepository;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.security.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
 public class AlamatServiceTest {
@@ -34,6 +35,9 @@ public class AlamatServiceTest {
 
     @Mock
     AlamatMapper alamatMapper;
+
+    @Mock
+    SecurityService securityService;
 
     @InjectMocks
     AlamatService alamatService;
@@ -125,13 +129,20 @@ public class AlamatServiceTest {
     @Test
     public void shouldGetAlamatResponseById(){
 
+        User user = new User();
+        user.setUserId(1L);
+
         Alamat alamat = new Alamat();
         alamat.setIdAlamat(1L);
+        alamat.setUser(user);
 
         AlamatResponse response = new AlamatResponse();
         response.setLabel(Label.RUMAH);
         response.setJalan("A");
         response.setKelurahan("B");
+
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
 
         when(alamatRepository.findById(1L))
                 .thenReturn(Optional.of(alamat));
@@ -145,6 +156,7 @@ public class AlamatServiceTest {
         assertEquals("A", result.getJalan());
         assertEquals("B", result.getKelurahan());
 
+        verify(securityService).getCurrentUserId();
         verify(alamatRepository).findById(1L);
         verify(alamatMapper).toResponse(alamat);
     }
@@ -167,8 +179,12 @@ public class AlamatServiceTest {
     @Test
     public void shouldUpdateAlamat(){
 
+        User user = new User();
+        user.setUserId(1L);
+
         Alamat alamat = new Alamat();
         alamat.setIdAlamat(1L);
+        alamat.setUser(user);
 
         AlamatRequest request = new AlamatRequest();
         request.setJalan("A");
@@ -179,6 +195,9 @@ public class AlamatServiceTest {
         response.setJalan("A");
         response.setKelurahan("B");
         response.setKecamatan("C");
+
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
 
         when(alamatRepository.findById(1L))
                 .thenReturn(Optional.of(alamat));
@@ -195,6 +214,7 @@ public class AlamatServiceTest {
         assertEquals("B", result.getKelurahan());
         assertEquals("C", result.getKecamatan());
 
+        verify(securityService).getCurrentUserId();
         verify(alamatRepository).findById(1L);
         verify(alamatRepository).save(alamat);
         verify(alamatMapper).toResponse(alamat);

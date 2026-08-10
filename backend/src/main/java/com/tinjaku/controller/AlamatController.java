@@ -1,5 +1,6 @@
 package com.tinjaku.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,33 +31,45 @@ public class AlamatController {
         this.alamatMitraService = alamatMitraService;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{userId}")
     public AlamatResponse tambahAlamat(@PathVariable Long userId, @Valid @RequestBody AlamatRequest request){
         return alamatService.tambahAlamat(userId, request);
     }
 
+    @PreAuthorize("hasRole('MITRA')")
     @PostMapping("/{mitraId}/alamat-mitra")
     public AlamatMitraResponse tambahAlamatMitra(@PathVariable Long mitraId, @Valid @RequestBody AlamatMitraRequest request){
         return alamatMitraService.tambahAlamat(mitraId, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<AlamatResponse> getAllAlamat(){
         return alamatService.getAllAlamat();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public AlamatResponse getAlamatById(@PathVariable Long id){
         return alamatService.getAlamatResponseById(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id){
         alamatService.deleteAlamat(id);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{userId}/update-alamat")
     public AlamatResponse updateAlamat(@PathVariable Long userId, @Valid AlamatRequest request){
         return alamatService.updateAlamat(userId, request);
+    }
+
+    @PreAuthorize("hasRole('MITRA')")
+    @PutMapping("/{mitraId}/update-alamat-mitra")
+    public AlamatMitraResponse updateAlamatMitra(@PathVariable Long mitraId, @Valid AlamatMitraRequest request){
+        return alamatMitraService.updateAlamatMitra(mitraId, request);
     }
 }

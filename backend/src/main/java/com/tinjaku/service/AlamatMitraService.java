@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.AlamatMitraRequest;
 import com.tinjaku.dto.response.AlamatMitraResponse;
+import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.AlamatMitraMapper;
 import com.tinjaku.repository.AlamatMitraRepository;
 import com.tinjaku.repository.MitraRepository;
+import com.tinjaku.security.SecurityService;
 import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Mitra;
 
@@ -18,11 +20,13 @@ public class AlamatMitraService {
     private final AlamatMitraRepository alamatMitraRepository;
     private final AlamatMitraMapper alamatMitraMapper;
     private final MitraRepository mitraRepository;
+    private final SecurityService securityService;
 
-    public AlamatMitraService(AlamatMitraRepository alamatMitraRepository, AlamatMitraMapper alamatMitraMapper, MitraRepository mitraRepository){
+    public AlamatMitraService(AlamatMitraRepository alamatMitraRepository, AlamatMitraMapper alamatMitraMapper, MitraRepository mitraRepository, SecurityService securityService){
         this.alamatMitraRepository = alamatMitraRepository;
         this.alamatMitraMapper = alamatMitraMapper;
         this.mitraRepository = mitraRepository;
+        this.securityService =securityService;
     }
 
     public AlamatMitraResponse tambahAlamat(Long mitraId, AlamatMitraRequest request){
@@ -46,9 +50,16 @@ public class AlamatMitraService {
     }
 
     public AlamatMitraResponse getAlamatResponseById(Long mitraId){
-        AlamatMitra alamat = getAlamatMitraById(mitraId);
 
-        return alamatMitraMapper.toResponse(alamat);
+        Long idMitra = securityService.getCurrentUserId();
+
+        AlamatMitra alamatMitra = getAlamatMitraById(mitraId);
+
+        if (!alamatMitra.getMitra().getMitraId().equals(idMitra)) {
+            throw new BadRequestException("Alamat bukan milik mitra!");
+        }
+
+        return alamatMitraMapper.toResponse(alamatMitra);
     }
 
     public List<AlamatMitraResponse> getAllAlamat(){
@@ -64,16 +75,22 @@ public class AlamatMitraService {
     }
 
     public AlamatMitraResponse updateAlamatMitra(Long mitraId, AlamatMitraRequest request){
-        AlamatMitra mitra = getAlamatMitraById(mitraId);
 
-        mitra.setLabelMitra(request.getLabelMitra());
-        mitra.setJalan(request.getJalan());
-        mitra.setKelurahan(request.getKelurahan());
-        mitra.setKecamatan(request.getKecamatan());
-        mitra.setKota(request.getKota());
-        mitra.setProvinsi(request.getProvinsi());
+        Long idMitra = securityService.getCurrentUserId();
 
-        return alamatMitraMapper.toResponse(alamatMitraRepository.save(mitra));
+        AlamatMitra alamatMitra = getAlamatMitraById(mitraId);
+        
+        if(!alamatMitra.getMitra().getMitraId().equals(idMitra)){
+            throw new BadRequestException("Alamat bukan milik mitra!");
+        }
+
+        alamatMitra.setLabelMitra(request.getLabelMitra());
+        alamatMitra.setJalan(request.getJalan());
+        alamatMitra.setKelurahan(request.getKelurahan());
+        alamatMitra.setKecamatan(request.getKecamatan());
+        alamatMitra.setKota(request.getKota());
+        alamatMitra.setProvinsi(request.getProvinsi());
+
+        return alamatMitraMapper.toResponse(alamatMitraRepository.save(alamatMitra));
     }
-
 }

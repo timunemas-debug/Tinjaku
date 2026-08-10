@@ -67,8 +67,15 @@ public class AlamatService {
     }
 
     public AlamatResponse updateAlamat(Long id, AlamatRequest request){
+        
+        Long userId = securityService.getCurrentUserId();
+
         Alamat alamat = getAlamatById(id);
 
+        if(!alamat.getUser().getUserId().equals(userId)){
+            throw new BadRequestException("Alamat bukan milik user!");
+        }
+        
         alamat.setLabel(request.getLabel());
         alamat.setJalan(request.getJalan());
         alamat.setKelurahan(request.getKelurahan());

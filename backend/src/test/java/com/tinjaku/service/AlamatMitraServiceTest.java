@@ -15,12 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tinjaku.dto.request.AlamatMitraRequest;
 import com.tinjaku.dto.response.AlamatMitraResponse;
+import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.AlamatMitraMapper;
 import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.repository.AlamatMitraRepository;
 import com.tinjaku.repository.MitraRepository;
+import com.tinjaku.security.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
 public class AlamatMitraServiceTest {
@@ -33,6 +35,9 @@ public class AlamatMitraServiceTest {
 
     @Mock
     MitraRepository mitraRepository;
+
+    @Mock
+    SecurityService securityService;
 
     @InjectMocks
     AlamatMitraService alamatMitraService;
@@ -115,13 +120,20 @@ public class AlamatMitraServiceTest {
     @Test
     public void shouldGetAlamatResponseById(){
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(1L);
+
         AlamatMitra alamat = new AlamatMitra();
         alamat.setIdAlamat(1L);
+        alamat.setMitra(mitra);
 
         AlamatMitraResponse response = new AlamatMitraResponse();
         response.setJalan(jalan);
         response.setKelurahan(kelurahan);
         response.setKecamatan(kecamatan);
+
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
 
         when(alamatMitraRepository.findById(1L))
                 .thenReturn(Optional.of(alamat));
@@ -135,6 +147,7 @@ public class AlamatMitraServiceTest {
         assertEquals(kelurahan, result.getKelurahan());
         assertEquals(kecamatan, result.getKecamatan());
 
+        verify(securityService).getCurrentUserId();
         verify(alamatMitraRepository).findById(1L);
         verify(alamatMitraMapper).toResponse(alamat);
     }
@@ -208,11 +221,15 @@ public class AlamatMitraServiceTest {
     @Test
     public void shouldUpdateAlamatMitra(){
 
-        AlamatMitra mitra = new AlamatMitra();
-        mitra.setIdAlamat(1L);
-        mitra.setJalan(jalan);
-        mitra.setKelurahan(kelurahan);
-        mitra.setKecamatan(kecamatan);
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(1L);
+
+        AlamatMitra alamatMitra = new AlamatMitra();
+        alamatMitra.setIdAlamat(1L);
+        alamatMitra.setJalan(jalan);
+        alamatMitra.setKelurahan(kelurahan);
+        alamatMitra.setKecamatan(kecamatan);
+        alamatMitra.setMitra(mitra);
 
         AlamatMitraRequest request = new AlamatMitraRequest();
         request.setJalan(jalan);
@@ -224,14 +241,17 @@ public class AlamatMitraServiceTest {
         response.setKelurahan(kelurahan);
         response.setKecamatan(kecamatan);
 
-        when(alamatMitraRepository.findById(1L))
-                .thenReturn(Optional.of(mitra));
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
 
-        when(alamatMitraMapper.toResponse(mitra))
+        when(alamatMitraRepository.findById(1L))
+                .thenReturn(Optional.of(alamatMitra));
+
+        when(alamatMitraMapper.toResponse(alamatMitra))
                 .thenReturn(response);
 
-        when(alamatMitraRepository.save(mitra))
-                .thenReturn(mitra);
+        when(alamatMitraRepository.save(alamatMitra))
+                .thenReturn(alamatMitra);
 
         AlamatMitraResponse result = alamatMitraService.updateAlamatMitra(1L, request);
 
@@ -239,8 +259,9 @@ public class AlamatMitraServiceTest {
         assertEquals(kelurahan, result.getKelurahan());
         assertEquals(kecamatan, result.getKecamatan());
 
+        verify(securityService).getCurrentUserId();
         verify(alamatMitraRepository).findById(1L);
-        verify(alamatMitraRepository).save(mitra);
-        verify(alamatMitraMapper).toResponse(mitra);
+        verify(alamatMitraRepository).save(alamatMitra);
+        verify(alamatMitraMapper).toResponse(alamatMitra);
     }
 }
