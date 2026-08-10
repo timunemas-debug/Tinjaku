@@ -1,6 +1,7 @@
 package com.tinjaku.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,26 +27,31 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping("/regist")
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/regist-user")
     public RegisterResponse regist(@RequestBody @Valid RegisterRequest request){
         return authService.register(request);
     }
 
-    @PostMapping("/regist-mtira")
+    @PreAuthorize("hasRole('MITRA')")
+    @PostMapping("/regist-mitra")
     public RegisterMitraResponse registMitra(@RequestBody @Valid RegisterMitraRequest request){
         return authService.registerMitra(request);
     }
 
-    @PostMapping("/login")
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/login-user")
     public LoginResponse login(@RequestBody @Valid LoginRequest request){
         return authService.login(request);
     }
 
+    @PreAuthorize("hasRole('MITRA')")
     @PostMapping("/login-mitra")
     public LoginResponse loginMitra(@RequestBody @Valid LoginRequest request){
         return authService.login(request);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'MITRA')")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(){
         authService.logOut();

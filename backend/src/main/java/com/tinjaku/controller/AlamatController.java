@@ -63,13 +63,13 @@ public class AlamatController {
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/{userId}/update-alamat")
-    public AlamatResponse updateAlamat(@PathVariable Long userId, @Valid AlamatRequest request){
+    public AlamatResponse updateAlamat(@PathVariable Long userId, @Valid @RequestBody AlamatRequest request){
         return alamatService.updateAlamat(userId, request);
     }
 
     @PreAuthorize("hasRole('MITRA')")
     @PutMapping("/{mitraId}/update-alamat-mitra")
-    public AlamatMitraResponse updateAlamatMitra(@PathVariable Long mitraId, @Valid AlamatMitraRequest request){
+    public AlamatMitraResponse updateAlamatMitra(@PathVariable Long mitraId, @Valid @RequestBody AlamatMitraRequest request){
         return alamatMitraService.updateAlamatMitra(mitraId, request);
     }
 }
