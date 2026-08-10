@@ -12,9 +12,12 @@ import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.response.LoginResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 import com.tinjaku.exception.BadRequestException;
+import com.tinjaku.mapper.MitraMapper;
 import com.tinjaku.mapper.UserMapper;
+import com.tinjaku.model.Mitra;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
+import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.security.CustomUserDetails;
 import com.tinjaku.security.CustomUserDetailsService;
@@ -24,16 +27,21 @@ import com.tinjaku.security.JwtService;
 public class AuthService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final MitraRepository mitraRepository;
+    private final MitraMapper mitraMapper;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, UserMapper userMapper,
-            AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService,
-            PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(UserRepository userRepository, UserMapper userMapper, MitraRepository mitraRepository, MitraMapper mitraMapper,
+                       AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService,
+                       PasswordEncoder passwordEncoder, JwtService jwtService) {
+
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.mitraRepository = mitraRepository;
+        this.mitraMapper = mitraMapper;
         this.authenticationManager = authenticationManager;
         this.customUserDetailsService = customUserDetailsService;
         this.passwordEncoder = passwordEncoder;
@@ -48,6 +56,16 @@ public class AuthService {
     private void setOffline(User user) {
         user.setStatusOnOff(StatusOnOff.OFFLINE);
         userRepository.save(user);
+    }
+
+    private void setOnline(Mitra mitra){
+        mitra.setStatusOnOff(StatusOnOff.ONLINE);
+        mitraRepository.save(mitra);
+    }
+
+    private void setOffline(Mitra mitra){
+        mitra.setStatusOnOff(StatusOnOff.OFFLINE);
+        mitraRepository.save(mitra);
     }
 
     public RegisterResponse register(RegisterRequest request) {

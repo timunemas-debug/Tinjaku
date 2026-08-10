@@ -4,6 +4,7 @@ import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Kota;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +15,5 @@ public interface MitraRepository extends JpaRepository<Mitra, Long> {
 
     List<Mitra> findByAlamatList_Kota(Kota kota);
     List<Mitra> findByAlamatList_KotaAndAlamatList_Kecamatan(Kota kota, String kecamatan);
+    Optional<Mitra> findByEmailIgnoreCase(String email);
 }

@@ -15,6 +15,10 @@ public class Mitra {
     @Enumerated(EnumType.STRING)
     private StatusOnOff statusOnOff = StatusOnOff.OFFLINE;
 
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.ROLE_USER;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long mitraId;
@@ -24,6 +28,8 @@ public class Mitra {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    private String password;
 
     @OneToMany(mappedBy = "mitra")
     private List<AlamatMitra> alamatList = new ArrayList<>();
