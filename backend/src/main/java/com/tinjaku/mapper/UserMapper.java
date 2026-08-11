@@ -38,6 +38,7 @@ public class UserMapper {
                 .toList();
         
         return new UserResponse(user.getUserId(),
+                                user.getEmail(),
                                 user.getNamaDepan(),
                                 user.getNamaBelakang(),
                                 user.getNamaLengkap(),

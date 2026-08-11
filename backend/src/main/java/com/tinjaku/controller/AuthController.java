@@ -27,25 +27,21 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @PreAuthorize("hasRole('USER')")
     @PostMapping("/regist-user")
     public RegisterResponse regist(@RequestBody @Valid RegisterRequest request){
         return authService.register(request);
     }
 
-    @PreAuthorize("hasRole('MITRA')")
     @PostMapping("/regist-mitra")
     public RegisterMitraResponse registMitra(@RequestBody @Valid RegisterMitraRequest request){
         return authService.registerMitra(request);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @PostMapping("/login-user")
     public LoginResponse login(@RequestBody @Valid LoginRequest request){
         return authService.login(request);
     }
 
-    @PreAuthorize("hasRole('MITRA')")
     @PostMapping("/login-mitra")
     public LoginResponse loginMitra(@RequestBody @Valid LoginRequest request){
         return authService.login(request);

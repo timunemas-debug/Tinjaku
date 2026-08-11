@@ -19,6 +19,7 @@ public class PesananMapper {
         response.setKota(pesanan.getKota());
         response.setProvinsi(pesanan.getProvinsi());
 
+        response.setUserId(pesanan.getUser() != null ? pesanan.getUser().getUserId() : null);
         response.setNamaLengkap(pesanan.getUser() != null ? pesanan.getUser().getNamaLengkap() : null);
         response.setNamaMitra(pesanan.getMitra() != null ? pesanan.getMitra().getNamaMitra() : null);
 
