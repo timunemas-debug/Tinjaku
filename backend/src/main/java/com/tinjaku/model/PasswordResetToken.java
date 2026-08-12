@@ -26,6 +26,7 @@ public class PasswordResetToken {
     private LocalDateTime otpExpiry;
     private boolean used;
     private LocalDateTime createdAt;
+    private String resetToken;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
