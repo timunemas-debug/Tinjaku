@@ -16,8 +16,7 @@ public class Mitra {
     private StatusOnOff statusOnOff = StatusOnOff.OFFLINE;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.ROLE_USER;
-
+    private Role role = Role.ROLE_MITRA;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

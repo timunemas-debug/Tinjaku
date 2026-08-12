@@ -92,4 +92,15 @@ public class AlamatService {
                 .map(alamatMapper::toResponse)
                 .toList();
     }
+
+    public List<AlamatResponse> getAlamatUser(){
+
+        Long userId = securityService.getCurrentUserId();
+
+        List<Alamat> alamatList = alamatRepository.findByUserUserId(userId);
+
+        return alamatList.stream()
+                .map(alamatMapper::toResponse)
+                .toList();
+    }
 }

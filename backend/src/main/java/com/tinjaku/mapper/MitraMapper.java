@@ -10,6 +10,7 @@ import com.tinjaku.dto.response.RegisterMitraResponse;
 import com.tinjaku.dto.response.AlamatMitraResponse;
 import java.util.List;
 import com.tinjaku.model.Mitra;
+import com.tinjaku.model.Role;
 
 @Component
 public class MitraMapper {
@@ -52,7 +53,8 @@ public class MitraMapper {
         mitra.setNamaMitra(request.getNamaMitra());
         mitra.setEmail(request.getEmail());
         mitra.setPassword(request.getPassword());
-
+        mitra.setRole(Role.ROLE_MITRA);
+        
         return mitra;
     }
 

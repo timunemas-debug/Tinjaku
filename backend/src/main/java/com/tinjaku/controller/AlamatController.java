@@ -1,5 +1,6 @@
 package com.tinjaku.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +42,12 @@ public class AlamatController {
     @PostMapping("/{mitraId}/alamat-mitra")
     public AlamatMitraResponse tambahAlamatMitra(@PathVariable Long mitraId, @Valid @RequestBody AlamatMitraRequest request){
         return alamatMitraService.tambahAlamat(mitraId, request);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/user")
+    public ResponseEntity<List<AlamatResponse>> getAlamatUser(){
+        return ResponseEntity.ok(alamatService.getAlamatUser());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
