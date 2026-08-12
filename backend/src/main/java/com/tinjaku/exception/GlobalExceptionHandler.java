@@ -35,4 +35,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ResponErorRequest(ex.getMessage(), 404));
     }
+
+    @ExceptionHandler(OTPExpiredException.class)
+    public ResponseEntity<ResponErorRequest> handleOTPExpiredException(OTPExpiredException ex){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ResponErorRequest(ex.getMessage(), 400));
+    }
 }

@@ -79,6 +79,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/regist-user", "/auth/login-user", "/auth/regist-mitra", "/auth/login-mitra").permitAll()
+                .requestMatchers("/test/email").permitAll()
                 .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

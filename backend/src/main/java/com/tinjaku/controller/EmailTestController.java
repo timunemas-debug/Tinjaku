@@ -19,7 +19,7 @@ public class EmailTestController {
     @PostMapping("/email")
     public ResponseEntity<String> testEmail(@RequestParam String email){
         
-        emailService.sendOtpEmail(email, "TEST");
+        emailService.sendOtpEmail(email, "1HD1R2");
 
         return ResponseEntity.ok("Email berhasil dikirim!");
     }
