@@ -37,6 +37,9 @@ public class User {
     private List<Pesanan> pesananList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
+    private List<PasswordResetToken> passwordResetTokenList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
     private List<Notification> notificationList = new ArrayList<>();
     
     private LocalDateTime createdAt;
