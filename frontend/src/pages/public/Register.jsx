@@ -7,9 +7,11 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  const [asMitra, setAsMitra] = useState(false);
   const [form, setForm] = useState({
     namaDepan: "",
     namaBelakang: "",
+    namaMitra: "",
     email: "",
     password: "",
   });
@@ -24,7 +26,11 @@ export default function Register() {
     setError("");
     setIsSubmitting(true);
     try {
-      await register(form);
+      const payload = asMitra
+        ? { namaMitra: form.namaMitra, email: form.email, password: form.password }
+        : { namaDepan: form.namaDepan, namaBelakang: form.namaBelakang, email: form.email, password: form.password };
+
+      await register(payload, asMitra);
       navigate("/login");
     } catch (err) {
       setError(err.message);
@@ -38,6 +44,28 @@ export default function Register() {
 
   return (
     <AuthCard plain>
+      
+      <div className="flex bg-gray-100 rounded-full p-1 mb-6">
+        <button
+          type="button"
+          onClick={() => setAsMitra(false)}
+          className={`flex-1 py-2 rounded-full font-body font-bold text-sm transition-colors ${
+            !asMitra ? "bg-ink text-white" : "text-ink/50"
+          }`}
+        >
+          Daftar sebagai User
+        </button>
+        <button
+          type="button"
+          onClick={() => setAsMitra(true)}
+          className={`flex-1 py-2 rounded-full font-body font-bold text-sm transition-colors ${
+            asMitra ? "bg-ink text-white" : "text-ink/50"
+          }`}
+        >
+          Daftar sebagai Mitra
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
           <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -45,26 +73,41 @@ export default function Register() {
           </p>
         )}
 
-        <div>
-          <label className="font-body font-bold text-sm text-ink mb-1.5 block">Nama Depan</label>
-          <input
-            name="namaDepan"
-            value={form.namaDepan}
-            onChange={handleChange}
-            required
-            className={inputStyle}
-          />
-        </div>
+        {asMitra ? (
+          <div>
+            <label className="font-body font-bold text-sm text-ink mb-1.5 block">Nama Mitra / Usaha</label>
+            <input
+              name="namaMitra"
+              value={form.namaMitra}
+              onChange={handleChange}
+              required
+              className={inputStyle}
+            />
+          </div>
+        ) : (
+          <>
+            <div>
+              <label className="font-body font-bold text-sm text-ink mb-1.5 block">Nama Depan</label>
+              <input
+                name="namaDepan"
+                value={form.namaDepan}
+                onChange={handleChange}
+                required
+                className={inputStyle}
+              />
+            </div>
 
-        <div>
-          <label className="font-body font-bold text-sm text-ink mb-1.5 block">Nama Belakang</label>
-          <input
-            name="namaBelakang"
-            value={form.namaBelakang}
-            onChange={handleChange}
-            className={inputStyle}
-          />
-        </div>
+            <div>
+              <label className="font-body font-bold text-sm text-ink mb-1.5 block">Nama Belakang</label>
+              <input
+                name="namaBelakang"
+                value={form.namaBelakang}
+                onChange={handleChange}
+                className={inputStyle}
+              />
+            </div>
+          </>
+        )}
 
         <div>
           <label className="font-body font-bold text-sm text-ink mb-1.5 block">Email</label>
@@ -119,7 +162,7 @@ export default function Register() {
           disabled={isSubmitting}
           className="font-body font-bold text-white bg-accent rounded-full py-3.5 hover:brightness-95 disabled:opacity-60 mt-2"
         >
-          {isSubmitting ? "Memproses..." : "Register"}
+          {isSubmitting ? "Memproses..." : `Daftar sebagai ${asMitra ? "Mitra" : "User"}`}
         </button>
 
         <p className="text-center font-body text-sm text-ink">

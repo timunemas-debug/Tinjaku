@@ -8,6 +8,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [asMitra, setAsMitra] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -20,7 +21,7 @@ export default function Login() {
     setError("");
     setIsSubmitting(true);
     try {
-      const user = await login(form);
+      const user = await login({ ...form, asMitra });
       if (user.role === ROLE.ADMIN) navigate("/admin/dashboard");
       else if (user.role === ROLE.MITRA) navigate("/mitra/dashboard");
       else navigate("/dashboard");
@@ -36,6 +37,28 @@ export default function Login() {
 
   return (
     <AuthCard title="Login">
+      
+      <div className="flex bg-gray-100 rounded-full p-1 mb-6">
+        <button
+          type="button"
+          onClick={() => setAsMitra(false)}
+          className={`flex-1 py-2 rounded-full font-body font-bold text-sm transition-colors ${
+            !asMitra ? "bg-ink text-white" : "text-ink/50"
+          }`}
+        >
+          User
+        </button>
+        <button
+          type="button"
+          onClick={() => setAsMitra(true)}
+          className={`flex-1 py-2 rounded-full font-body font-bold text-sm transition-colors ${
+            asMitra ? "bg-ink text-white" : "text-ink/50"
+          }`}
+        >
+          Mitra
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {error && (
           <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -102,7 +125,7 @@ export default function Login() {
           disabled={isSubmitting}
           className="font-body font-bold text-white bg-accent rounded-full py-3.5 hover:brightness-95 disabled:opacity-60"
         >
-          {isSubmitting ? "Memproses..." : "Login"}
+          {isSubmitting ? "Memproses..." : `Login sebagai ${asMitra ? "Mitra" : "User"}`}
         </button>
 
         <p className="text-center font-body text-sm text-ink">

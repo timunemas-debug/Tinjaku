@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiPlus, FiMapPin, FiClock, FiArrowRight } from "react-icons/fi";
 import { getAlamat } from "../../services/alamatService";
-import { getPesanan } from "../../services/pesananService";
+import { getRiwayatPesananUser } from "../../services/pesananService";
 import { useAuth } from "../../hooks/useAuth";
 import { getStatusInfo } from "../../utils/statusPesananMap";
 
@@ -14,17 +14,22 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAlamat(), getPesanan()])
-      .then(([alamat, pesanan]) => {
-        setAlamatCount(alamat.length);
-        setPesananList(pesanan);
-      })
-      .catch(() => {
-        setAlamatCount(0);
-        setPesananList([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  if (!user?.userId) return;
+
+  Promise.all([
+    getAlamat(),
+    getRiwayatPesananUser(user.userId)
+  ])
+    .then(([alamat, pesanan]) => {
+      setAlamatCount(alamat.length);
+      setPesananList(pesanan);
+    })
+    .catch(() => {
+      setAlamatCount(0);
+      setPesananList([]);
+    })
+    .finally(() => setLoading(false));
+}, [user?.userId]);
 
   const pesananSelesai = pesananList.filter((p) => p.status === "SELESAI").length;
   const pesananAktif = pesananList.filter(

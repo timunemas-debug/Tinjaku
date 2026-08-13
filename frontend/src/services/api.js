@@ -16,8 +16,12 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const backendMessage = error.response?.data?.message;
+    const requestUrl = error.config?.url || "";
 
-    if (status === 401 || status === 403) {
+    
+    const isAuthEndpoint = requestUrl.includes("/auth/");
+
+    if ((status === 401 || status === 403) && !isAuthEndpoint) {
       localStorage.removeItem("token");
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
@@ -28,5 +32,4 @@ api.interceptors.response.use(
     return Promise.reject(new Error(message));
   }
 );
-
 export default api;

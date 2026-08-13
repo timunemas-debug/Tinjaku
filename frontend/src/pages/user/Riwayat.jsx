@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPesanan } from "../../services/pesananService";
+import { getRiwayatPesananUser } from "../../services/pesananService";
 import CardPesanan from "../../components/pesanan/CardPesanan";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -10,17 +10,13 @@ export default function Riwayat() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getPesanan()
-      .then((all) => {
-        // CATATAN: PesananResponse belum punya field userId dari backend,
-        // jadi kita filter pakai namaLengkap sebagai workaround sementara.
-        // Ini TIDAK reliable kalau ada 2 user dengan nama sama — perlu
-        // backend nambahin userId di PesananResponse.
-        setData(all);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [user]);
+  getRiwayatPesananUser(user.userId)
+    .then((all) => {
+      setData(all);
+    })
+    .catch((err) => setError(err.message))
+    .finally(() => setLoading(false));
+}, [user]);
 
   return (
     <div className="min-h-[80vh] bg-[#FAFAFA] px-4 py-12">

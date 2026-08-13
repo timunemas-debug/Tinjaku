@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
 import { authService } from "../services/authService";
 import { decodeToken, isTokenExpired, getUserFromToken } from "../utils/jwt";
@@ -20,22 +21,42 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = async ({ email, password }) => {
-    const { token } = await authService.login({ email, password });
+  const login = async ({ email, password, asMitra = false }) => {
+    const { token } = asMitra
+      ? await authService.loginMitra({ email, password })
+      : await authService.loginUser({ email, password });
+// gapapa gagal, tetep lanjut hapus token lokal
     localStorage.setItem("token", token);
     const decodedUser = getUserFromToken(token);
     setUser(decodedUser);
+
     return decodedUser;
   };
 
-  const register = async (data) => authService.register(data);
+  const register = async (data, asMitra = false) => {
+    return asMitra
+      ? authService.registerMitra(data)
+      : authService.registerUser(data);
+  };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (err) {
+      
+    }
     localStorage.removeItem("token");
     setUser(null);
   };
 
-  const value = { user, isAuthenticated: !!user, loading, login, register, logout };
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    loading,
+    login,
+    register,
+    logout,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
