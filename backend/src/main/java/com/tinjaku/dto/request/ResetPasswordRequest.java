@@ -8,8 +8,7 @@ import lombok.Setter;
 @Setter
 public class ResetPasswordRequest {
 
-    @NotBlank(message = "Masukan email anda!")
-    private String email;
+    private String resetToken;
 
     @NotBlank(message = "Masukan password baru anda!")
     private String newPassword;

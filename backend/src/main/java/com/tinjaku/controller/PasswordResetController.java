@@ -7,8 +7,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.tinjaku.dto.request.ForgotPasswordRequest;
 import com.tinjaku.dto.request.OTPVerificationRequest;
+import com.tinjaku.dto.request.ResetPasswordRequest;
 import com.tinjaku.dto.response.ForgotPasswordResponse;
+import com.tinjaku.dto.response.VerifyOtpResponse;
 import com.tinjaku.service.PasswordResetTokenService;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -27,7 +31,12 @@ public class PasswordResetController {
     }
 
     @PostMapping("/forgot-password/verify")
-    public ForgotPasswordResponse verifyOtp(@RequestBody OTPVerificationRequest request){
+    public VerifyOtpResponse verifyOtp(@RequestBody OTPVerificationRequest request){
         return passwordResetTokenService.verifyOtp(request);
+    }
+
+    @PostMapping("/reset-password")
+    public ForgotPasswordResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request){
+        return passwordResetTokenService.resetPassword(request);
     }
 }

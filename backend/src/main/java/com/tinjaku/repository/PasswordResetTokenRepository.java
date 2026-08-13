@@ -9,4 +9,6 @@ import com.tinjaku.model.PasswordResetToken;
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long>{
     
     Optional<PasswordResetToken> findTopByUserEmailOrderByCreatedAtDesc(String email);
+
+    Optional<PasswordResetToken> findByResetToken(String resetToken);
 }

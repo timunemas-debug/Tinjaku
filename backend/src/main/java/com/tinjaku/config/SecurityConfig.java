@@ -78,7 +78,7 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/regist-user", "/auth/login-user", "/auth/regist-mitra", "/auth/login-mitra", "/password/forgot-password", "/password/forgot-password/verify").permitAll()
+                .requestMatchers("/auth/regist-user", "/auth/login-user", "/auth/regist-mitra", "/auth/login-mitra", "/password/forgot-password", "/password/forgot-password/verify", "/password/reset-password").permitAll()
                 .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -2,12 +2,16 @@ package com.tinjaku.service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.OTPVerificationRequest;
+import com.tinjaku.dto.request.ResetPasswordRequest;
 import com.tinjaku.dto.response.ForgotPasswordResponse;
+import com.tinjaku.dto.response.VerifyOtpResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.PasswordResetToken;
@@ -18,14 +22,16 @@ import com.tinjaku.repository.UserRepository;
 @Service
 public class PasswordResetTokenService {
 
-    private PasswordResetTokenRepository passwordResetTokenRepository;
-    private UserRepository userRepository;
-    private EmailService emailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    public PasswordResetTokenService(UserRepository userRepository, EmailService emailService, PasswordResetTokenRepository passwordResetTokenRepository){
+    public PasswordResetTokenService(UserRepository userRepository, EmailService emailService, PasswordResetTokenRepository passwordResetTokenRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private String generatedOtp(){
@@ -37,14 +43,40 @@ public class PasswordResetTokenService {
         return String.valueOf(otp);
     }
 
+    private String generateResetToken(){
+
+        byte[] randomBytes = new byte[32];
+        SecureRandom random = new SecureRandom();
+
+        random.nextBytes(randomBytes);
+
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(randomBytes);
+    }
+
     public ForgotPasswordResponse requestPasswordReset(String email){
 
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
+        
         if (optionalUser.isEmpty()) {
-            return new ForgotPasswordResponse("OTP berhasil terkirim! tapi boong");
+            return new ForgotPasswordResponse("OTP berhasil terkirim!");
         }
 
         User user = optionalUser.get();
+        
+        Optional<PasswordResetToken> latestOtp = passwordResetTokenRepository.findTopByUserEmailOrderByCreatedAtDesc(email);
+
+        if (latestOtp.isPresent()) {
+            
+            PasswordResetToken token = latestOtp.get();
+
+            LocalDateTime nextRequestTime = token.getCreatedAt().plusMinutes(1);
+
+            if (LocalDateTime.now().isBefore(nextRequestTime)) {
+                throw new BadRequestException("Silakan tunggu 1 menit sebelum meminta OTP lagi!");
+            }
+        }
 
         String otp = generatedOtp();
 
@@ -62,7 +94,7 @@ public class PasswordResetTokenService {
         return new ForgotPasswordResponse("OTP berhasil terkirim!");
     }
 
-    public ForgotPasswordResponse verifyOtp(OTPVerificationRequest request){
+    public VerifyOtpResponse verifyOtp(OTPVerificationRequest request){
 
         Optional<PasswordResetToken> passwordReset = passwordResetTokenRepository.findTopByUserEmailOrderByCreatedAtDesc(request.getEmail());
         if (passwordReset.isEmpty()) {
@@ -83,6 +115,42 @@ public class PasswordResetTokenService {
             throw new BadRequestException("Token tidak valid!");
         }
         
-        return new ForgotPasswordResponse("OTP berhasil diverifikasi!");
+        String resetToken = generateResetToken();
+
+        token.setResetToken(resetToken);
+
+        passwordResetTokenRepository.save(token);
+
+        return new VerifyOtpResponse("Token berhasil di verifikasi!", resetToken);
+    }
+
+    public ForgotPasswordResponse resetPassword(ResetPasswordRequest request){
+
+        Optional<PasswordResetToken> optionalToken = passwordResetTokenRepository.findByResetToken(request.getResetToken());
+
+        if (optionalToken.isEmpty()) {
+            throw new ResourceNotFound("Reset token tidak ditemukan!");
+        }
+
+        PasswordResetToken token = optionalToken.get();
+        
+        if (token.isUsed()) {
+            throw new BadRequestException("Reset token sudah digunakan!");
+        }
+
+        if (token.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Reset token sudah expired!");
+        }
+
+        User user = token.getUser();
+        
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
+
+        token.setUsed(true);
+        passwordResetTokenRepository.save(token);
+
+        return new ForgotPasswordResponse("Password berhasil di ubah!");
     }
 }
