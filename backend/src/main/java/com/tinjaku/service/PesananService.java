@@ -4,14 +4,19 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.response.PesananHistoryResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
+import com.tinjaku.mapper.PesananHistoryMapper;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
+import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.security.SecurityService;
 
@@ -27,10 +32,12 @@ public class PesananService {
     private final RatingService ratingService;
     private final SecurityService securityService;
     private final NotificationService notificationService;
+    private final PesananHistoryRepository pesananHistoryRepository;
+    private final PesananHistoryMapper pesananHistoryMapper;
 
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
 
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService, NotificationService notificationService){
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
@@ -39,6 +46,8 @@ public class PesananService {
         this.ratingService = ratingService;
         this.securityService = securityService;
         this.notificationService = notificationService;
+        this.pesananHistoryRepository = pesananHistoryRepository;
+        this.pesananHistoryMapper = pesananHistoryMapper;
     }
 
     public List<PesananResponse> getAllPesanan(){
@@ -175,6 +184,8 @@ public class PesananService {
 
         pesanan.setMitra(null);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
+
+        saveHistory(pesanan);
         
         Pesanan savedPesanan = pesananRepository.save(pesanan);
 
@@ -183,6 +194,17 @@ public class PesananService {
         return savedPesanan;
     }
 
+    private void saveHistory(Pesanan pesanan){
+
+        PesananHistory history = new PesananHistory();
+        history.setStatus(pesanan.getStatus());
+        history.setWaktuPerubahan(LocalDateTime.now());
+        history.setPesanan(pesanan);
+
+        pesananHistoryRepository.save(history);
+    }
+
+    @Transactional
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){
         Pesanan pesanan = getPesananEntityById(pesananId);
 
@@ -215,9 +237,12 @@ public class PesananService {
         pesanan.setMitra(mitra);
         pesanan.setStatus(StatusPesanan.DITERIMA);
 
+        saveHistory(pesanan);
+
         return pesananRepository.save(pesanan);
     }
 
+    @Transactional
     public Pesanan selesaiPesanan(Long pesananId){
         Pesanan pesanan = getPesananEntityById(pesananId);
 
@@ -227,9 +252,12 @@ public class PesananService {
 
         pesanan.setStatus(StatusPesanan.SELESAI);
 
+        saveHistory(pesanan);
+
         return pesananRepository.save(pesanan);
     }
 
+    @Transactional
     public Pesanan tolakPesanan(Long pesananId){
         Pesanan pesanan = getPesananEntityById(pesananId);
 
@@ -238,10 +266,13 @@ public class PesananService {
         }
 
         pesanan.setStatus(StatusPesanan.DITOLAK);
+        
+        saveHistory(pesanan);
 
         return pesananRepository.save(pesanan);
     }
 
+    @Transactional
     public Pesanan dalamPerjalanan(Long pesananId){
         Pesanan pesanan = getPesananEntityById(pesananId);
 
@@ -250,6 +281,8 @@ public class PesananService {
         }
 
         pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
+
+        saveHistory(pesanan);
 
         return pesananRepository.save(pesanan);
     }
@@ -265,6 +298,45 @@ public class PesananService {
         return pesananRepository.findByMitraMitraId(mitraId)
                 .stream()
                 .map(pesananMapper::mapToResponse)
+                .toList();
+    }
+
+    public List<PesananHistoryResponse> getHistoryPesanan(Long pesananId){
+
+        Pesanan pesanan = getPesananEntityById(pesananId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String role = authentication.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+
+        if (role.equals("ROLE_USER")) {
+            
+            Long userId = securityService.getCurrentUserId();
+
+            if (!pesanan.getUser().getUserId().equals(userId)) {
+                throw new BadRequestException("Bukan milik user!");
+            }
+        } else if (role.equals("ROLE_MITRA")) {
+            
+            Long mitraId = securityService.getCurrentMitraId();
+
+            if (pesanan.getMitra() == null || !pesanan.getMitra().getMitraId().equals(mitraId)) {
+                throw new BadRequestException("Bukan milik mitra!");
+            }
+        }else if (role.equals("ROLE_ADMIN")) {
+            
+        }else{
+
+            throw new BadRequestException("Role tidak memiliki akses!");
+        }
+
+        List<PesananHistory> historyList = pesananHistoryRepository.findByPesananId(pesananId);
+
+        return historyList.stream()
+                .map(pesananHistoryMapper::mapToResponse)
                 .toList();
     }
 }

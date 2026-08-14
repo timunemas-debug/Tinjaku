@@ -1,5 +1,7 @@
 package com.tinjaku.model;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.*;
 
@@ -37,6 +40,9 @@ public class Pesanan {
 
     @OneToOne(mappedBy = "pesanan")
     private Payment payment;
+
+    @OneToMany(mappedBy = "pesanan")
+    private List<PesananHistory> pesananHistory = new ArrayList<>();
 
     private String namaPenerima;
     private String noHp;

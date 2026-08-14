@@ -13,6 +13,12 @@ public class SecurityService {
         return (CustomUserDetails) authentication.getPrincipal();
     }
 
+    public CustomMitraDetails getCurrentMitra(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (CustomMitraDetails) authentication.getPrincipal();
+    }
+
     public Long getCurrentUserId(){
         return getCurrentUser().getUserId();
     }
@@ -27,5 +33,9 @@ public class SecurityService {
                 .iterator()
                 .next()
                 .getAuthority();
+    }
+
+    public Long getCurrentMitraId(){
+        return getCurrentMitra().getMitra().getMitraId();
     }
 }
