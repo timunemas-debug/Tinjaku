@@ -338,7 +338,7 @@ public class MitraServiceTest {
         when(mitraMapper.toOnlineResponse(mitra))
                 .thenReturn(response);
 
-        OnlineResponse result = mitraService.getMitraOnline(mitraId, request);
+        OnlineResponse result = mitraService.updateStatusOnline(mitraId, request);
 
         assertEquals(StatusOnOff.ONLINE, result.getStatusOnOff());
 

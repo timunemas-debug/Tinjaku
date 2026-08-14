@@ -62,11 +62,6 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    private void setOnline(Mitra mitra){
-        mitra.setStatusOnOff(StatusOnOff.ONLINE);
-        mitraRepository.save(mitra);
-    }
-
     private void setOffline(Mitra mitra){
         mitra.setStatusOnOff(StatusOnOff.OFFLINE);
         mitraRepository.save(mitra);
@@ -87,16 +82,12 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
 
-        authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
 
         if (userDetails instanceof CustomUserDetails customUserDetails) {
             setOnline(customUserDetails.getUser());
-        }
-
-        if(userDetails instanceof CustomMitraDetails customMitraDetails){
-            setOnline(customMitraDetails.getMitra());
         }
 
         String jwt = jwtService.generateToken(userDetails);

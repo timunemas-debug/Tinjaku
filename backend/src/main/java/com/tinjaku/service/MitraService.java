@@ -20,6 +20,7 @@ import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.CustomUserDetails;
 import com.tinjaku.security.SecurityService;
 import com.tinjaku.exception.BadRequestException;
@@ -85,6 +86,7 @@ public class MitraService {
     }
 
     public Mitra getMitraById(Long id){
+
         return mitraRepository.findById(id)
                 .orElseThrow(() ->
                     new ResourceNotFound("Mitra tidak ditemukan!"));
@@ -108,6 +110,7 @@ public class MitraService {
     }
 
     public List<PesananResponse> getPesananMitra(Long mitraId){
+
         Mitra mitra = getMitraById(mitraId);
                     
         return mitra.getPesananList()
@@ -116,9 +119,15 @@ public class MitraService {
                 .toList();
     }
 
-    public OnlineResponse getMitraOnline(Long mitraId, OnlineRequest request){
+    public OnlineResponse updateStatusOnline(Long mitraId, OnlineRequest request){
 
         Mitra mitra = getMitraById(mitraId);
+
+        CustomMitraDetails currenDetails = securityService.getCurrentMitra();
+
+        if (!currenDetails.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Bukan milik mitra tersebut!");
+        }
 
         mitra.setStatusOnOff(request.getStatusOnOff());
 
@@ -144,10 +153,15 @@ public class MitraService {
     }
 
     public DashboardResponse getDashboard(Long mitraId){
+
         getMitraById(mitraId);
 
-        CustomUserDetails currentUser = securityService.getCurrentUser();
+        CustomMitraDetails currentDetails = securityService.getCurrentMitra();
 
+        if (!currentDetails.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Bukan milik mitra");
+        }
+        
         Long totalPesanan = pesananRepository.countByMitraMitraId(mitraId);
         Long pesananMenunggu = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU);
         Long pesananDiTerima = pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DITERIMA);

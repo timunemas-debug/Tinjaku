@@ -43,7 +43,7 @@ public class MitraController {
     @PreAuthorize("hasAnyRole('MITRA', 'ADMIN')")
     @PostMapping("/{mitraId}/online")
     public OnlineResponse onlineMitra(@PathVariable Long mitraId, @RequestBody OnlineRequest request){
-        return mitraService.getMitraOnline(mitraId, request);
+        return mitraService.updateStatusOnline(mitraId, request);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

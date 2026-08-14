@@ -82,7 +82,7 @@ public class MitraControllerTest {
         OnlineRequest request = new OnlineRequest();
         request.setStatusOnOff(StatusOnOff.ONLINE);
 
-        when(mitraService.getMitraOnline(eq(1L), any(OnlineRequest.class)))
+        when(mitraService.updateStatusOnline(eq(1L), any(OnlineRequest.class)))
                 .thenReturn(response);
 
         mockMvc.perform(post("/mitra/1/online")
