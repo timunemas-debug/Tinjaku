@@ -15,11 +15,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.request.UserRequest;
-import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.UserResponse;
-import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.security.CustomUserDetailsService;
 import com.tinjaku.security.JwtService;
 import com.tinjaku.service.UserService;
@@ -62,25 +59,6 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.namaDepan").value("Jeremy"));
-    }
-
-    @Test
-    public void shouldOnlineMitra() throws Exception {
-
-        OnlineRequest request = new OnlineRequest();
-        request.setStatusOnOff(StatusOnOff.ONLINE);
-
-        OnlineResponse response = new OnlineResponse();
-        response.setStatusOnOff(StatusOnOff.ONLINE);
-
-        when(userService.getUserOnline(eq(1L), any(OnlineRequest.class)))
-                .thenReturn(response);
-
-        mockMvc.perform(post("/user/1/online")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(response)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.statusOnOff").value("ONLINE"));
     }
 
     @Test

@@ -69,16 +69,6 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public OnlineResponse getUserOnline(Long userId, OnlineRequest request){
-        User user = getUserById(userId);
-
-        user.setStatusOnOff(request.getStatusOnOff());
-        
-        User savedUser = userRepository.save(user);
-
-        return userMapper.toOnlineResponse(savedUser);
-    }
-    
     public UpdateUserProfileResponse updateProfile(UpdateUserProfileRequest request){
         
         Long userId = securityService.getCurrentUserId();

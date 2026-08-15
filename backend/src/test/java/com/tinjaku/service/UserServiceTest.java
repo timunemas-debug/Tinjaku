@@ -13,17 +13,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.tinjaku.dto.request.OnlineRequest;
 import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
-import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.UpdateUserProfileResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.UpdateUserProfileMapper;
 import com.tinjaku.mapper.UserMapper;
-import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.security.SecurityService;
@@ -213,35 +210,6 @@ public class UserServiceTest {
 
         verify(userRepository).existsById(1L);
         verify(userRepository, never()).deleteById(any());
-    }
-
-    @Test
-    public void shouldUpdateUserStatusToOnline(){
-
-        User user = new User();
-        user.setUserId(1L);
-
-        OnlineRequest request = new OnlineRequest();
-        request.setStatusOnOff(StatusOnOff.ONLINE);
-
-        OnlineResponse response = new OnlineResponse();
-        response.setStatusOnOff(StatusOnOff.ONLINE);
-
-        when(userRepository.findById(1L))
-                .thenReturn(Optional.of(user));
-
-        when(userRepository.save(user))
-                .thenReturn(user);
-
-        when(userMapper.toOnlineResponse(user))
-                .thenReturn(response);
-
-        OnlineResponse result = userService.getUserOnline(1L, request);
-
-        assertEquals(StatusOnOff.ONLINE, result.getStatusOnOff());
-
-        verify(userRepository).save(user);
-        verify(userMapper).toOnlineResponse(user);
     }
 
     @Test
