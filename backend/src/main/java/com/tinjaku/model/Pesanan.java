@@ -1,5 +1,6 @@
 package com.tinjaku.model;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class Pesanan {
 
     @Enumerated(EnumType.STRING)
     private StatusPesanan status;
+
+    private LocalDateTime completedAt;
 
     @ManyToOne
     @JoinColumn(name = "mitra_id")

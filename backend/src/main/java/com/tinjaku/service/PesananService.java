@@ -251,6 +251,7 @@ public class PesananService {
         }
 
         pesanan.setStatus(StatusPesanan.SELESAI);
+        pesanan.setCompletedAt(LocalDateTime.now());
 
         saveHistory(pesanan);
 

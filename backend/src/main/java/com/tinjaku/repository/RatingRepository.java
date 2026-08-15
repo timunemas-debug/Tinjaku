@@ -1,6 +1,8 @@
 package com.tinjaku.repository;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,6 +12,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     boolean existsByPesananId(Long id);
     Long countByMitraMitraIdAndRating(Long mitraId, Rating rating);
     List<Rating> findByMitraMitraId(Long mitraId);
+    Optional<Rating> findTopByPesananId(Long pesananId);
 
     @Query("""
             SELECT AVG(r.rating)
