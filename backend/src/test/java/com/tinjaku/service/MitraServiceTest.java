@@ -34,6 +34,7 @@ import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.SecurityService;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +60,9 @@ public class MitraServiceTest {
 
     @Mock
     SecurityService securityService;
+
+    @Mock
+    CustomMitraDetails currentDetails;
 
     @InjectMocks
     MitraService mitraService;
@@ -323,11 +327,19 @@ public class MitraServiceTest {
         Mitra mitra = new Mitra();
         mitra.setMitraId(mitraId);
 
+        CustomMitraDetails currentDetails = mock(CustomMitraDetails.class);
+
         OnlineRequest request = new OnlineRequest();
         request.setStatusOnOff(StatusOnOff.ONLINE);
 
         OnlineResponse response = new OnlineResponse();
         response.setStatusOnOff(StatusOnOff.ONLINE);
+
+        when(securityService.getCurrentMitra())
+                .thenReturn(currentDetails);
+
+        when(currentDetails.getMitra())
+                .thenReturn(mitra);
 
         when(mitraRepository.findById(mitraId))
                 .thenReturn(Optional.of(mitra));
@@ -342,6 +354,7 @@ public class MitraServiceTest {
 
         assertEquals(StatusOnOff.ONLINE, result.getStatusOnOff());
 
+        verify(securityService).getCurrentMitra();
         verify(mitraRepository).findById(mitraId);
         verify(mitraRepository).save(mitra);
         verify(mitraMapper).toOnlineResponse(mitra);
@@ -391,6 +404,14 @@ public class MitraServiceTest {
         Mitra mitra = new Mitra();
         mitra.setMitraId(mitraId);
 
+        CustomMitraDetails currentDetails = mock(CustomMitraDetails.class);
+
+        when(securityService.getCurrentMitra())
+                .thenReturn(currentDetails);
+
+        when(currentDetails.getMitra())
+                .thenReturn(mitra);
+
         when(mitraRepository.findById(mitraId))
                 .thenReturn(Optional.of(mitra));
 
@@ -417,6 +438,7 @@ public class MitraServiceTest {
         assertEquals(4L, result.getPesananDiKerjakan());
         assertEquals(0L, result.getPesananSelesai());
 
+        verify(securityService).getCurrentMitra();
         verify(mitraRepository).findById(mitraId);
         verify(pesananRepository).countByMitraMitraId(mitraId);
         verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU);

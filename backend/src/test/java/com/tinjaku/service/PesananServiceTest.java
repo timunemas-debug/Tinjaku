@@ -1,6 +1,7 @@
 package com.tinjaku.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
@@ -11,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tinjaku.dto.request.PesananRequest;
@@ -26,9 +27,11 @@ import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
+import com.tinjaku.model.PesananHistory;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.model.User;
+import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.security.SecurityService;
 
@@ -58,6 +61,9 @@ public class PesananServiceTest {
 
     @Mock
     NotificationService notificationService;
+
+    @Mock
+    PesananHistoryRepository pesananHistoryRepository;
 
     @InjectMocks
     PesananService pesananService;
@@ -301,6 +307,7 @@ public class PesananServiceTest {
         assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
         assertEquals(user, result.getUser());
 
+        verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
         verify(notificationService).sendNotification(1L, "Pesanan berhasil dibuat!");
     }
@@ -348,6 +355,7 @@ public class PesananServiceTest {
         assertEquals(StatusPesanan.DITERIMA, result.getStatus());
         assertEquals(mitra, result.getMitra());
 
+        verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
     }
 
@@ -368,6 +376,7 @@ public class PesananServiceTest {
 
         assertEquals(StatusPesanan.SELESAI, result.getStatus());
 
+        verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
     }
 
@@ -388,6 +397,7 @@ public class PesananServiceTest {
         
         assertEquals(StatusPesanan.DITOLAK, result.getStatus());
 
+        verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
     }
 
@@ -408,6 +418,7 @@ public class PesananServiceTest {
 
         assertEquals(StatusPesanan.DALAM_PERJALANAN, result.getStatus());
 
+        verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
     }
 
