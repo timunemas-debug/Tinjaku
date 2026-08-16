@@ -3,6 +3,9 @@ package com.tinjaku.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
@@ -12,6 +15,8 @@ import com.tinjaku.model.Rating;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.security.CustomMitraDetails;
+import com.tinjaku.security.CustomUserDetails;
 import com.tinjaku.security.SecurityService;
 
 @Service
@@ -51,5 +56,43 @@ public class ChatService {
         LocalDateTime deadLine = pesanan.getCompletedAt().plusMinutes(30);
 
         return LocalDateTime.now().isBefore(deadLine);
+    }
+
+    public boolean canAccessChat(Long pesananId){
+
+        Optional<Pesanan> pesananOptional = pesananRepository.findById(pesananId);
+
+        if (pesananOptional.isEmpty()) {
+            throw new ResourceNotFound("Pesanan tidak ditemukan!");
+        }
+
+        Pesanan pesanan = pesananOptional.get();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+
+            boolean milikUser = pesanan.getUser().getUserId().equals(customUserDetails.getUser().getUserId());
+            if (milikUser) {
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        if (userDetails instanceof CustomMitraDetails customMitraDetails) {
+
+            if (pesanan.getMitra() == null) {
+                throw new ResourceNotFound("Mitra tidak ditemukan!");
+            }
+
+            boolean milikMitra = pesanan.getMitra().getMitraId().equals(customMitraDetails.getMitra().getMitraId());
+            if (!milikMitra) {
+                return false;
+            }
+        }
+
+        return false;
     }
 }
