@@ -8,10 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.tinjaku.dto.request.ChatRequest;
+import com.tinjaku.dto.response.ChatResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.Rating;
+import com.tinjaku.model.SenderType;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
@@ -76,8 +79,6 @@ public class ChatService {
             boolean milikUser = pesanan.getUser().getUserId().equals(customUserDetails.getUser().getUserId());
             if (milikUser) {
                 return true;
-            }else{
-                return false;
             }
         }
 
@@ -88,11 +89,45 @@ public class ChatService {
             }
 
             boolean milikMitra = pesanan.getMitra().getMitraId().equals(customMitraDetails.getMitra().getMitraId());
-            if (!milikMitra) {
-                return false;
+            if (milikMitra) {
+                return true;
             }
         }
 
         return false;
+    }
+
+    public ChatResponse processMessage(ChatRequest request){
+
+        Long senderId = null;
+        String senderName = null;
+        SenderType senderType = null;
+
+        boolean bolehAkses = canAccessChat(request.getPesananId());
+        if (!bolehAkses) {
+            throw new BadRequestException("Tidak memiliki akses!");
+        }
+
+        boolean chatAktif = isChatActive(request.getPesananId());
+        if (!chatAktif) {
+            throw new BadRequestException("Chat sudah tidak aktif!");
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        if (userDetails instanceof CustomUserDetails customUserDetails) {
+            Long senderId = customUserDetails.getUser().getUserId();
+            String senderName = customUserDetails.getUser().getNamaDepan();
+            SenderType senderType = SenderType.USER;
+        }
+
+        if (userDetails instanceof CustomMitraDetails customMitraDetails) {
+            Long senderId = customMitraDetails.getMitra().getMitraId();
+            String senderName = customMitraDetails.getMitra().getNamaMitra();
+            SenderType senderType = SenderType.MITRA;
+        }
+
+        LocalDateTime timeStamp = LocalDateTime.now();
     }
 }
