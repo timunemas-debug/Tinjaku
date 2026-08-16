@@ -79,7 +79,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/regist-user", "/auth/login-user", "/auth/regist-mitra", "/auth/login-mitra", "/password/forgot-password", "/password/forgot-password/verify", "/password/reset-password").permitAll()
-                .anyRequest().authenticated())
+                .anyRequest().permitAll())
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -13,7 +13,6 @@ import com.tinjaku.dto.response.ChatResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Pesanan;
-import com.tinjaku.model.Rating;
 import com.tinjaku.model.SenderType;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.PesananRepository;
@@ -117,17 +116,24 @@ public class ChatService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         if (userDetails instanceof CustomUserDetails customUserDetails) {
-            Long senderId = customUserDetails.getUser().getUserId();
-            String senderName = customUserDetails.getUser().getNamaDepan();
-            SenderType senderType = SenderType.USER;
+            senderId = customUserDetails.getUser().getUserId();
+            senderName = customUserDetails.getUser().getNamaDepan();
+            senderType = SenderType.USER;
         }
 
         if (userDetails instanceof CustomMitraDetails customMitraDetails) {
-            Long senderId = customMitraDetails.getMitra().getMitraId();
-            String senderName = customMitraDetails.getMitra().getNamaMitra();
-            SenderType senderType = SenderType.MITRA;
+            senderId = customMitraDetails.getMitra().getMitraId();
+            senderName = customMitraDetails.getMitra().getNamaMitra();
+            senderType = SenderType.MITRA;
         }
 
         LocalDateTime timeStamp = LocalDateTime.now();
+
+        return new ChatResponse(request.getPesananId(),
+                                senderId,
+                                senderName,
+                                senderType,
+                                request.getMessage(),
+                                timeStamp);
     }
 }
