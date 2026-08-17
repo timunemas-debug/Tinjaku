@@ -14,6 +14,8 @@ import Register from "./pages/public/Register";
 import ForgotPassword from "./pages/public/ForgotPassword";
 import Layanan from "./pages/public/Layanan";
 import TentangKami from "./pages/public/TentangKami";
+import Blog from "./pages/public/Blog";
+import BlogDetail from "./pages/public/BlogDetail";
 
 // User pages
 import Pesanan from "./pages/user/Pesanan";
@@ -46,6 +48,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/layanan" element={<Layanan />} />
         <Route path="/tentang-kami" element={<TentangKami />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} /> 
       </Route>
 
       

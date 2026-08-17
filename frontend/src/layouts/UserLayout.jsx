@@ -12,17 +12,18 @@ const USER_MENU = [
 
 export default function UserLayout() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#FAFAFA]">
       <Sidebar title="Tinjaku" menuItems={USER_MENU} />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <Topbar pageTitle="Akun Saya" />
 
         <main
-          className="flex-1 p-8"
+          className="flex-1 px-8 py-7 max-lg:px-6 max-md:px-4"
           style={{
             backgroundColor: "#fbfbfc",
-            backgroundImage: "radial-gradient(#e4e4e9 1.5px, transparent 1.5px)",
+            backgroundImage:
+              "radial-gradient(#e7e7eb 1.2px, transparent 1.2px)",
             backgroundSize: "28px 28px",
           }}
         >
