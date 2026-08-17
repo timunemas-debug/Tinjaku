@@ -3,14 +3,12 @@ package com.tinjaku.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.ChatRequest;
 import com.tinjaku.dto.response.ChatResponse;
 import com.tinjaku.exception.BadRequestException;
+import com.tinjaku.exception.ForBiddenException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.SenderType;
@@ -54,6 +52,10 @@ public class ChatService {
         if (ratingExists) {
             return false;
         }
+
+        if (pesanan.getCompletedAt() == null) {
+            return false;
+        }
         
         LocalDateTime deadLine = pesanan.getCompletedAt().plusMinutes(30);
 
@@ -70,27 +72,17 @@ public class ChatService {
 
         Pesanan pesanan = pesananOptional.get();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Object principal = securityService.getCurrentPrincipal();
 
-        if (userDetails instanceof CustomUserDetails customUserDetails) {
+        if (principal instanceof CustomUserDetails customUserDetails) {
+            
+            return pesanan.getUser().getUserId().equals(customUserDetails.getUser().getUserId());
 
-            boolean milikUser = pesanan.getUser().getUserId().equals(customUserDetails.getUser().getUserId());
-            if (milikUser) {
-                return true;
-            }
-        }
-
-        if (userDetails instanceof CustomMitraDetails customMitraDetails) {
-
+        }else if (principal instanceof CustomMitraDetails customMitraDetails) {
             if (pesanan.getMitra() == null) {
-                throw new ResourceNotFound("Mitra tidak ditemukan!");
+                return false;
             }
-
-            boolean milikMitra = pesanan.getMitra().getMitraId().equals(customMitraDetails.getMitra().getMitraId());
-            if (milikMitra) {
-                return true;
-            }
+            return pesanan.getMitra().getMitraId().equals(customMitraDetails.getMitra().getMitraId());
         }
 
         return false;
@@ -104,7 +96,7 @@ public class ChatService {
 
         boolean bolehAkses = canAccessChat(request.getPesananId());
         if (!bolehAkses) {
-            throw new BadRequestException("Tidak memiliki akses!");
+            throw new ForBiddenException("Tidak memiliki akses!");
         }
 
         boolean chatAktif = isChatActive(request.getPesananId());
@@ -112,16 +104,15 @@ public class ChatService {
             throw new BadRequestException("Chat sudah tidak aktif!");
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Object principal = securityService.getCurrentPrincipal();
 
-        if (userDetails instanceof CustomUserDetails customUserDetails) {
+        if (principal instanceof CustomUserDetails customUserDetails) {
             senderId = customUserDetails.getUser().getUserId();
             senderName = customUserDetails.getUser().getNamaDepan();
             senderType = SenderType.USER;
-        }
 
-        if (userDetails instanceof CustomMitraDetails customMitraDetails) {
+        } else if (principal instanceof CustomMitraDetails customMitraDetails) {
+
             senderId = customMitraDetails.getMitra().getMitraId();
             senderName = customMitraDetails.getMitra().getNamaMitra();
             senderType = SenderType.MITRA;

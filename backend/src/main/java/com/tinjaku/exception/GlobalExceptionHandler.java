@@ -42,4 +42,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ResponErorRequest(ex.getMessage(), 400));
     }
+
+    @ExceptionHandler(ForBiddenException.class)
+    public ResponseEntity<ResponErorRequest> handleForBiddenException(ForBiddenException ex){
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ResponErorRequest(ex.getMessage(), 403));
+    }
 }

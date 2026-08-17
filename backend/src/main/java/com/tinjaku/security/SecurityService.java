@@ -38,4 +38,10 @@ public class SecurityService {
     public Long getCurrentMitraId(){
         return getCurrentMitra().getMitra().getMitraId();
     }
+
+    public Object getCurrentPrincipal(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return authentication.getPrincipal();
+    }
 }

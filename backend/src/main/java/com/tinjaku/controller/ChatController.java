@@ -8,6 +8,8 @@ import com.tinjaku.dto.request.ChatRequest;
 import com.tinjaku.dto.response.ChatResponse;
 import com.tinjaku.service.ChatService;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class ChatController {
     
@@ -20,11 +22,11 @@ public class ChatController {
     }
 
     @MessageMapping("/chat")
-    public ChatResponse processMessage(ChatRequest request){
+    public ChatResponse processMessage(@Valid ChatRequest request){
         
         ChatResponse response = chatService.processMessage(request);
 
-        simpMessagingTemplate.convertAndSend("/chatroom/"+request.getPesananId(), response);
+        simpMessagingTemplate.convertAndSend("/chatroom/" + request.getPesananId(), response);
         
         return response;
     }
