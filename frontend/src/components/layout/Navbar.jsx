@@ -4,7 +4,6 @@ const NAV_ITEMS = [
   { label: "Home", to: "/" },
   { label: "About Us", to: "/tentang-kami" },
   { label: "Services", to: "/layanan" },
-  { label: "All Pages", to: "/pages" },
   { label: "Blog", to: "/blog" },
 ];
 
