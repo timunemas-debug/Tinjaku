@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateLocationMitraRequest;
 import com.tinjaku.dto.request.UpdateMitraProfileRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.UpdateLocationMitraResponse;
 import com.tinjaku.dto.response.UpdateMitraProfileResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.MitraMapper;
@@ -21,7 +23,6 @@ import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
 import com.tinjaku.security.CustomMitraDetails;
-import com.tinjaku.security.CustomUserDetails;
 import com.tinjaku.security.SecurityService;
 import com.tinjaku.exception.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -173,5 +174,19 @@ public class MitraService {
                                      pesananDiTerima,
                                      pesananDiKerjakan,
                                      pesananSelesai);
+    }
+
+    public UpdateLocationMitraResponse updateLocationMitra(UpdateLocationMitraRequest request){
+
+        Long mitraId = securityService.getCurrentMitraId();
+
+        Mitra mitra = getMitraById(mitraId);
+
+        mitra.setLatitude(request.getLatitude());
+        mitra.setLongitude(request.getLongitude());
+
+        mitraRepository.save(mitra);
+
+        return new UpdateLocationMitraResponse("Location berhasil di update!");
     }
 }

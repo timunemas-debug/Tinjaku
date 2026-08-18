@@ -1,5 +1,6 @@
 package com.tinjaku.model;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,9 @@ public class Mitra {
 
     private String namaMitra;
     private BigDecimal hargaJasa;
+    private Double latitude;
+    private Double longitude;
+    private LocalDateTime updateAt;
 
     @Column(nullable = false, unique = true)
     private String email;

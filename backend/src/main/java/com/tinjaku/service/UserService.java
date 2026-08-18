@@ -8,8 +8,10 @@ import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.security.SecurityService;
+import com.tinjaku.dto.request.UpdateLocationUserRequest;
 import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.UpdateLocationUserResponse;
 import com.tinjaku.dto.response.UpdateUserProfileResponse;
 import com.tinjaku.dto.response.UserResponse;
 import com.tinjaku.exception.ResourceNotFound;
@@ -85,5 +87,19 @@ public class UserService {
         userRepository.save(user);
         
         return updateUserProfileMapper.mapToResponse(user);
+    }
+
+    public UpdateLocationUserResponse updateLocationUser(UpdateLocationUserRequest request){
+
+        Long userId = securityService.getCurrentUserId();
+
+        User user = getUserById(userId);
+
+        user.setPickupLat(request.getPickupLat());
+        user.setPickupLong(request.getPickupLong());
+
+        userRepository.save(user);
+
+        return new UpdateLocationUserResponse("Location berhasil di update!");
     }
 }

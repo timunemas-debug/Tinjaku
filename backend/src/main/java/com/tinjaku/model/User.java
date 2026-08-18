@@ -29,6 +29,8 @@ public class User {
     private String email;
     
     private String password;
+    private Double pickupLat;
+    private Double pickupLong;
     
     @OneToMany(mappedBy = "user")
     private List<Alamat> alamatList = new ArrayList<>();
