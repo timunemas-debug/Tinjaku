@@ -2,6 +2,7 @@ package com.tinjaku.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.core.Authentication;
@@ -10,12 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
+import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.PesananHistoryResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananHistoryMapper;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
+import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.security.SecurityService;
@@ -34,10 +37,11 @@ public class PesananService {
     private final NotificationService notificationService;
     private final PesananHistoryRepository pesananHistoryRepository;
     private final PesananHistoryMapper pesananHistoryMapper;
-
+    private final MitraRepository mitraRepository;
+    
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
-
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper){
+    
+    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper, MitraRepository mitraRepository){
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
@@ -48,8 +52,70 @@ public class PesananService {
         this.notificationService = notificationService;
         this.pesananHistoryRepository = pesananHistoryRepository;
         this.pesananHistoryMapper = pesananHistoryMapper;
+        this.mitraRepository = mitraRepository;
     }
+    
+        /*
+        Rumus Haversine Formula :
+        Δlat = lat2- lat1
+        Δlong = long2- long1
+        a = sin2 (Δlat/2) + cos(lat1).cos(lat2).sin2 (Δlong/2)
+        c = 2atan2(√a, √1-a)
+        d = R.c
+        Keterangan :
+        R = jari-jari bumi sebesar 6371(km)
+        Δlat = besaran perubahan latitude
+        Δlong = besaran perubahan longitude
+        C = kalkulasi perpotongan sumbu
+        d = jarak (km)
+        1 derajat = 0.0174532925 radian */
+        private double calculateDistance(double lat1, double lon1, double lat2, double lon2){
+    
+            double earthRadius = 6371.0;
+    
+            double dLat = Math.toRadians(lat2 - lat1);
+            double dLon = Math.toRadians(lon2 - lon1);
+    
+            double a =
+                        Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                        + Math.cos(Math.toRadians(lat1))
+                        * Math.cos(Math.toRadians(lat2))
+                        * Math.sin(dLon / 2)
+                        * Math.sin(dLon / 2);
+            
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    
+            return earthRadius * c;
+        }
+    
+    
+        private Mitra findMitraTerdekat(User user, List<Mitra> mitras){
+    
+            Mitra nearestMitra = null;
+            double nearestDistance = Double.MAX_VALUE;
+    
+            for(Mitra mitra : mitras){
+    
+                double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
+    
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestMitra = mitra;
+                }
+            }
+            
+            return nearestMitra;
+        }
 
+        private Mitra getNextMitra(Pesanan pesanan, List<Mitra> eligibMitras){
+
+            if (eligibMitras.isEmpty()) {
+                return null;
+            }
+
+            return findMitraTerdekat(pesanan.getUser(), eligibMitras);
+        }
+    
     public List<PesananResponse> getAllPesanan(){
         return pesananRepository.findAll()
                 .stream()
@@ -189,6 +255,14 @@ public class PesananService {
         
         Pesanan savedPesanan = pesananRepository.save(pesanan);
 
+        List<Mitra> eligibleMitra = getEligibleMitra(savedPesanan);
+
+        Mitra mitraTerdekat = findMitraTerdekat(user, eligibleMitra);
+
+        if (mitraTerdekat != null) {
+            notificationService.sendNotification(mitraTerdekat.getMitraId(), "Ada pesanan baru di sekitar anda!");
+        }
+
         notificationService.sendNotification(userId, "Pesanan berhasil dibuat!");
         
         return savedPesanan;
@@ -206,32 +280,37 @@ public class PesananService {
 
     @Transactional
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){
+
         Pesanan pesanan = getPesananEntityById(pesananId);
 
+        
+        
+        if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
+            throw new BadRequestException("Pesanan tidak bisa diterima!");
+        }
+        
         Mitra mitra = mitraService.getMitraById(mitraId);
-
-        Double rating = ratingService.getAverageRating(mitraId);
-
+        
         if(mitra.getStatusOnOff() != StatusOnOff.ONLINE){
             throw new BadRequestException("Anda sedang offline!");
         }
+        
+        Double rating = ratingService.getAverageRating(mitraId);
 
         if(rating < 2){
             throw new BadRequestException("Rating Anda dibawah 2");
         }
 
-        boolean sesuaiWilayah = mitra.getAlamatList().stream()
-                    .anyMatch(alamat ->
-                        alamat.getKota() == pesanan.getKota() &&
-                        alamat.getKecamatan().equals(pesanan.getKecamatan())
-                    );
-
-        if(!sesuaiWilayah){
-            throw new BadRequestException("Pesanan bukan di wilayah mitra!");
+        if (mitra.getLatitude() == null || mitra.getLongitude() == null) {
+            throw new BadRequestException("Lokasi mitra belum tersedia!");
         }
+        
+        User user = pesanan.getUser();
+        
+        double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
 
-        if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
-            throw new BadRequestException("Pesanan tidak bisa diterima!");
+        if (distance > 10) {
+            throw new BadRequestException("Jarak anda terlalu jauh!");
         }
 
         pesanan.setMitra(mitra);
@@ -339,5 +418,36 @@ public class PesananService {
         return historyList.stream()
                 .map(pesananHistoryMapper::mapToResponse)
                 .toList();
+    }
+
+    public List<Mitra> getEligibleMitra(Pesanan pesanan){
+
+        List<Mitra> eligibleMitra = new ArrayList<>();
+        List<Mitra> mitras = mitraRepository.findAll();
+
+        for(Mitra mitra : mitras){
+
+            Double rating = ratingService.getAverageRating(mitra.getMitraId());
+
+            if (mitra.getStatusOnOff().equals(StatusOnOff.OFFLINE)) {
+                continue;
+            }
+            if (rating <= 1.5) {
+                continue;
+            }
+            if (mitra.getLatitude() == null || mitra.getLongitude() == null) {
+                continue;
+            }
+
+            double distance = calculateDistance(pesanan.getUser().getPickupLat(), pesanan.getUser().getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
+
+            if (distance > 10) {
+                continue;
+            }
+
+            eligibleMitra.add(mitra);
+        }
+
+        return eligibleMitra;
     }
 }
