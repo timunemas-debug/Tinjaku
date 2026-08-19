@@ -77,8 +77,9 @@ public class PesananController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public PesananResponse updatePesanan(@PathVariable Long id,
-                                         @RequestBody Pesanan pesananDiupdate){
-            Pesanan pesanan = pesananService.updatePesananService(id, pesananDiupdate);
+                                         @RequestBody PesananRequest request){
+                                            
+            Pesanan pesanan = pesananService.updatePesananService(id, request);
 
             return pesananService.getPesananById(pesanan.getId());
     }
@@ -90,15 +91,15 @@ public class PesananController {
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @PatchMapping("/{pesananId}/terima/{mitraId}")
-    public PesananResponse terimaPesananUserByPesananId(@PathVariable Long pesananId, @PathVariable Long mitraId){
-        Pesanan pesanan = pesananService.terimaPesanan(pesananId, mitraId);
+    @PatchMapping("/{pesananId}/terima")
+    public PesananResponse terimaPesananUserByPesananId(@PathVariable Long pesananId){
+        Pesanan pesanan = pesananService.terimaPesanan(pesananId);
 
         return pesananService.getPesananById(pesanan.getId());
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @PatchMapping("{pesananId}/tolak")
+    @PatchMapping("/{pesananId}/tolak")
     public PesananResponse tolakPesananByPesananId(@PathVariable Long pesananId){
         Pesanan pesanan = pesananService.tolakPesanan(pesananId);
 

@@ -3,6 +3,7 @@ package com.tinjaku.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -196,6 +197,10 @@ public class PesananServiceTest {
         pesanan.setKeluhan("Wc mampet");
         pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
 
+        PesananRequest request = new PesananRequest();
+        request.setKeluhan("Wc luber luber");
+        request.setStatus(StatusPesanan.DIKERJAKAN);
+
         Pesanan pesananBaru = new Pesanan();
         pesananBaru.setKeluhan("Wc luber luber");
         pesananBaru.setStatus(StatusPesanan.DIKERJAKAN);
@@ -206,7 +211,7 @@ public class PesananServiceTest {
         when(pesananRepository.save(pesanan))
                 .thenReturn(pesanan);
 
-        Pesanan result = pesananService.updatePesananService(1L, pesananBaru);
+        Pesanan result = pesananService.updatePesananService(1L, request);
 
         assertEquals("Wc luber luber", result.getKeluhan());
         assertEquals(StatusPesanan.DIKERJAKAN, result.getStatus());
@@ -221,10 +226,13 @@ public class PesananServiceTest {
         Pesanan pesanan = new Pesanan();
         pesanan.setId(1L);
 
+        PesananRequest request = new PesananRequest();
+        request.setKeluhan("Wc mampet");
+
         when(pesananRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFound.class, () -> pesananService.updatePesananService(1L, pesanan));
+        assertThrows(ResourceNotFound.class, () -> pesananService.updatePesananService(1L, request));
 
         verify(pesananRepository).findById(1L);
         verify(pesananRepository, never()).save(any());
@@ -364,6 +372,8 @@ public class PesananServiceTest {
 
         mitra.setAlamatList(List.of(alamat));
 
+        when(securityService.getCurrentMitraId())
+                .thenReturn(1L);
 
         when(pesananRepository.save(any(Pesanan.class)))
                 .thenReturn(pesanan);
@@ -378,7 +388,7 @@ public class PesananServiceTest {
                 .when(pesananService)
                 .getPesananEntityById(pesanan.getId());
 
-        Pesanan result = pesananService.terimaPesanan(1L, 1L);
+        Pesanan result = pesananService.terimaPesanan(1L);
 
         assertNotNull(result);
         assertEquals(Kota.TANGERANG, result.getKota());

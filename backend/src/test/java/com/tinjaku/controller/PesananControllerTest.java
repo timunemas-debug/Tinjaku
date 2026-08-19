@@ -202,7 +202,7 @@ public class PesananControllerTest {
         pesanan.setKecamatan("D");
         pesanan.setNamaPenerima("YOGI");
 
-        when(pesananService.updatePesananService(eq(1L), any(Pesanan.class)))
+        when(pesananService.updatePesananService(eq(1L), any(PesananRequest.class)))
                 .thenReturn(pesanan);
 
         when(pesananService.getPesananById(1L))
@@ -240,13 +240,13 @@ public class PesananControllerTest {
         response.setStatus(StatusPesanan.DITERIMA);
         response.setKeluhan("WC MAMPET");
 
-        when(pesananService.terimaPesanan(1L, 2L))
+        when(pesananService.terimaPesanan(1L))
                 .thenReturn(pesanan);
 
         when(pesananService.getPesananById(1L))
                 .thenReturn(response);
 
-        mockMvc.perform(patch("/pesanan/1/terima/2"))
+        mockMvc.perform(patch("/pesanan/1/terima"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("DITERIMA"))
                 .andExpect(jsonPath("$.keluhan").value("WC MAMPET"));

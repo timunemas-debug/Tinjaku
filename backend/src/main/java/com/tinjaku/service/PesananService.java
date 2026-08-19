@@ -149,13 +149,13 @@ public class PesananService {
         return pesananRepository.count();
     }
 
-    public Pesanan updatePesananService(Long id, Pesanan pesananBaru){
+    public Pesanan updatePesananService(Long id, PesananRequest request){
         Pesanan pesanan = pesananRepository.findById(id)
                     .orElseThrow(() ->
                         new ResourceNotFound("Pesanan tidak ditemukan!"));
 
-        pesanan.setKeluhan(pesananBaru.getKeluhan());
-        pesanan.setStatus(pesananBaru.getStatus());
+        pesanan.setKeluhan(request.getKeluhan());
+        pesanan.setStatus(request.getStatus());
 
         return pesananRepository.save(pesanan);
     }
@@ -279,7 +279,9 @@ public class PesananService {
     }
 
     @Transactional
-    public Pesanan terimaPesanan(Long pesananId, Long mitraId){
+    public Pesanan terimaPesanan(Long pesananId){
+
+        Long mitraId = securityService.getCurrentMitraId();
 
         Pesanan pesanan = getPesananEntityById(pesananId);
         
