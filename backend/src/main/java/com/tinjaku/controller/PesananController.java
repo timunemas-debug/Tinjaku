@@ -38,7 +38,7 @@ public class PesananController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{userId}")
-    public PesananResponse tambahPesanan(@Valid @RequestBody PesananRequest request, @PathVariable Long userId){
+    public PesananResponse tambahPesanan(@Valid @RequestBody PesananRequest request){
         Pesanan pesanan = pesananService.createPesanan(request);
 
         return pesananMapper.mapToResponse(pesanan);
@@ -123,8 +123,8 @@ public class PesananController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/{userId}/riwayat-user")
-    public List<PesananResponse> riwayatPesananUser(@PathVariable Long userId){
-        return pesananService.getRiwayatUser(userId);
+    public List<PesananResponse> riwayatPesananUser(){
+        return pesananService.getRiwayatUser();
     }
 
     @PreAuthorize("hasRole('MITRA')")

@@ -377,7 +377,9 @@ public class PesananService {
         return pesananRepository.save(pesanan);
     }
 
-    public List<PesananResponse> getRiwayatUser(Long userId){
+    public List<PesananResponse> getRiwayatUser(){
+
+        Long userId = securityService.getCurrentUserId();
         return pesananRepository.findByUserUserIdAndStatus(userId, StatusPesanan.SELESAI)
                 .stream()
                 .map(pesananMapper::mapToResponse)

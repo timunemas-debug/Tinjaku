@@ -337,7 +337,7 @@ public class PesananControllerTest {
         response2.setNamaLengkap("Pretty");
         response2.setAlamatLengkap("Test");
 
-        when(pesananService.getRiwayatUser(1L))
+        when(pesananService.getRiwayatUser())
                 .thenReturn(List.of(response, response2));
 
         mockMvc.perform(get("/pesanan/1/riwayat-user"))
