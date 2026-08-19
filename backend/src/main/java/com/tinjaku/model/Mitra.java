@@ -39,6 +39,9 @@ public class Mitra {
 
     @OneToMany(mappedBy = "mitra")
     private List<Pesanan> pesananList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "mitra")
+    private List<Notification> notificationList = new ArrayList<>();
     
     public Mitra(){
     }

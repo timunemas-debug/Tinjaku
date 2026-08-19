@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.dto.request.PesananRequest;
-import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.PesananHistoryResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.exception.ResourceNotFound;
@@ -89,22 +88,23 @@ public class PesananService {
         }
     
     
-        private Mitra findMitraTerdekat(User user, List<Mitra> mitras){
+    public Mitra findMitraTerdekat(User user, List<Mitra> mitras){
     
-            Mitra nearestMitra = null;
-            double nearestDistance = Double.MAX_VALUE;
+        Mitra nearestMitra = null;
+        double nearestDistance = Double.MAX_VALUE;
     
-            for(Mitra mitra : mitras){
+        for(Mitra mitra : mitras){
     
-                double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
+            double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
     
-                if (distance < nearestDistance) {
-                    nearestDistance = distance;
-                    nearestMitra = mitra;
-                }
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestMitra = mitra;
             }
+        }
             
-            return nearestMitra;
+        return nearestMitra;
+
         }
 
         private Mitra getNextMitra(Pesanan pesanan, List<Mitra> eligibMitras){
@@ -260,7 +260,7 @@ public class PesananService {
         Mitra mitraTerdekat = findMitraTerdekat(user, eligibleMitra);
 
         if (mitraTerdekat != null) {
-            notificationService.sendNotification(mitraTerdekat.getMitraId(), "Ada pesanan baru di sekitar anda!");
+            notificationService.sendNotificationMitra(mitraTerdekat.getMitraId(), "Ada pesanan baru di sekitar anda!");
         }
 
         notificationService.sendNotification(userId, "Pesanan berhasil dibuat!");
@@ -282,8 +282,6 @@ public class PesananService {
     public Pesanan terimaPesanan(Long pesananId, Long mitraId){
 
         Pesanan pesanan = getPesananEntityById(pesananId);
-
-        
         
         if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
             throw new BadRequestException("Pesanan tidak bisa diterima!");

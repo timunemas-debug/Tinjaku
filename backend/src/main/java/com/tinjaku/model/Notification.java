@@ -30,6 +30,10 @@ public class Notification {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "mitra_id")
+    private Mitra mitra;
+
     public Notification(){
     }
 }

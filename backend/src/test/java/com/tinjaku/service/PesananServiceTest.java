@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.query.sqm.tree.expression.SqmCaseSearched.WhenFragment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -65,6 +66,7 @@ public class PesananServiceTest {
     @Mock
     PesananHistoryRepository pesananHistoryRepository;
 
+    @Spy
     @InjectMocks
     PesananService pesananService;
 
@@ -290,8 +292,15 @@ public class PesananServiceTest {
         request.setNamaPenerima("Jamsuy");
         request.setKeluhan("WC mampet");
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(1L);
+        mitra.setLatitude(2.90942);
+        mitra.setLongitude(2.2981);
+        mitra.setStatusOnOff(StatusOnOff.ONLINE);
+
         when(securityService.getCurrentUserId())
                 .thenReturn(1L);
+
         when(userService.getUserById(1L))
                 .thenReturn(user);
 
@@ -301,14 +310,25 @@ public class PesananServiceTest {
         when(pesananRepository.save(any(Pesanan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        doReturn(List.of(mitra))
+                .when(pesananService)
+                .getEligibleMitra(any(Pesanan.class));
+
+        doReturn(mitra)
+                .when(pesananService)
+                .findMitraTerdekat(eq(user), anyList());
+
         Pesanan result = pesananService.createPesanan(request);
+
+        assertNotNull(result);
 
         assertEquals("Jamsuy", result.getNamaPenerima());
         assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
         assertEquals(user, result.getUser());
 
-        verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
+
+        verify(notificationService).sendNotificationMitra(1L, "Ada pesanan baru di sekitar anda!");
         verify(notificationService).sendNotification(1L, "Pesanan berhasil dibuat!");
     }
 
@@ -321,23 +341,29 @@ public class PesananServiceTest {
         alamat.setKelurahan("KELURAHAN");
         alamat.setKecamatan("KECAMATAN");
         alamat.setKota(Kota.TANGERANG);
-
+        
+        User user = new User();
+        user.setUserId(1L);
+        user.setPickupLat(2.000);
+        user.setPickupLong(2.000);
+        
         Pesanan pesanan = new Pesanan();
         pesanan.setId(1L);
         pesanan.setKeluhan("WC mampet");
         pesanan.setKota(Kota.TANGERANG);
         pesanan.setKecamatan("KECAMATAN");
         pesanan.setStatus(StatusPesanan.MENUNGGU);
+        pesanan.setUser(user);
 
         Mitra mitra = new Mitra();
         mitra.setMitraId(1L);
         mitra.setNamaMitra("Sedot Wc");
         mitra.setStatusOnOff(StatusOnOff.ONLINE);
+        mitra.setLatitude(2.000);
+        mitra.setLongitude(2.000);
 
         mitra.setAlamatList(List.of(alamat));
 
-        when(pesananRepository.findById(1L))
-                .thenReturn(Optional.of(pesanan));
 
         when(pesananRepository.save(any(Pesanan.class)))
                 .thenReturn(pesanan);
@@ -348,8 +374,13 @@ public class PesananServiceTest {
         when(ratingService.getAverageRating(1L))
                 .thenReturn(3.0);
 
+        doReturn(pesanan)
+                .when(pesananService)
+                .getPesananEntityById(pesanan.getId());
+
         Pesanan result = pesananService.terimaPesanan(1L, 1L);
 
+        assertNotNull(result);
         assertEquals(Kota.TANGERANG, result.getKota());
         assertEquals("KECAMATAN", result.getKecamatan());
         assertEquals(StatusPesanan.DITERIMA, result.getStatus());

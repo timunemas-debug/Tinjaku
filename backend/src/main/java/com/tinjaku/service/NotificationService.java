@@ -10,6 +10,7 @@ import com.tinjaku.dto.response.NotificationResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.NotificationMapper;
+import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Notification;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.NotificationRepository;
@@ -22,11 +23,13 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final UserService userService;
+    private final MitraService mitraService;
 
-    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper, UserService userService){
+    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper, UserService userService, MitraService mitraService){
         this.notificationRepository = notificationRepository;
         this.notificationMapper = notificationMapper;
         this.userService = userService;
+        this.mitraService = mitraService;
     }
 
     @Async
@@ -39,6 +42,20 @@ public class NotificationService {
         notification.setCreatedAt(LocalDateTime.now());
         notification.setRead(false);
         notification.setUser(user);
+
+        notificationRepository.save(notification);
+    }
+
+    @Async
+    public void sendNotificationMitra(Long mitraId, String message){
+
+        Mitra mitra = mitraService.getMitraById(mitraId);
+
+        Notification notification = new Notification();
+        notification.setMessage(message);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setRead(false);
+        notification.setMitra(mitra);
 
         notificationRepository.save(notification);
     }
