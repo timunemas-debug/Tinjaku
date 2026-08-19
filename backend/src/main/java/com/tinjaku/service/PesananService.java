@@ -295,6 +295,10 @@ public class PesananService {
         
         Double rating = ratingService.getAverageRating(mitraId);
 
+        if (rating == null) {
+            throw new BadRequestException("Mitra tidak memiliki rating!");
+        }
+
         if(rating < 2){
             throw new BadRequestException("Rating Anda dibawah 2");
         }
@@ -304,6 +308,10 @@ public class PesananService {
         }
         
         User user = pesanan.getUser();
+
+        if (user.getPickupLat() == null || user.getPickupLong() == null) {
+            throw new BadRequestException("User belum memiliki titik lokasi!");
+        }
         
         double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
 
@@ -314,9 +322,13 @@ public class PesananService {
         pesanan.setMitra(mitra);
         pesanan.setStatus(StatusPesanan.DITERIMA);
 
-        saveHistory(pesanan);
+        Pesanan savedPesanan = pesananRepository.save(pesanan);
 
-        return pesananRepository.save(pesanan);
+        saveHistory(savedPesanan);
+
+        notificationService.sendNotification(savedPesanan.getUser().getUserId(), "Pesanan diterima!, Pesanan kamu telah diterima oleh mitra");
+
+        return savedPesanan;
     }
 
     @Transactional
