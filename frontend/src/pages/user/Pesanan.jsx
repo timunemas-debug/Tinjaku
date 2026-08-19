@@ -50,7 +50,7 @@ export default function Pesanan() {
     setError(null);
 
     try {
-      await createPesanan(user.userId, {
+      await createPesanan({
         ...form,
         alamatId: Number(form.alamatId),
       });
@@ -206,8 +206,8 @@ export default function Pesanan() {
 
                   {alamatList.map((a, i) => (
                     <option
-                      key={a.id ?? i}
-                      value={a.id ?? i}
+                      key={a.idALamat ?? i}
+                      value={a.idALamat ?? i}
                     >
                       {a.label} — {a.jalan}, {a.kecamatan}
                     </option>

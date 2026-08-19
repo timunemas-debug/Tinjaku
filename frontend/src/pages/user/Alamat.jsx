@@ -128,7 +128,7 @@ export default function Alamat() {
       kodePos: alamat.kodePos || "",
     });
 
-    setEditingId(alamat.id);
+    setEditingId(alamat.idALamat);
     setShowForm(true);
 
     window.scrollTo({
@@ -490,7 +490,7 @@ export default function Alamat() {
 
             {alamatList.map((alamat, index) => (
               <div
-                key={alamat.id ?? index}
+                key={alamat.idALamat ?? index}
                 className="p-6 hover:bg-[#FAFAFA] transition"
               >
 
@@ -559,7 +559,7 @@ export default function Alamat() {
 
                     <button
                       type="button"
-                      onClick={() => handleDelete(alamat.id)}
+                      onClick={() => handleDelete(alamat.idALamat)}
                       className="w-9 h-9 rounded-lg flex items-center justify-center text-black/30 hover:text-[#C43D3D] hover:bg-[#FFF0F0] transition"
                       title="Hapus alamat"
                     >

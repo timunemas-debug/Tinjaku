@@ -11,8 +11,8 @@ export const getPesananByStatus = (status) =>
 export const getTotalPesanan = () =>
   api.get("/pesanan/total").then((res) => res.data);
 
-export const createPesanan = (userId, data) =>
-  api.post(`/pesanan/${userId}`, data).then((res) => res.data);
+export const createPesanan = (data) =>
+  api.post("/pesanan/tambah-pesanan", data).then((res) => res.data);
 
 export const updatePesanan = (id, data) =>
   api.put(`/pesanan/${id}`, data).then((res) => res.data);
@@ -32,5 +32,5 @@ export const pesananDalamPerjalanan = (pesananId) =>
 export const selesaikanPesanan = (pesananId) =>
   api.patch(`/pesanan/${pesananId}/selesai`).then((res) => res.data);
 
-export const getRiwayatPesananUser = (userId) =>
-  api.get(`/pesanan/${userId}/riwayat-user`).then((res) => res.data);
+export const getRiwayatPesananUser = () =>
+  api.get("/pesanan/riwayat-user").then((res) => res.data);
