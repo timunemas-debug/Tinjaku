@@ -62,7 +62,7 @@ public class PesananController {
         return pesananService.getPesananById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN'), ('MITRA')")
     @GetMapping("/status/{status}")
     public List<PesananResponse> pesananByStatus(@PathVariable StatusPesanan status){
         return pesananService.getPesananByStatus(status);
@@ -78,7 +78,7 @@ public class PesananController {
     @PutMapping("/{id}")
     public PesananResponse updatePesanan(@PathVariable Long id,
                                          @RequestBody PesananRequest request){
-                                            
+
             Pesanan pesanan = pesananService.updatePesananService(id, request);
 
             return pesananService.getPesananById(pesanan.getId());

@@ -64,7 +64,7 @@ public class MitraController {
         return mitraService.getAllMitra();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN'), ('MITRA')")
     @GetMapping("/{mitraId}/pesanan")
     public List<PesananResponse> getPesananMitraById(@PathVariable Long mitraId){
         return mitraService.getPesananMitra(mitraId);
