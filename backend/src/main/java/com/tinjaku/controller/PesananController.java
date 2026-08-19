@@ -37,7 +37,7 @@ public class PesananController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/{userId}")
+    @PostMapping("/tambah-pesanan")
     public PesananResponse tambahPesanan(@Valid @RequestBody PesananRequest request){
         Pesanan pesanan = pesananService.createPesanan(request);
 
@@ -122,14 +122,14 @@ public class PesananController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{userId}/riwayat-user")
+    @GetMapping("/riwayat-user")
     public List<PesananResponse> riwayatPesananUser(){
         return pesananService.getRiwayatUser();
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @GetMapping("/{mitraId}/riwayat-mitra")
-    public List<PesananResponse> riwayatPesananMitra(@PathVariable Long mitraId){
-        return pesananService.getRiwayatMitra(mitraId);
+    @GetMapping("/riwayat-mitra")
+    public List<PesananResponse> riwayatPesananMitra(){
+        return pesananService.getRiwayatMitra();
     }
 }

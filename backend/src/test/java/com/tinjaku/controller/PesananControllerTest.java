@@ -80,7 +80,7 @@ public class PesananControllerTest {
         when(pesananMapper.mapToResponse(pesanan))
                 .thenReturn(response);
 
-        mockMvc.perform(post("/pesanan/1")
+        mockMvc.perform(post("/pesanan/tambah-pesanan")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -340,7 +340,7 @@ public class PesananControllerTest {
         when(pesananService.getRiwayatUser())
                 .thenReturn(List.of(response, response2));
 
-        mockMvc.perform(get("/pesanan/1/riwayat-user"))
+        mockMvc.perform(get("/pesanan/riwayat-user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].namaLengkap").value("Jeremy"))
                 .andExpect(jsonPath("$[1].namaLengkap").value("Pretty"));
@@ -360,10 +360,10 @@ public class PesananControllerTest {
         response2.setNamaLengkap("Pretty");
         response2.setAlamatLengkap("Test");
 
-        when(pesananService.getRiwayatMitra(1L))
+        when(pesananService.getRiwayatMitra())
                 .thenReturn(List.of(response, response2));
 
-        mockMvc.perform(get("/pesanan/1/riwayat-mitra"))
+        mockMvc.perform(get("/pesanan/riwayat-mitra"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].namaLengkap").value("Jeremy"))
                 .andExpect(jsonPath("$[1].namaLengkap").value("Pretty"));

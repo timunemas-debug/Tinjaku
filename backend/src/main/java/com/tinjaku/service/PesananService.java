@@ -386,7 +386,10 @@ public class PesananService {
                 .toList();
     }
 
-    public List<PesananResponse> getRiwayatMitra(Long mitraId){
+    public List<PesananResponse> getRiwayatMitra(){
+
+        Long mitraId = securityService.getCurrentMitraId();
+
         return pesananRepository.findByMitraMitraId(mitraId)
                 .stream()
                 .map(pesananMapper::mapToResponse)
