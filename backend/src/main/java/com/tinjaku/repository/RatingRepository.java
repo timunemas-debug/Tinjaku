@@ -5,8 +5,10 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.tinjaku.model.Rating;
+import com.tinjaku.repository.projection.RatingSummary;
 
 public interface RatingRepository extends JpaRepository<Rating, Long> {
     boolean existsByPesananId(Long id);
@@ -27,4 +29,14 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
             WHERE r.mitra.mitraId = :mitraId
             """)
     Long getTotalRating(Long mitraId);
+
+    @Query("""
+           SELECT r.mitra.mitraId AS mitraId,
+                  AVG(r.rating) AS avgRating,
+                  COUNT(r.rating) AS totalRating
+           FROM Rating r
+           WHERE r.mitra.mitraId IN :mitraIds
+           GROUP BY r.mitra.mitraId
+           """)
+    List<RatingSummary> getRatingSummaryByMitraIds(@Param("mitraIds") List<Long> mitraIds);
 }

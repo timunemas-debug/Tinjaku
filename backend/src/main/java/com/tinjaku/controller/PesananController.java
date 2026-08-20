@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import com.tinjaku.service.PesananService;
 import com.tinjaku.service.RatingService;
-
 import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.PesananRequest;
@@ -62,7 +61,7 @@ public class PesananController {
         return pesananService.getPesananById(id);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN'), ('MITRA')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/status/{status}")
     public List<PesananResponse> pesananByStatus(@PathVariable StatusPesanan status){
         return pesananService.getPesananByStatus(status);
@@ -78,7 +77,7 @@ public class PesananController {
     @PutMapping("/{id}")
     public PesananResponse updatePesanan(@PathVariable Long id,
                                          @RequestBody PesananRequest request){
-
+                                            
             Pesanan pesanan = pesananService.updatePesananService(id, request);
 
             return pesananService.getPesananById(pesanan.getId());

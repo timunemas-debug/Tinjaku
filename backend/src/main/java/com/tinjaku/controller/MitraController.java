@@ -3,8 +3,10 @@ package com.tinjaku.controller;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,11 +15,13 @@ import java.util.List;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.request.OnlineRequest;
+import com.tinjaku.dto.request.UpdateMitraProfileRequest;
 import com.tinjaku.dto.response.DashboardResponse;
 import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
+import com.tinjaku.dto.response.UpdateMitraProfileResponse;
 import com.tinjaku.model.Kota;
 import com.tinjaku.service.MitraService;
 import com.tinjaku.service.RatingService;
@@ -64,7 +68,7 @@ public class MitraController {
         return mitraService.getAllMitra();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN'), ('MITRA')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{mitraId}/pesanan")
     public List<PesananResponse> getPesananMitraById(@PathVariable Long mitraId){
         return mitraService.getPesananMitra(mitraId);
@@ -98,5 +102,11 @@ public class MitraController {
     @DeleteMapping("{ratingId}/hapus-rating")
     public void deleteRating(@PathVariable Long ratingId){
         ratingService.hapusRating(ratingId);
+    }
+
+    @PreAuthorize("hasRole('MITRA')")
+    @PutMapping("/update-profile")
+    public UpdateMitraProfileResponse updateProfile(@Valid UpdateMitraProfileRequest request){
+       return mitraService.updateProfile(request);
     }
 }

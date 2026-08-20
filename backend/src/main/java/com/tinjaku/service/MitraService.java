@@ -1,6 +1,8 @@
 package com.tinjaku.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.tinjaku.dto.request.MitraRequest;
 import com.tinjaku.dto.request.OnlineRequest;
@@ -22,6 +24,7 @@ import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.repository.projection.RatingSummary;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.SecurityService;
 import com.tinjaku.exception.BadRequestException;
@@ -65,23 +68,50 @@ public class MitraService {
     }
 
     public List<MitraResponse> getAllMitra(){
-        return mitraRepository.findAll()
-                .stream()
+
+        //MENGAMBIL SEMUA MITRA YANG ADA DI DATABASE
+        List<Mitra> mitraList = mitraRepository.findAll();
+
+        //MENGAMBIL SEMUA ID MITRA YANG TADI DIAMBIL DARI DATABASE
+        List<Long> mitraIds = mitraList.stream()
+                .map(Mitra::getMitraId)
+                .toList();
+
+        //JIKA MITRA IDS ITU KOSONG AKAN MENGHASILKAN -> {} ITU DARI MAP.OF() KALO TIDAK DIA AKAN MENGAMBIL SEMUA MITRA YANG MEMILIKI RATING.
+        Map<Long, RatingSummary> ratingMap = mitraIds.isEmpty() ? Map.of() : ratingRepository.getRatingSummaryByMitraIds(mitraIds)
+                        .stream()
+                        .collect(Collectors.toMap(RatingSummary::getMitraId, r -> r));
+
+        return mitraList.stream()
                 .map(mitra -> {
-                    Double ratingMitra = ratingRepository.getAvargeRating(mitra.getMitraId());
-                    Long totalRating = ratingRepository.getTotalRating(mitra.getMitraId());
-                    return mitraMapper.toResponse(mitra, ratingMitra, totalRating);
+                    RatingSummary summary = ratingMap.get(mitra.getMitraId());
+                    //VALIDATION SUMMARY JIKA SUMMARY TIDAK KOSONG DAN AVGRATING TIDAK KOSONG MAKA AKAN LANJUT KE SUMMARY GETAVGRATING JIKA KOSONG MAKA AKAN KE 0.0
+                    double avgRating = summary != null && summary.getAvgRating() != null ? summary.getAvgRating() : 0.0;
+                    //VALIDATION SUMMARY JIKA SUMMARY TIDAK KOSONG DAN AVGRATING TIDAK KOSONG MAKA AKAN LANJUT KE SUMMARY GETTOTALRATING JIKA KOSONG MAKA AKAN KE 0.0
+                    long totalRating = summary != null && summary.getTotalRating() != null ? summary.getTotalRating() : 0;
+                    return mitraMapper.toResponse(mitra, avgRating, totalRating);
                 })
                 .toList();
     }
 
     public List<MitraResponse> getMitraByKota(Kota kota){
-        return mitraRepository.findByAlamatList_Kota(kota)
-                .stream()
+
+        List<Mitra> mitraList = mitraRepository.findByAlamatList_Kota(kota);
+
+        List<Long> mitraIds = mitraList.stream()
+                .map(Mitra::getMitraId)
+                .toList();
+
+        Map<Long, RatingSummary> ratingMap = mitraIds.isEmpty() ? Map.of() : ratingRepository.getRatingSummaryByMitraIds(mitraIds)
+                        .stream()
+                        .collect(Collectors.toMap(RatingSummary::getMitraId, r -> r));
+
+        return mitraList.stream()
                 .map(mitra -> {
-                    Double ratingMitra = ratingRepository.getAvargeRating(mitra.getMitraId());
-                    Long totalRating = ratingRepository.getTotalRating(mitra.getMitraId());
-                    return mitraMapper.toResponse(mitra, ratingMitra, totalRating);
+                    RatingSummary summary = ratingMap.get(mitra.getMitraId());
+                    double avgRating = summary != null && summary.getAvgRating() != null ? summary.getAvgRating() : 0.0;
+                    long totalRating = summary != null && summary.getTotalRating() != null ? summary.getTotalRating() : 0;
+                    return mitraMapper.toResponse(mitra, avgRating, totalRating);
                 })
                 .toList();
     }
@@ -99,7 +129,7 @@ public class MitraService {
         Double ratingMitra = ratingRepository.getAvargeRating(id);
         Long totalRating = ratingRepository.getTotalRating(id);
 
-        return mitraMapper.toResponse(mitra, ratingMitra != null ? ratingMitra : 0.0, totalRating);
+        return mitraMapper.toResponse(mitra, ratingMitra != null ? ratingMitra : 0.0, totalRating != null ? totalRating : 0);
     }
 
     public void deleteMitraById(Long mitraId){
@@ -111,7 +141,6 @@ public class MitraService {
     }
 
     public List<PesananResponse> getPesananMitra(Long mitraId){
-
         Mitra mitra = getMitraById(mitraId);
                     
         return mitra.getPesananList()
@@ -137,13 +166,21 @@ public class MitraService {
         return mitraMapper.toOnlineResponse(savedMitra);
     }
 
-    public UpdateMitraProfileResponse updateProfile(Long mitraId, UpdateMitraProfileRequest request){
+    public UpdateMitraProfileResponse updateProfile(UpdateMitraProfileRequest request){
+
+        Long mitraId = securityService.getCurrentMitraId();
+
         Mitra mitra = getMitraById(mitraId);
 
         if(!mitra.getEmail().equalsIgnoreCase(request.getEmail())
             && mitraRepository.existsByEmailIgnoreCase(request.getEmail())){
                 throw new BadRequestException("Email sudah terdaftar!");
             }
+
+        if (!mitra.getNamaMitra().equalsIgnoreCase(request.getNamaMitra())
+            && mitraRepository.existsByNamaMitraIgnoreCase(request.getNamaMitra())) {
+            throw new BadRequestException("Nama sudah terdaftar");
+        }
 
         mitra.setNamaMitra(request.getNamaMitra());
         mitra.setEmail(request.getEmail());

@@ -366,6 +366,7 @@ public class MitraServiceTest {
         Mitra mitra = new Mitra();
         mitra.setMitraId(mitraId);
         mitra.setEmail("Test@gmail.com");
+        mitra.setNamaMitra("WC LAMA");
 
         UpdateMitraProfileRequest request = new UpdateMitraProfileRequest();
         request.setEmail("Example@gmail.com");
@@ -375,10 +376,16 @@ public class MitraServiceTest {
         response.setEmail("Example@gmail.com");
         response.setNamaMitra("WC MAKMUR");
 
+        when(securityService.getCurrentMitraId())
+                .thenReturn(mitraId);
+
         when(mitraRepository.findById(mitraId))
                 .thenReturn(Optional.of(mitra));
                 
         when(mitraRepository.existsByEmailIgnoreCase("Example@gmail.com"))
+                .thenReturn(false);
+
+        when(mitraRepository.existsByNamaMitraIgnoreCase("WC MAKMUR"))
                 .thenReturn(false);
                 
         when(mitraRepository.save(mitra))
@@ -387,11 +394,12 @@ public class MitraServiceTest {
         when(updateMitraProfileMapper.mapToResponse(mitra))
                 .thenReturn(response);
 
-        UpdateMitraProfileResponse result = mitraService.updateProfile(mitraId, request);
+        UpdateMitraProfileResponse result = mitraService.updateProfile(request);
 
         assertEquals("Example@gmail.com", result.getEmail());
         assertEquals("WC MAKMUR", result.getNamaMitra());
 
+        verify(securityService).getCurrentMitraId();
         verify(mitraRepository).findById(mitraId);
         verify(mitraRepository).existsByEmailIgnoreCase("Example@gmail.com");
         verify(mitraRepository).save(mitra);
