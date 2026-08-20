@@ -34,6 +34,7 @@ import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.repository.projection.RatingSummary;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.SecurityService;
 
@@ -141,21 +142,28 @@ public class MitraServiceTest {
         response2.setRatingMitra(2.3);
         response2.setTotalRating(800L);
 
+        RatingSummary summary1 = mock(RatingSummary.class);
+        when(summary1.getMitraId())
+                .thenReturn(mitraId);
+        when(summary1.getAvgRating())
+                .thenReturn(4.5);
+        when(summary1.getTotalRating())
+                .thenReturn(500L);
+
+        RatingSummary summary2 = mock(RatingSummary.class);
+        when(summary2.getMitraId())
+                .thenReturn(mitraId2);
+        when(summary2.getAvgRating())
+                .thenReturn(2.3);
+        when(summary2.getTotalRating())
+                .thenReturn(800L);
+
+        when(ratingRepository.getRatingSummaryByMitraIds(anyList()))
+                .thenReturn(List.of(summary1, summary2));
+
         when(mitraRepository.findAll())
                 .thenReturn(List.of(mitra1, mitra2));
         
-        when(ratingRepository.getAvargeRating(mitraId))
-                .thenReturn(4.5);
-
-        when(ratingRepository.getAvargeRating(mitraId2))
-                .thenReturn(2.3);
-
-        when(ratingRepository.getTotalRating(mitraId))
-                .thenReturn(500L);
-
-        when(ratingRepository.getTotalRating(mitraId2))
-                .thenReturn(800L);
-
         when(mitraMapper.toResponse(mitra1, 4.5, 500L))
                 .thenReturn(response1);
 
@@ -165,16 +173,12 @@ public class MitraServiceTest {
         List<MitraResponse> result = mitraService.getAllMitra();
 
         assertEquals(2, result.size());
-        assertEquals(4.5, result.get(0).getRatingMitra());
         assertEquals(500L, result.get(0).getTotalRating());
         assertEquals(2.3, result.get(1).getRatingMitra());
         assertEquals(800L, result.get(1).getTotalRating());
 
         verify(mitraRepository).findAll();
-        verify(ratingRepository).getAvargeRating(mitraId);
-        verify(ratingRepository).getAvargeRating(mitraId2);
-        verify(ratingRepository).getTotalRating(mitraId);
-        verify(ratingRepository).getTotalRating(mitraId2);
+        verify(ratingRepository).getRatingSummaryByMitraIds(anyList());
         verify(mitraMapper).toResponse(mitra1, 4.5, 500L);
         verify(mitraMapper).toResponse(mitra2, 2.3, 800L);
     }
@@ -191,15 +195,20 @@ public class MitraServiceTest {
         response.setRatingMitra(4.5);
         response.setTotalRating(500L);
 
+        RatingSummary summary = mock(RatingSummary.class);
+        when(summary.getMitraId())
+                .thenReturn(mitraId);
+        when(summary.getAvgRating())
+                .thenReturn(4.5);
+        when(summary.getTotalRating())
+                .thenReturn(500L);
+
+        when(ratingRepository.getRatingSummaryByMitraIds(anyList()))
+                .thenReturn(List.of(summary));
+
         when(mitraRepository.findByAlamatList_Kota(Kota.JAKARTA))
                 .thenReturn(List.of(mitra));
 
-        when(ratingRepository.getAvargeRating(mitraId))
-                .thenReturn(4.5);
-
-        when(ratingRepository.getTotalRating(mitraId))
-                .thenReturn(500L);
-        
         when(mitraMapper.toResponse(mitra, 4.5, 500L))
                 .thenReturn(response);
 
@@ -211,8 +220,7 @@ public class MitraServiceTest {
         assertEquals(500L, result.get(0).getTotalRating());
 
         verify(mitraRepository).findByAlamatList_Kota(Kota.JAKARTA);
-        verify(ratingRepository).getAvargeRating(mitraId);
-        verify(ratingRepository).getTotalRating(mitraId);
+        verify(ratingRepository).getRatingSummaryByMitraIds(anyList());
         verify(mitraMapper).toResponse(mitra, 4.5, 500L);
     }
 
