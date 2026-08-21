@@ -44,4 +44,15 @@ public class SecurityService {
 
         return authentication.getPrincipal();
     }
+
+    public String getCurrentRole(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return authentication
+                .getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+    }
 }

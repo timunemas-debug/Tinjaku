@@ -4,6 +4,8 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,8 @@ import com.tinjaku.model.*;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
+import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.repository.projection.RatingSummary;
 import com.tinjaku.security.SecurityService;
 
 import jakarta.transaction.Transactional;
@@ -37,10 +41,17 @@ public class PesananService {
     private final PesananHistoryRepository pesananHistoryRepository;
     private final PesananHistoryMapper pesananHistoryMapper;
     private final MitraRepository mitraRepository;
+    private final RatingRepository ratingRepository;
     
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
     
-    public PesananService(UserService userService, MitraService mitraService, PesananRepository pesananRepository, PesananMapper pesananMapper, AlamatService alamatService,RatingService ratingService, SecurityService securityService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper, MitraRepository mitraRepository){
+    public PesananService(UserService userService, MitraService mitraService,
+                          PesananRepository pesananRepository, PesananMapper pesananMapper,
+                          AlamatService alamatService, RatingService ratingService,
+                          SecurityService securityService, NotificationService notificationService,
+                          PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper,
+                          MitraRepository mitraRepository, RatingRepository ratingRepository){
+
         this.userService = userService;
         this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
@@ -52,6 +63,7 @@ public class PesananService {
         this.pesananHistoryRepository = pesananHistoryRepository;
         this.pesananHistoryMapper = pesananHistoryMapper;
         this.mitraRepository = mitraRepository;
+        this.ratingRepository = ratingRepository;
     }
     
         /*
@@ -135,10 +147,6 @@ public class PesananService {
 
     public List<PesananResponse> getPesananByStatus(StatusPesanan status){
         List<Pesanan> pesananList = pesananRepository.findPesananByStatus(status);
-
-        if(pesananList.isEmpty()){
-            throw new ResourceNotFound("Pesanan tidak ditemukan!");
-        }
 
         return pesananList.stream()
                 .map(pesananMapper::mapToResponse)
@@ -402,12 +410,7 @@ public class PesananService {
 
         Pesanan pesanan = getPesananEntityById(pesananId);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        String role = authentication.getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority();
+        String role = securityService.getCurrentRole();
 
         if (role.equals("ROLE_USER")) {
             
@@ -440,15 +443,22 @@ public class PesananService {
     public List<Mitra> getEligibleMitra(Pesanan pesanan){
 
         List<Mitra> eligibleMitra = new ArrayList<>();
-        List<Mitra> mitras = mitraRepository.findAll();
+        List<Mitra> mitras = mitraRepository.findByStatusOnOff(StatusOnOff.ONLINE);
+
+        List<Long> mitraIds = mitras.stream()
+                .map(Mitra::getMitraId)
+                .toList();
+
+        Map<Long, RatingSummary> ratingMap = mitraIds.isEmpty() ? Map.of() : ratingRepository.getRatingSummaryByMitraIds(mitraIds)
+                        .stream()
+                        .collect(Collectors.toMap(RatingSummary::getMitraId, r -> r));
 
         for(Mitra mitra : mitras){
 
-            Double rating = ratingService.getAverageRating(mitra.getMitraId());
+            RatingSummary summary = ratingMap.get(mitra.getMitraId());
 
-            if (mitra.getStatusOnOff().equals(StatusOnOff.OFFLINE)) {
-                continue;
-            }
+            Double rating = summary != null && summary.getAvgRating() != null ? summary.getAvgRating() : 0.0;
+
             if (rating <= 1.5) {
                 continue;
             }

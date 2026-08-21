@@ -1,6 +1,7 @@
 package com.tinjaku.repository;
 
 import com.tinjaku.model.Mitra;
+import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.Kota;
 
 import java.util.List;
@@ -15,5 +16,6 @@ public interface MitraRepository extends JpaRepository<Mitra, Long> {
 
     List<Mitra> findByAlamatList_Kota(Kota kota);
     List<Mitra> findByAlamatList_KotaAndAlamatList_Kecamatan(Kota kota, String kecamatan);
+    List<Mitra> findByStatusOnOff(StatusOnOff statusOnOff);
     Optional<Mitra> findByEmailIgnoreCase(String email);
 }
