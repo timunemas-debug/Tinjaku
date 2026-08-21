@@ -190,11 +190,11 @@ public class MitraService {
         return updateMitraProfileMapper.mapToResponse(mitra);
     }
 
-    public DashboardResponse getDashboard(Long mitraId){
-
-        getMitraById(mitraId);
+    public DashboardResponse getDashboard(){
 
         CustomMitraDetails currentDetails = securityService.getCurrentMitra();
+
+        Long mitraId = currentDetails.getMitra().getMitraId();
 
         if (!currentDetails.getMitra().getMitraId().equals(mitraId)) {
             throw new BadRequestException("Bukan milik mitra");

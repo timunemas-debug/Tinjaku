@@ -428,9 +428,6 @@ public class MitraServiceTest {
         when(currentDetails.getMitra())
                 .thenReturn(mitra);
 
-        when(mitraRepository.findById(mitraId))
-                .thenReturn(Optional.of(mitra));
-
         when(pesananRepository.countByMitraMitraId(mitraId))
                 .thenReturn(3L);
 
@@ -446,7 +443,7 @@ public class MitraServiceTest {
         when(pesananRepository.countByMitraMitraIdAndStatus(mitraId, StatusPesanan.SELESAI))
                 .thenReturn(0L);
 
-        DashboardResponse result = mitraService.getDashboard(mitraId);
+        DashboardResponse result = mitraService.getDashboard();
 
         assertEquals(3L, result.getTotalPesanan());
         assertEquals(2L, result.getPesananMenunggu());
@@ -455,7 +452,6 @@ public class MitraServiceTest {
         assertEquals(0L, result.getPesananSelesai());
 
         verify(securityService).getCurrentMitra();
-        verify(mitraRepository).findById(mitraId);
         verify(pesananRepository).countByMitraMitraId(mitraId);
         verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.MENUNGGU);
         verify(pesananRepository).countByMitraMitraIdAndStatus(mitraId, StatusPesanan.DITERIMA);

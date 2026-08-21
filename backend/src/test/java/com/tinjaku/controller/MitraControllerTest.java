@@ -148,10 +148,10 @@ public class MitraControllerTest {
         response.setPesananDiTerima(4L);
         response.setPesananMenunggu(1L);
 
-        when(mitraService.getDashboard(1L))
+        when(mitraService.getDashboard())
                 .thenReturn(response);
 
-        mockMvc.perform(get("/mitra/1/dashboard"))
+        mockMvc.perform(get("/mitra/dashboard"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pesananDiTerima").value(4L))
                 .andExpect(jsonPath("$.pesananMenunggu").value(1L));

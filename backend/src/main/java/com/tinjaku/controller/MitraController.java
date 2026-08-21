@@ -74,10 +74,9 @@ public class MitraController {
         return mitraService.getPesananMitra(mitraId);
     }
 
-    @PreAuthorize("hasRole('MITRA')")
-    @GetMapping("/{mitraId}/dashboard")
-    public DashboardResponse getDashboard(@PathVariable Long mitraId){
-        return mitraService.getDashboard(mitraId);
+    @GetMapping("/dashboard")
+    public DashboardResponse getDashboard(){
+        return mitraService.getDashboard();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
