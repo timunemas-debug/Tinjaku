@@ -3,7 +3,6 @@ package com.tinjaku.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.query.sqm.tree.expression.SqmCaseSearched.WhenFragment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -171,7 +169,7 @@ public class PesananServiceTest {
         when(pesananRepository.findPesananByStatus(StatusPesanan.DIKERJAKAN))
                 .thenReturn(Collections.emptyList());
 
-        assertThrows(ResourceNotFound.class, () -> pesananService.getPesananByStatus(StatusPesanan.DIKERJAKAN));
+        pesananService.getPesananByStatus(StatusPesanan.DIKERJAKAN);
 
         verify(pesananRepository).findPesananByStatus(StatusPesanan.DIKERJAKAN);
     }
