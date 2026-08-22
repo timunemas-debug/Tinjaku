@@ -17,6 +17,8 @@ import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class RatingService {
     private final RatingMapper ratingMapper;
@@ -31,7 +33,8 @@ public class RatingService {
         this.mitraRepository = mitraRepository;
     }
 
-    public RatingResponse tambahRating(Long pesananId, RatingRequest request){
+   @Transactional
+   public RatingResponse tambahRating(Long pesananId, RatingRequest request){
         Pesanan pesanan = pesananRepository.findById(pesananId)
                 .orElseThrow(() ->
                         new ResourceNotFound("Pesanan tidak ditemukan!"));
@@ -76,7 +79,10 @@ public class RatingService {
         return average != null ? average : 5.0;
     }
 
-    public void hapusRating(Long mitraId){
-        ratingRepository.deleteById(mitraId);
+    public void hapusRating(Long id){
+        if (!ratingRepository.existsById(id)) {
+            throw new ResourceNotFound("Rating tidak ditemukan!");
+        }
+        ratingRepository.deleteById(id);
     }
 }

@@ -12,23 +12,30 @@ import com.tinjaku.repository.projection.RatingSummary;
 
 public interface RatingRepository extends JpaRepository<Rating, Long> {
     boolean existsByPesananId(Long id);
-    Long countByMitraMitraIdAndRating(Long mitraId, Rating rating);
-    List<Rating> findByMitraMitraId(Long mitraId);
+    Long countByMitraMitraIdAndRating(Long mitraId, Integer rating);
     Optional<Rating> findTopByPesananId(Long pesananId);
+
+    @Query("""
+            SELECT r
+            FROM Rating r
+            JOIN FETCH r.mitra
+            WHERE r.mitra.mitraId = :mitraId
+    """)
+    List<Rating> findByMitraMitraId(@Param("mitraId") Long mitraId);
 
     @Query("""
             SELECT AVG(r.rating)
             FROM Rating r
             WHERE r.mitra.mitraId = :mitraId
     """)
-    Double getAvargeRating(Long mitraId);
+    Double getAvargeRating(@Param("mitraId") Long mitraId);
 
     @Query("""
             SELECT COUNT(r)
             FROM Rating r
             WHERE r.mitra.mitraId = :mitraId
             """)
-    Long getTotalRating(Long mitraId);
+    Long getTotalRating(@Param("mitraId") Long mitraId);
 
     @Query("""
            SELECT r.mitra.mitraId AS mitraId,
