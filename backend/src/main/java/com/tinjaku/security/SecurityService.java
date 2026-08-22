@@ -36,7 +36,7 @@ public class SecurityService {
     }
 
     public Long getCurrentMitraId(){
-        return getCurrentMitra().getMitra().getMitraId();
+        return getCurrentMitra().getMitraId();
     }
 
     public Object getCurrentPrincipal(){

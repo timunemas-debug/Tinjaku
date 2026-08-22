@@ -10,6 +10,9 @@ import com.tinjaku.mapper.AlamatMitraMapper;
 import com.tinjaku.repository.AlamatMitraRepository;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.security.SecurityService;
+
+import jakarta.transaction.Transactional;
+
 import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Mitra;
 
@@ -29,7 +32,11 @@ public class AlamatMitraService {
         this.securityService =securityService;
     }
 
-    public AlamatMitraResponse tambahAlamat(Long mitraId, AlamatMitraRequest request){
+    @Transactional
+    public AlamatMitraResponse tambahAlamat(AlamatMitraRequest request){
+
+        Long mitraId = securityService.getCurrentMitraId();
+        
         Mitra mitra = mitraRepository.findById(mitraId)
                 .orElseThrow(() ->
                     new ResourceNotFound("Mitra tidak ditemukan!"));
@@ -74,11 +81,11 @@ public class AlamatMitraService {
         alamatMitraRepository.delete(alamat);
     }
 
-    public AlamatMitraResponse updateAlamatMitra(Long mitraId, AlamatMitraRequest request){
+    public AlamatMitraResponse updateAlamatMitra(Long idAlamat, AlamatMitraRequest request){
 
         Long idMitra = securityService.getCurrentUserId();
 
-        AlamatMitra alamatMitra = getAlamatMitraById(mitraId);
+        AlamatMitra alamatMitra = getAlamatMitraById(idAlamat);
         
         if(!alamatMitra.getMitra().getMitraId().equals(idMitra)){
             throw new BadRequestException("Alamat bukan milik mitra!");

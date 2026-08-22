@@ -33,21 +33,27 @@ public class AlamatController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/{userId}")
-    public AlamatResponse tambahAlamat(@PathVariable Long userId, @Valid @RequestBody AlamatRequest request){
-        return alamatService.tambahAlamat(userId, request);
+    @PostMapping("/tambah-alamat-user")
+    public AlamatResponse tambahAlamat(@Valid @RequestBody AlamatRequest request){
+        return alamatService.tambahAlamat(request);
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @PostMapping("/{mitraId}/alamat-mitra")
-    public AlamatMitraResponse tambahAlamatMitra(@PathVariable Long mitraId, @Valid @RequestBody AlamatMitraRequest request){
-        return alamatMitraService.tambahAlamat(mitraId, request);
+    @PostMapping("/alamat-mitra")
+    public AlamatMitraResponse tambahAlamatMitra(@Valid @RequestBody AlamatMitraRequest request){
+        return alamatMitraService.tambahAlamat(request);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
     public ResponseEntity<List<AlamatResponse>> getAlamatUser(){
         return ResponseEntity.ok(alamatService.getAlamatUser());
+    }
+
+    @PreAuthorize("hasRole('MITRA')")
+    @GetMapping("/mitra")
+    public ResponseEntity<List<AlamatMitraResponse>> getAlamatMitra(){
+        return ResponseEntity.ok(alamatMitraService.getAllAlamat());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -69,14 +75,14 @@ public class AlamatController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/{userId}/update-alamat")
-    public AlamatResponse updateAlamat(@PathVariable Long userId, @Valid @RequestBody AlamatRequest request){
-        return alamatService.updateAlamat(userId, request);
+    @PutMapping("/{alamatId}/update-alamat")
+    public AlamatResponse updateAlamat(@PathVariable Long alamatId, @Valid @RequestBody AlamatRequest request){
+        return alamatService.updateAlamat(alamatId, request);
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @PutMapping("/{mitraId}/update-alamat-mitra")
-    public AlamatMitraResponse updateAlamatMitra(@PathVariable Long mitraId, @Valid @RequestBody AlamatMitraRequest request){
-        return alamatMitraService.updateAlamatMitra(mitraId, request);
+    @PutMapping("/{idAlamat}/update-alamat-mitra")
+    public AlamatMitraResponse updateAlamatMitra(@PathVariable Long idAlamat, @Valid @RequestBody AlamatMitraRequest request){
+        return alamatMitraService.updateAlamatMitra(idAlamat, request);
     }
 }

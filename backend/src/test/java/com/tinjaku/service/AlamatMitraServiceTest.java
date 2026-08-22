@@ -80,7 +80,7 @@ public class AlamatMitraServiceTest {
         when(alamatMitraMapper.toResponse(alamat))
                 .thenReturn(response);
 
-        AlamatMitraResponse result = alamatMitraService.tambahAlamat(1L, request);
+        AlamatMitraResponse result = alamatMitraService.tambahAlamat(request);
 
         assertEquals(jalan, result.getJalan());
         assertEquals(kelurahan, result.getKelurahan());

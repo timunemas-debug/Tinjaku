@@ -14,6 +14,8 @@ import com.tinjaku.repository.AlamatRepository;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.security.SecurityService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class AlamatService {
     private final AlamatRepository alamatRepository;
@@ -28,7 +30,11 @@ public class AlamatService {
         this.securityService = securityService;
     }
 
-    public AlamatResponse tambahAlamat(Long userId, AlamatRequest request){
+    @Transactional
+    public AlamatResponse tambahAlamat(AlamatRequest request){
+
+        Long userId = securityService.getCurrentUserId();
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFound("User tidak ditemukan!"));
@@ -66,11 +72,11 @@ public class AlamatService {
         alamatRepository.delete(alamat);
     }
 
-    public AlamatResponse updateAlamat(Long id, AlamatRequest request){
+    public AlamatResponse updateAlamat(Long alamatId, AlamatRequest request){
         
         Long userId = securityService.getCurrentUserId();
 
-        Alamat alamat = getAlamatById(id);
+        Alamat alamat = getAlamatById(alamatId);
 
         if(!alamat.getUser().getUserId().equals(userId)){
             throw new BadRequestException("Alamat bukan milik user!");

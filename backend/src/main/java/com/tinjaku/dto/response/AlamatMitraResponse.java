@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlamatMitraResponse {
+    private Long idAlamat;
     private LabelMitra labelMitra;
     private String jalan;
     private String kelurahan;

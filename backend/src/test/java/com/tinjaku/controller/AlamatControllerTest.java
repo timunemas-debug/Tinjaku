@@ -75,7 +75,7 @@ public class AlamatControllerTest {
         response.setKota(Kota.TANGERANG);
         response.setProvinsi(provinsi);
 
-        when(alamatService.tambahAlamat(eq(1L), any(AlamatRequest.class)))
+        when(alamatService.tambahAlamat(any(AlamatRequest.class)))
                 .thenReturn(response);
 
         mockMvc.perform(post("/alamat/1")
@@ -109,10 +109,10 @@ public class AlamatControllerTest {
         response.setKota(Kota.BEKASI);
         response.setProvinsi(provinsi);
 
-        when(alamatMitraService.tambahAlamat(eq(1L), any(AlamatMitraRequest.class)))
+        when(alamatMitraService.tambahAlamat(any(AlamatMitraRequest.class)))
                 .thenReturn(response);
 
-        mockMvc.perform(post("/alamat/1/alamat-mitra")
+        mockMvc.perform(post("/alamat/alamat-mitra")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(response)))
                 .andExpect(status().isOk())

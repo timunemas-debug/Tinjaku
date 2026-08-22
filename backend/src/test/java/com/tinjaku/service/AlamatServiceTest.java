@@ -84,7 +84,7 @@ public class AlamatServiceTest {
         when(alamatMapper.toResponse(alamat))
                 .thenReturn(response);
 
-        AlamatResponse result = alamatService.tambahAlamat(1L, request);
+        AlamatResponse result = alamatService.tambahAlamat(request);
 
         assertEquals(Label.PABRIK, result.getLabel());
         assertEquals("A", result.getJalan());

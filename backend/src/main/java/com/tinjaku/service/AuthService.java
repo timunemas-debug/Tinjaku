@@ -1,7 +1,6 @@
 package com.tinjaku.service;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +18,6 @@ import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.mapper.MitraMapper;
 import com.tinjaku.mapper.UserMapper;
 import com.tinjaku.model.Mitra;
-import com.tinjaku.model.Role;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.MitraRepository;

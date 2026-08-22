@@ -56,4 +56,8 @@ public class CustomMitraDetails implements UserDetails{
     public Mitra getMitra() {
         return mitra;
     }
+
+    public Long getMitraId(){
+        return mitra.getMitraId();
+    }
 }

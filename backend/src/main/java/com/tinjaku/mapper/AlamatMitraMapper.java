@@ -22,7 +22,8 @@ public class AlamatMitraMapper {
     }
 
     public AlamatMitraResponse toResponse(AlamatMitra alamatMitra){
-        return new AlamatMitraResponse(alamatMitra.getLabelMitra(),
+        return new AlamatMitraResponse(alamatMitra.getIdAlamat(),
+                                       alamatMitra.getLabelMitra(),
                                        alamatMitra.getJalan(),
                                        alamatMitra.getKelurahan(),
                                        alamatMitra.getKecamatan(),

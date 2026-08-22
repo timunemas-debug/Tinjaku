@@ -142,8 +142,15 @@ public class RatingServiceTest {
     @Test
     public void shouldHapusRating(){
 
+        Rating rating = new Rating();
+        rating.setId(1L);
+
+        when(ratingRepository.existsById(1L))
+                .thenReturn(true);
+
         ratingService.hapusRating(1L);
 
+        verify(ratingRepository).existsById(1L);
         verify(ratingRepository).deleteById(1L);
     }
 }
