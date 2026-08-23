@@ -23,8 +23,8 @@ export const deletePesanan = (id) =>
 export const tolakPesanan = (pesananId) =>
   api.patch(`/pesanan/${pesananId}/tolak`).then((res) => res.data);
 
-export const terimaPesanan = (pesananId, mitraId) =>
-  api.patch(`/pesanan/${pesananId}/terima/${mitraId}`).then((res) => res.data);
+export const terimaPesanan = (pesananId) =>
+  api.patch(`/pesanan/${pesananId}/terima`).then((res) => res.data);
 
 export const pesananDalamPerjalanan = (pesananId) =>
   api.patch(`/pesanan/${pesananId}/dalam-perjalanan`).then((res) => res.data);
@@ -34,3 +34,6 @@ export const selesaikanPesanan = (pesananId) =>
 
 export const getRiwayatPesananUser = () =>
   api.get("/pesanan/riwayat-user").then((res) => res.data);
+
+export const getRiwayatPesananMitra = () =>
+  api.get("/pesanan/riwayat-mitra").then((res) => res.data);

@@ -1,15 +1,10 @@
 import api from "./api";
 
-export const alamatMitraService = {
-  tambahAlamatMitra: async (mitraId, { labelMitra, jalan, kelurahan, kecamatan, kota, provinsi }) => {
-    const response = await api.post(`/alamat/${mitraId}/alamat-mitra`, {
-      labelMitra,
-      jalan,
-      kelurahan,
-      kecamatan,
-      kota,
-      provinsi,
-    });
-    return response.data;
-  },
-};
+export const getAlamatMitra = () =>
+  api.get("/alamat/mitra").then((res) => res.data);
+
+export const createAlamatMitra = (data) =>
+  api.post("/alamat/alamat-mitra", data).then((res) => res.data);
+
+export const updateAlamatMitra = (idAlamat, data) =>
+  api.put(`/alamat/${idAlamat}/update-alamat-mitra`, data).then((res) => res.data);

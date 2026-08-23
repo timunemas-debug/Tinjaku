@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
+import { FiInbox } from "react-icons/fi";
 import { getPesananByStatus, terimaPesanan } from "../../services/pesananService";
-import { useAuth } from "../../hooks/useAuth";
 
 function PesananMasuk() {
-  const { user } = useAuth();
   const [pesanan, setPesanan] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,8 +14,6 @@ function PesananMasuk() {
         const data = await getPesananByStatus("MENUNGGU");
         setPesanan(data);
       } catch (err) {
-        // Backend melempar 404 kalau list kosong (ResourceNotFound),
-        // jadi kita anggap itu bukan error, cuma "belum ada pesanan".
         if (err.message.includes("tidak ditemukan")) {
           setPesanan([]);
         } else {
@@ -33,7 +30,7 @@ function PesananMasuk() {
   const ambilPesanan = async (pesananId) => {
     setActionError("");
     try {
-      await terimaPesanan(pesananId, user.userId);
+      await terimaPesanan(pesananId);
       setPesanan((prev) => prev.filter((p) => p.id !== pesananId));
     } catch (err) {
       setActionError(err.message);
@@ -42,35 +39,40 @@ function PesananMasuk() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Pesanan Masuk</h1>
+      <h1 className="font-display font-bold text-2xl text-ink mb-2">
+        Pesanan Masuk
+      </h1>
+      <p className="font-body text-sm text-ink/50 mb-6">
+        Pesanan yang menunggu diambil oleh mitra.
+      </p>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+        <p className="font-body text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
           {error}
         </p>
       )}
       {actionError && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+        <p className="font-body text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
           {actionError}
         </p>
       )}
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full">
-          <thead className="bg-blue-600 text-white">
+          <thead className="bg-ink text-white">
             <tr>
-              <th className="p-4">Nama</th>
-              <th>Alamat</th>
-              <th>Kota</th>
-              <th>Keluhan</th>
-              <th>Aksi</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Nama</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Alamat</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Kota</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Keluhan</th>
+              <th className="p-4 text-left font-body text-sm font-semibold">Aksi</th>
             </tr>
           </thead>
 
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
+                <td colSpan={5} className="p-10 text-center font-body text-sm text-ink/50">
                   Memuat pesanan...
                 </td>
               </tr>
@@ -78,22 +80,23 @@ function PesananMasuk() {
 
             {!loading && pesanan.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  Belum ada pesanan menunggu.
+                <td colSpan={5} className="p-10 text-center">
+                  <FiInbox size={28} className="mx-auto text-ink/20 mb-3" />
+                  <p className="font-body text-sm text-ink/50">Belum ada pesanan menunggu.</p>
                 </td>
               </tr>
             )}
 
             {pesanan.map((item) => (
-              <tr key={item.id} className="border-b text-center">
-                <td className="p-4">{item.namaLengkap ?? item.namaPenerima}</td>
-                <td>{item.alamatLengkap}</td>
-                <td>{item.kota}</td>
-                <td>{item.keluhan}</td>
-                <td>
+              <tr key={item.id} className="border-t border-gray-100">
+                <td className="p-4 font-body text-sm text-ink">{item.namaLengkap ?? item.namaPenerima}</td>
+                <td className="p-4 font-body text-sm text-ink">{item.alamatLengkap}</td>
+                <td className="p-4 font-body text-sm text-ink">{item.kota}</td>
+                <td className="p-4 font-body text-sm text-ink">{item.keluhan}</td>
+                <td className="p-4">
                   <button
                     onClick={() => ambilPesanan(item.id)}
-                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    className="font-body font-bold text-sm text-ink bg-accent px-4 py-2 rounded-full hover:brightness-95"
                   >
                     Ambil
                   </button>

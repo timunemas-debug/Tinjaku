@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
-import { getPesananByMitra } from "../../services/mitraService";
-import { useAuth } from "../../hooks/useAuth";
+import { FiClock } from "react-icons/fi";
+import { getRiwayatPesananMitra } from "../../services/pesananService";
 import { getStatusInfo } from "../../utils/statusPesananMap";
 
 function RiwayatMitra() {
-  const { user } = useAuth();
-  const [pesananSelesai, setPesananSelesai] = useState([]);
+  const [riwayat, setRiwayat] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchRiwayat() {
       try {
-        const data = await getPesananByMitra(user.userId);
-        setPesananSelesai(data.filter((p) => p.status === "SELESAI"));
+        const data = await getRiwayatPesananMitra();
+        setRiwayat(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -22,54 +21,57 @@ function RiwayatMitra() {
     }
 
     fetchRiwayat();
-  }, [user.userId]);
+  }, []);
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Riwayat Pekerjaan</h1>
+      <h1 className="font-display font-bold text-2xl text-ink mb-6">
+        Riwayat Pekerjaan
+      </h1>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+        <p className="font-body text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
           {error}
         </p>
       )}
 
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full">
-          <thead className="border-b">
+          <thead className="border-b border-gray-100">
             <tr>
-              <th className="py-4 text-left">Pelanggan</th>
-              <th className="text-left">Alamat</th>
-              <th className="text-left">Kota</th>
-              <th className="text-left">Status</th>
+              <th className="p-4 text-left font-body text-sm font-semibold text-ink">Pelanggan</th>
+              <th className="p-4 text-left font-body text-sm font-semibold text-ink">Alamat</th>
+              <th className="p-4 text-left font-body text-sm font-semibold text-ink">Kota</th>
+              <th className="p-4 text-left font-body text-sm font-semibold text-ink">Status</th>
             </tr>
           </thead>
 
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={4} className="py-6 text-center text-gray-500">
+                <td colSpan={4} className="p-10 text-center font-body text-sm text-ink/50">
                   Memuat riwayat...
                 </td>
               </tr>
             )}
 
-            {!loading && pesananSelesai.length === 0 && (
+            {!loading && riwayat.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-6 text-center text-gray-500">
-                  Belum ada pekerjaan selesai.
+                <td colSpan={4} className="p-10 text-center">
+                  <FiClock size={28} className="mx-auto text-ink/20 mb-3" />
+                  <p className="font-body text-sm text-ink/50">Belum ada riwayat pekerjaan.</p>
                 </td>
               </tr>
             )}
 
-            {pesananSelesai.map((item) => {
+            {riwayat.map((item) => {
               const statusInfo = getStatusInfo(item.status);
               return (
-                <tr key={item.id} className="border-b">
-                  <td className="py-4">{item.namaLengkap ?? item.namaPenerima}</td>
-                  <td>{item.alamatLengkap}</td>
-                  <td>{item.kota}</td>
-                  <td>
+                <tr key={item.id} className="border-t border-gray-100">
+                  <td className="p-4 font-body text-sm text-ink">{item.namaLengkap ?? item.namaPenerima}</td>
+                  <td className="p-4 font-body text-sm text-ink">{item.alamatLengkap}</td>
+                  <td className="p-4 font-body text-sm text-ink">{item.kota}</td>
+                  <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusInfo.color}`}>
                       {statusInfo.label}
                     </span>

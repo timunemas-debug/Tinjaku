@@ -14,11 +14,14 @@ export const deleteMitra = (mitraId) =>
 export const getPesananByMitra = (mitraId) =>
   api.get(`/mitra/${mitraId}/pesanan`).then((res) => res.data);
 
-export const getDashboardMitra = (mitraId) =>
-  api.get(`/mitra/${mitraId}/dashboard`).then((res) => res.data);
+export const getDashboardMitra = () =>
+  api.get("/mitra/dashboard").then((res) => res.data);
 
 export const getKotaMitra = () =>
   api.get("/mitra/kota").then((res) => res.data);
 
 export const setMitraOnline = (mitraId, statusOnOff) =>
   api.post(`/mitra/${mitraId}/online`, { statusOnOff }).then((res) => res.data);
+
+export const updateMitraProfile = (data) =>
+  api.put("/mitra/update-profile", data).then((res) => res.data);
