@@ -72,6 +72,9 @@ public class AlamatServiceTest {
         request.setKota(Kota.TANGERANG);
         request.setProvinsi("Banten");
 
+        when(securityService.getCurrentUserId())
+                .thenReturn(1L);
+                
         when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
 

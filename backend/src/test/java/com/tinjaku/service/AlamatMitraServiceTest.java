@@ -68,6 +68,9 @@ public class AlamatMitraServiceTest {
         response.setKelurahan(kelurahan);
         response.setKecamatan(kecamatan);
 
+        when(securityService.getCurrentMitraId())
+                .thenReturn(1L);
+
         when(mitraRepository.findById(1L))
                 .thenReturn(Optional.of(mitra));
 

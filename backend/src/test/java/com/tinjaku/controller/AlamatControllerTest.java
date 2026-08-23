@@ -78,7 +78,7 @@ public class AlamatControllerTest {
         when(alamatService.tambahAlamat(any(AlamatRequest.class)))
                 .thenReturn(response);
 
-        mockMvc.perform(post("/alamat/1")
+        mockMvc.perform(post("/alamat/tambah-alamat-user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(response)))
                 .andExpect(status().isOk())
