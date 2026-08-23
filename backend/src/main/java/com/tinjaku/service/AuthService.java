@@ -62,14 +62,22 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    private void setOffline(Mitra mitra){
+    private void setOfflineMitra(Mitra mitra){
         mitra.setStatusOnOff(StatusOnOff.OFFLINE);
+        mitraRepository.save(mitra);
+    }
+
+    private void setOnlineMitra(Mitra mitra){
+        mitra.setStatusOnOff(StatusOnOff.ONLINE);
         mitraRepository.save(mitra);
     }
 
     public RegisterResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            throw new BadRequestException("Email sudah terdaftar!");
+        }
+        if (mitraRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new BadRequestException("Email sudah terdaftar!");
         }
 
@@ -82,12 +90,15 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getEmail());
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         if (userDetails instanceof CustomUserDetails customUserDetails) {
             setOnline(customUserDetails.getUser());
+        }
+        if (userDetails instanceof CustomMitraDetails customMitraDetails) {
+            setOnlineMitra(customMitraDetails.getMitra());
         }
 
         String jwt = jwtService.generateToken(userDetails);
@@ -106,13 +117,16 @@ public class AuthService {
         }
 
         if (userDetails instanceof CustomMitraDetails customMitraDetails) {
-            setOffline(customMitraDetails.getMitra());
+            setOfflineMitra(customMitraDetails.getMitra());
         }
     }
 
     public RegisterMitraResponse registerMitra(RegisterMitraRequest request){
         
         if(mitraRepository.existsByEmailIgnoreCase(request.getEmail())){
+            throw new BadRequestException("Email sudah terdaftar!");
+        }
+        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new BadRequestException("Email sudah terdaftar!");
         }
 
