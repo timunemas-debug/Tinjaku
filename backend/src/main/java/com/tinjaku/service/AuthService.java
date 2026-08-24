@@ -24,7 +24,6 @@ import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.UserRepository;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.CustomUserDetails;
-import com.tinjaku.security.CustomUserDetailsService;
 import com.tinjaku.security.JwtService;
 
 @Service
@@ -34,12 +33,11 @@ public class AuthService {
     private final MitraRepository mitraRepository;
     private final MitraMapper mitraMapper;
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository, UserMapper userMapper, MitraRepository mitraRepository, MitraMapper mitraMapper,
-                       AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService,
+                       AuthenticationManager authenticationManager,
                        PasswordEncoder passwordEncoder, JwtService jwtService) {
 
         this.userRepository = userRepository;
@@ -47,7 +45,6 @@ public class AuthService {
         this.mitraRepository = mitraRepository;
         this.mitraMapper = mitraMapper;
         this.authenticationManager = authenticationManager;
-        this.customUserDetailsService = customUserDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }

@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.request.RatingRequest;
+import com.tinjaku.dto.response.PesananHistoryResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.mapper.PesananMapper;
@@ -74,16 +75,6 @@ public class PesananController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}")
-    public PesananResponse updatePesanan(@PathVariable Long id,
-                                         @RequestBody PesananRequest request){
-                                            
-            Pesanan pesanan = pesananService.updatePesananService(id, request);
-
-            return pesananService.getPesananById(pesanan.getId());
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/total")
     public long totalPesanan(){
         return pesananService.hitungTotalPesanan();
@@ -131,5 +122,11 @@ public class PesananController {
     @GetMapping("/riwayat-mitra")
     public List<PesananResponse> riwayatPesananMitra(){
         return pesananService.getRiwayatMitra();
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'MITRA', 'ADMIN')")
+    @GetMapping("/{pesananId}/history-pesanan")
+    public List<PesananHistoryResponse> getHistoryPesanan(@PathVariable Long pesananId){
+        return pesananService.getHistoryPesanan(pesananId);
     }
 }

@@ -155,17 +155,6 @@ public class PesananService {
         return pesananRepository.count();
     }
 
-    public Pesanan updatePesananService(Long id, PesananRequest request){
-        Pesanan pesanan = pesananRepository.findById(id)
-                    .orElseThrow(() ->
-                        new ResourceNotFound("Pesanan tidak ditemukan!"));
-
-        pesanan.setKeluhan(request.getKeluhan());
-        pesanan.setStatus(request.getStatus());
-
-        return pesananRepository.save(pesanan);
-    }
-
     public BigDecimal hitungTotalHarga(Long userId, Pesanan pesanan){
 
         BigDecimal biayaAdmin = pesanan.getHargaJasa()
@@ -205,15 +194,31 @@ public class PesananService {
         pesananRepository.deleteById(id);
     }
 
-    public boolean userMasihPunyaPesananMenunggu(User user){
+    public boolean userMasihPunyaPesananAktif(User user){
+
         return user.getPesananList().stream()
-               .anyMatch(u -> u.getStatus() == StatusPesanan.MENUNGGU);
+               .anyMatch(u -> u.getStatus() != StatusPesanan.SELESAI);
     }
 
     @Transactional
     public void ajukanHarga(Long pesananId, BigDecimal hargaJasa){
 
+        Long mitraId = securityService.getCurrentMitraId();
+
         Pesanan pesanan = getPesananEntityById(pesananId);
+
+        if (pesanan.getStatus() != StatusPesanan.DITERIMA) {
+            throw new BadRequestException("Pesanan harus di terima dahulu!");
+        }
+
+        if (pesanan.getMitra() == null) {
+            throw new BadRequestException("Pesanan belum memiliki mitra!");
+        }
+
+        if (!pesanan.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Pesanan bukan milik mitra!");
+        }
+
         pesanan.setHargaJasa(hargaJasa);
 
         BigDecimal total = hitungTotalHarga(pesanan.getUser().getUserId(), pesanan);
@@ -230,6 +235,10 @@ public class PesananService {
         Long userId = securityService.getCurrentUserId();
         User user = userService.getUserById(userId);
         Alamat alamat = alamatService.getAlamatById(request.getAlamatId());
+        
+        if (user.getPickupLat() == null || user.getPickupLong() == null) {
+            throw new BadRequestException("Lokasi user belum tersedia!");
+        }
 
         if(user.getStatusOnOff() != StatusOnOff.ONLINE){
             throw new BadRequestException("User sedang offline!");
@@ -239,7 +248,7 @@ public class PesananService {
             throw new BadRequestException("Alamat bukan milik user!");
         }
 
-        if(userMasihPunyaPesananMenunggu(user)){
+        if(userMasihPunyaPesananAktif(user)){
             throw new BadRequestException("Masih ada pesanan yang menunggu!");
         }
 
@@ -296,7 +305,7 @@ public class PesananService {
         }
         
         Mitra mitra = mitraService.getMitraById(mitraId);
-        
+
         if(mitra.getStatusOnOff() != StatusOnOff.ONLINE){
             throw new BadRequestException("Anda sedang offline!");
         }
@@ -307,8 +316,8 @@ public class PesananService {
             throw new BadRequestException("Mitra tidak memiliki rating!");
         }
 
-        if(rating < 2){
-            throw new BadRequestException("Rating Anda dibawah 2");
+        if(rating <= 1.5){
+            throw new BadRequestException("Rating Anda dibawah 1.5");
         }
 
         if (mitra.getLatitude() == null || mitra.getLongitude() == null) {
@@ -341,7 +350,18 @@ public class PesananService {
 
     @Transactional
     public Pesanan selesaiPesanan(Long pesananId){
+
+        Long mitraId =securityService.getCurrentMitraId();
+
         Pesanan pesanan = getPesananEntityById(pesananId);
+
+        if (pesanan.getMitra() == null) {
+            throw new BadRequestException("Pesanan belum memiliki mitra!");
+        }
+
+        if (!pesanan.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Pesanan bukan milik mitra!");
+        }
 
         if(pesanan.getStatus() != StatusPesanan.DALAM_PERJALANAN){
             throw new BadRequestException("Pesanan tidak bisa diselesaikan!");
@@ -357,7 +377,18 @@ public class PesananService {
 
     @Transactional
     public Pesanan tolakPesanan(Long pesananId){
+
+        Long mitraId = securityService.getCurrentMitraId();
+
         Pesanan pesanan = getPesananEntityById(pesananId);
+
+        if (pesanan.getMitra() == null) {
+            throw new BadRequestException("Pesanan belum memiliki mitra!");
+        }
+
+        if (!pesanan.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Pesanan bukan milik mitra!");
+        }
 
         if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
             throw new BadRequestException("Pesanan tidak dapat ditolak!");
@@ -372,7 +403,18 @@ public class PesananService {
 
     @Transactional
     public Pesanan dalamPerjalanan(Long pesananId){
+
+        Long mitraId = securityService.getCurrentMitraId();
+
         Pesanan pesanan = getPesananEntityById(pesananId);
+
+        if (pesanan.getMitra() == null) {
+            throw new BadRequestException("Pesanan belum memiliki mitra!");
+        }
+
+        if (!pesanan.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Pesanan bukan milik mitra!");
+        }
 
         if(pesanan.getStatus() != StatusPesanan.DITERIMA){
             throw new BadRequestException("Status pesanan tidak valid!");
@@ -388,6 +430,7 @@ public class PesananService {
     public List<PesananResponse> getRiwayatUser(){
 
         Long userId = securityService.getCurrentUserId();
+
         return pesananRepository.findByUserUserIdAndStatus(userId, StatusPesanan.SELESAI)
                 .stream()
                 .map(pesananMapper::mapToResponse)
@@ -398,7 +441,7 @@ public class PesananService {
 
         Long mitraId = securityService.getCurrentMitraId();
 
-        return pesananRepository.findByMitraMitraId(mitraId)
+        return pesananRepository.findByMitraMitraIdAndStatus(mitraId, StatusPesanan.SELESAI)
                 .stream()
                 .map(pesananMapper::mapToResponse)
                 .toList();
@@ -438,6 +481,11 @@ public class PesananService {
                 .toList();
     }
 
+    /*
+    
+    GET ELIGIBLE MITRA INI MENENTUKAN RATING MITRA HARUS DI ATAS 1.5 DAN JARAKNYA HARUS KURANG DARI 10
+    JIKA TIDAK SESUAI DENGAN ITU BERARTI TIDAK TERMASUK MITRA YANG ELIGIBLE
+    */
     public List<Mitra> getEligibleMitra(Pesanan pesanan){
 
         List<Mitra> eligibleMitra = new ArrayList<>();

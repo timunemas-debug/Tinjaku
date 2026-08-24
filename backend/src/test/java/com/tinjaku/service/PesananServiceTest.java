@@ -187,54 +187,54 @@ public class PesananServiceTest {
         verify(pesananRepository).count();
     }
 
-    @Test
-    public void shouldUpdatePesananService(){
+//     @Test
+//     public void shouldUpdatePesananService(){
 
-        Pesanan pesanan = new Pesanan();
-        pesanan.setId(1L);
-        pesanan.setKeluhan("Wc mampet");
-        pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
+//         Pesanan pesanan = new Pesanan();
+//         pesanan.setId(1L);
+//         pesanan.setKeluhan("Wc mampet");
+//         pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
 
-        PesananRequest request = new PesananRequest();
-        request.setKeluhan("Wc luber luber");
-        request.setStatus(StatusPesanan.DIKERJAKAN);
+//         PesananRequest request = new PesananRequest();
+//         request.setKeluhan("Wc luber luber");
+//         request.setStatus(StatusPesanan.DIKERJAKAN);
 
-        Pesanan pesananBaru = new Pesanan();
-        pesananBaru.setKeluhan("Wc luber luber");
-        pesananBaru.setStatus(StatusPesanan.DIKERJAKAN);
+//         Pesanan pesananBaru = new Pesanan();
+//         pesananBaru.setKeluhan("Wc luber luber");
+//         pesananBaru.setStatus(StatusPesanan.DIKERJAKAN);
 
-        when(pesananRepository.findById(1L))
-                .thenReturn(Optional.of(pesanan));
+//         when(pesananRepository.findById(1L))
+//                 .thenReturn(Optional.of(pesanan));
 
-        when(pesananRepository.save(pesanan))
-                .thenReturn(pesanan);
+//         when(pesananRepository.save(pesanan))
+//                 .thenReturn(pesanan);
 
-        Pesanan result = pesananService.updatePesananService(1L, request);
+//         Pesanan result = pesananService.updatePesananService(1L, request);
 
-        assertEquals("Wc luber luber", result.getKeluhan());
-        assertEquals(StatusPesanan.DIKERJAKAN, result.getStatus());
+//         assertEquals("Wc luber luber", result.getKeluhan());
+//         assertEquals(StatusPesanan.DIKERJAKAN, result.getStatus());
 
-        verify(pesananRepository).findById(1L);
-        verify(pesananRepository).save(pesanan);
-    }
+//         verify(pesananRepository).findById(1L);
+//         verify(pesananRepository).save(pesanan);
+//     }
 
-    @Test
-    public void shoulUpdatePesananResourceNotFound(){
+//     @Test
+//     public void shoulUpdatePesananResourceNotFound(){
 
-        Pesanan pesanan = new Pesanan();
-        pesanan.setId(1L);
+//         Pesanan pesanan = new Pesanan();
+//         pesanan.setId(1L);
 
-        PesananRequest request = new PesananRequest();
-        request.setKeluhan("Wc mampet");
+//         PesananRequest request = new PesananRequest();
+//         request.setKeluhan("Wc mampet");
 
-        when(pesananRepository.findById(1L))
-                .thenReturn(Optional.empty());
+//         when(pesananRepository.findById(1L))
+//                 .thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFound.class, () -> pesananService.updatePesananService(1L, request));
+//         assertThrows(ResourceNotFound.class, () -> pesananService.updatePesananService(1L, request));
 
-        verify(pesananRepository).findById(1L);
-        verify(pesananRepository, never()).save(any());
-    }
+//         verify(pesananRepository).findById(1L);
+//         verify(pesananRepository, never()).save(any());
+//     }
 
     @Test
     public void shouldHapusPesananService(){
@@ -261,7 +261,7 @@ public class PesananServiceTest {
     }
 
     @Test
-    public void shouldUserMasihPunyaPesananMenunggu(){
+    public void shouldUserMasihPunyaPesananAktif(){
 
         User user = new User();
         user.setUserId(1L);
@@ -271,7 +271,7 @@ public class PesananServiceTest {
 
         user.setPesananList(List.of(pesanan));
 
-        boolean result = pesananService.userMasihPunyaPesananMenunggu(user);
+        boolean result = pesananService.userMasihPunyaPesananAktif(user);
 
         assertTrue(result);
     }

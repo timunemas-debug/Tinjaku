@@ -11,5 +11,5 @@ public interface PesananRepository extends JpaRepository<Pesanan, Long>{
     Long countByMitraMitraId(Long mitraId);
     Long countByMitraMitraIdAndStatus(Long mitraId, StatusPesanan status);
     List<Pesanan> findByUserUserIdAndStatus(Long userId, StatusPesanan status);
-    List<Pesanan> findByMitraMitraId(Long mitraId);
+    List<Pesanan> findByMitraMitraIdAndStatus(Long mitraId, StatusPesanan status);
 }
