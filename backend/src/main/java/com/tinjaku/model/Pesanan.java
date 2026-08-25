@@ -47,6 +47,9 @@ public class Pesanan {
     @OneToMany(mappedBy = "pesanan")
     private List<PesananHistory> pesananHistory = new ArrayList<>();
 
+    @OneToMany(mappedBy = "pesanan")
+    private List<OfferPesanan> offerPesanan = new ArrayList<>();
+
     private String namaPenerima;
     private String noHp;
     private String alamatLengkap;
