@@ -14,14 +14,20 @@ import com.tinjaku.repository.OfferPesananRepository;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.SecurityService;
 
+import jakarta.transaction.Transactional;
+
 public class OfferPesananService {
     
     private final OfferPesananRepository offerPesananRepository;
     private final SecurityService securityService;
+    private final MitraMatchingService mitraMatchingService;
+    private final NotificationService notificationService;
 
-    public OfferPesananService(OfferPesananRepository offerPesananRepository, SecurityService securityService){
+    public OfferPesananService(OfferPesananRepository offerPesananRepository, SecurityService securityService, MitraMatchingService mitraMatchingService, NotificationService notificationService){
         this.offerPesananRepository = offerPesananRepository;
         this.securityService = securityService;
+        this.mitraMatchingService = mitraMatchingService;
+        this.notificationService = notificationService;
     }
 
     public OfferPesanan createOffer(Pesanan pesanan, Mitra mitra){
@@ -37,6 +43,7 @@ public class OfferPesananService {
         return offerPesananRepository.save(offer);
     }
 
+    @Transactional
     public void acceptOffer(Pesanan pesanan){
 
         CustomMitraDetails currentDetails = securityService.getCurrentMitra();
@@ -49,48 +56,93 @@ public class OfferPesananService {
             throw new BadRequestException("Offer sudah tidak menunggu");
         }
 
-        if (!offerPesanan.getMitra().equals(currentDetails.getMitra())) {
-            throw new BadRequestException("Offer pesanan bukan milik mitra tersebut!");
-        }
-
         if (pesanan.getStatus() != StatusPesanan.MENUNGGU) {
             throw new BadRequestException("Pesanan sudah tidak menunggu");
         }
 
         offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.DITERIMA);
+
         pesanan.setMitra(currentDetails.getMitra());
         pesanan.setStatus(StatusPesanan.DITERIMA);
 
-        OfferPesanan savedOfferPesanan = offerPesananRepository.save(offerPesanan);
+        offerPesananRepository.save(offerPesanan);
 
-        //TINGGAL SEND NOTIFICATION KEPADA USER BAHWA PESANAN SUDAH DITERIMA OLEH MITRA
+        notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda sudah diterima!");
     }
 
+    @Transactional
     public void rejectOffer(Pesanan pesanan){
 
         CustomMitraDetails currentDetails = securityService.getCurrentMitra();
         Long mitraId = currentDetails.getMitraId();
-
-        if (!currentDetails.getMitra().getMitraId().equals(mitraId)) {
-            throw new BadRequestException("Bukan milik mitra!");
+        
+        OfferPesanan offerPesanan = offerPesananRepository.findByPesananIdAndMitraMitraId(pesanan.getId(), mitraId)
+        .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
+        
+        if (!offerPesanan.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Offer pesanan bukan milik mitra!");
         }
 
-        OfferPesanan offerPesanan = createOffer(pesanan, currentDetails.getMitra());
-
-        if (offerPesanan.getStatusOfferPesanan() == StatusOfferPesanan.MENUNGGU) {
-            throw new BadRequestException("Offer pesanan masih menunggu");
-        }
-
-        if (!offerPesanan.getMitra().equals(currentDetails.getMitra())) {
-            throw new BadRequestException("Offer pesanan bukan milik mitra tersebut!");
+        if (offerPesanan.getStatusOfferPesanan() != StatusOfferPesanan.MENUNGGU) {
+            throw new BadRequestException("Offer sudah tidak dapat ditolak!");
         }
 
         offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.DITOLAK);
 
         offerPesananRepository.save(offerPesanan);
 
-        //NEXT MITRA SELANJUTNYA!
+        sendOfferToNextMitra(pesanan);
     }
 
+    public void sendOfferToNextMitra(Pesanan pesanan){
+
+        List<Mitra> eligibleMitra = mitraMatchingService.getEligibleMitra(pesanan);
+
+        List<Long> sudahOfferedMitraIds = offerPesananRepository.findMitraMitraIdByPesananId(pesanan.getId());
+
+        if (sudahOfferedMitraIds.size() >= 4) {
+            return;
+        }
+        
+        for(Mitra mitra : eligibleMitra){
+            
+            if (sudahOfferedMitraIds.contains(mitra.getMitraId())) {
+                continue;
+            }
+            
+            createOffer(pesanan, mitra);
+            return;
+        }
+
+        pesanan.setStatus(StatusPesanan.GAGAL);
+
+        notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda dibatalkan!, karna tidak ada mitra!");
+
+        throw new BadRequestException("Tidak ada mitra eligible yang tersedia!");
+    }
+
+    @Transactional
+    public void expireOffer(OfferPesanan offerPesanan){
+
+        if (offerPesanan == null) {
+            throw new ResourceNotFound("Offer pesanan tidak ditemukan!");
+        }
+
+        if (offerPesanan.getStatusOfferPesanan() != StatusOfferPesanan.MENUNGGU) {
+            throw new BadRequestException("Offer pesanan tidak dapat di proses!");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (offerPesanan.getExpiresAt().isAfter(now)) {
+            throw new BadRequestException("Offer pesanan belum expired!");
+        }
+
+        offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.EXPIRED);
+        
+        offerPesananRepository.save(offerPesanan);
+
+        sendOfferToNextMitra(offerPesanan.getPesanan());
+    }
 
 }

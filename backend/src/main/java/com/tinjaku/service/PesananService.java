@@ -40,6 +40,7 @@ public class PesananService {
     private final PesananHistoryMapper pesananHistoryMapper;
     private final MitraRepository mitraRepository;
     private final RatingRepository ratingRepository;
+    private final MitraMatchingService mitraMatchingService;
     
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
     
@@ -48,7 +49,8 @@ public class PesananService {
                           AlamatService alamatService, RatingService ratingService,
                           SecurityService securityService, NotificationService notificationService,
                           PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper,
-                          MitraRepository mitraRepository, RatingRepository ratingRepository){
+                          MitraRepository mitraRepository, RatingRepository ratingRepository,
+                          MitraMatchingService mitraMatchingService){
 
         this.userService = userService;
         this.mitraService = mitraService;
@@ -62,41 +64,8 @@ public class PesananService {
         this.pesananHistoryMapper = pesananHistoryMapper;
         this.mitraRepository = mitraRepository;
         this.ratingRepository = ratingRepository;
+        this.mitraMatchingService = mitraMatchingService;
     }
-    
-        /*
-        Rumus Haversine Formula :
-        Δlat = lat2- lat1
-        Δlong = long2- long1
-        a = sin2 (Δlat/2) + cos(lat1).cos(lat2).sin2 (Δlong/2)
-        c = 2atan2(√a, √1-a)
-        d = R.c
-        Keterangan :
-        R = jari-jari bumi sebesar 6371(km)
-        Δlat = besaran perubahan latitude
-        Δlong = besaran perubahan longitude
-        C = kalkulasi perpotongan sumbu
-        d = jarak (km)
-        1 derajat = 0.0174532925 radian */
-        private double calculateDistance(double lat1, double lon1, double lat2, double lon2){
-    
-            double earthRadius = 6371.0;
-    
-            double dLat = Math.toRadians(lat2 - lat1);
-            double dLon = Math.toRadians(lon2 - lon1);
-    
-            double a =
-                        Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                        + Math.cos(Math.toRadians(lat1))
-                        * Math.cos(Math.toRadians(lat2))
-                        * Math.sin(dLon / 2)
-                        * Math.sin(dLon / 2);
-            
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    
-            return earthRadius * c;
-        }
-    
     
     public Mitra findMitraTerdekat(User user, List<Mitra> mitras){
     
@@ -105,7 +74,7 @@ public class PesananService {
     
         for(Mitra mitra : mitras){
     
-            double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
+            double distance = mitraMatchingService.calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
     
             if (distance < nearestDistance) {
                 nearestDistance = distance;
@@ -270,7 +239,7 @@ public class PesananService {
         
         Pesanan savedPesanan = pesananRepository.save(pesanan);
 
-        List<Mitra> eligibleMitra = getEligibleMitra(savedPesanan);
+        List<Mitra> eligibleMitra = mitraMatchingService.getEligibleMitra(savedPesanan);
 
         Mitra mitraTerdekat = findMitraTerdekat(user, eligibleMitra);
 
@@ -330,7 +299,7 @@ public class PesananService {
             throw new BadRequestException("User belum memiliki titik lokasi!");
         }
         
-        double distance = calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
+        double distance = mitraMatchingService.calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
 
         if (distance > 10) {
             throw new BadRequestException("Jarak anda terlalu jauh!");
@@ -481,46 +450,4 @@ public class PesananService {
                 .toList();
     }
 
-    /*
-    
-    GET ELIGIBLE MITRA INI MENENTUKAN RATING MITRA HARUS DI ATAS 1.5 DAN JARAKNYA HARUS KURANG DARI 10
-    JIKA TIDAK SESUAI DENGAN ITU BERARTI TIDAK TERMASUK MITRA YANG ELIGIBLE
-    */
-    public List<Mitra> getEligibleMitra(Pesanan pesanan){
-
-        List<Mitra> eligibleMitra = new ArrayList<>();
-        List<Mitra> mitras = mitraRepository.findByStatusOnOff(StatusOnOff.ONLINE);
-
-        List<Long> mitraIds = mitras.stream()
-                .map(Mitra::getMitraId)
-                .toList();
-
-        Map<Long, RatingSummary> ratingMap = mitraIds.isEmpty() ? Map.of() : ratingRepository.getRatingSummaryByMitraIds(mitraIds)
-                        .stream()
-                        .collect(Collectors.toMap(RatingSummary::getMitraId, r -> r));
-
-        for(Mitra mitra : mitras){
-
-            RatingSummary summary = ratingMap.get(mitra.getMitraId());
-
-            Double rating = summary != null && summary.getAvgRating() != null ? summary.getAvgRating() : 0.0;
-
-            if (rating <= 1.5) {
-                continue;
-            }
-            if (mitra.getLatitude() == null || mitra.getLongitude() == null) {
-                continue;
-            }
-
-            double distance = calculateDistance(pesanan.getUser().getPickupLat(), pesanan.getUser().getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
-
-            if (distance > 10) {
-                continue;
-            }
-
-            eligibleMitra.add(mitra);
-        }
-
-        return eligibleMitra;
-    }
 }
