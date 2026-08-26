@@ -9,6 +9,7 @@ import com.tinjaku.model.Mitra;
 import com.tinjaku.model.OfferPesanan;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.StatusOfferPesanan;
+import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.OfferPesananRepository;
 import com.tinjaku.security.CustomMitraDetails;
@@ -31,7 +32,15 @@ public class OfferPesananService {
     }
 
     public OfferPesanan createOffer(Pesanan pesanan, Mitra mitra){
-        
+
+        if (pesanan.getStatus() != StatusPesanan.MENUNGGU) {
+            throw new BadRequestException("Pesanan sudah tidak menunggu!");
+        }
+
+        if (mitra.getStatusOnOff() != StatusOnOff.ONLINE) {
+            throw new BadRequestException("Mitra sedang offline!");
+        }
+
         OfferPesanan offer = new OfferPesanan();
         
         offer.setPesanan(pesanan);
@@ -39,8 +48,11 @@ public class OfferPesananService {
         offer.setStatusOfferPesanan(StatusOfferPesanan.MENUNGGU);
         offer.setOfferedAt(LocalDateTime.now());
         offer.setExpiresAt(LocalDateTime.now().plusSeconds(10));
+        
+        OfferPesanan savedOfferPesanan = offerPesananRepository.save(offer);
 
-        return offerPesananRepository.save(offer);
+        notificationService.sendNotificationMitra(mitra.getMitraId(), "Ada pesanan baru yang ditawarkan kepada anda!");
+        return savedOfferPesanan;
     }
 
     @Transactional
@@ -101,6 +113,8 @@ public class OfferPesananService {
         List<Long> sudahOfferedMitraIds = offerPesananRepository.findMitraMitraIdByPesananId(pesanan.getId());
 
         if (sudahOfferedMitraIds.size() >= 4) {
+            pesanan.setStatus(StatusPesanan.GAGAL);
+            notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda gagal!");
             return;
         }
         
@@ -116,9 +130,7 @@ public class OfferPesananService {
 
         pesanan.setStatus(StatusPesanan.GAGAL);
 
-        notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda dibatalkan!, karna tidak ada mitra!");
-
-        throw new BadRequestException("Tidak ada mitra eligible yang tersedia!");
+        notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda dibatalkan!, Pesanan gagal mendapatkan mitra.");
     }
 
     @Transactional
