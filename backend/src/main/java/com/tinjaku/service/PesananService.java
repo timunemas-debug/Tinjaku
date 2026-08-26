@@ -41,6 +41,7 @@ public class PesananService {
     private final MitraRepository mitraRepository;
     private final RatingRepository ratingRepository;
     private final MitraMatchingService mitraMatchingService;
+    private final OfferPesananService offerPesananService;
     
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
     
@@ -50,7 +51,7 @@ public class PesananService {
                           SecurityService securityService, NotificationService notificationService,
                           PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper,
                           MitraRepository mitraRepository, RatingRepository ratingRepository,
-                          MitraMatchingService mitraMatchingService){
+                          MitraMatchingService mitraMatchingService, OfferPesananService offerPesananService){
 
         this.userService = userService;
         this.mitraService = mitraService;
@@ -65,6 +66,7 @@ public class PesananService {
         this.mitraRepository = mitraRepository;
         this.ratingRepository = ratingRepository;
         this.mitraMatchingService = mitraMatchingService;
+        this.offerPesananService = offerPesananService;
     }
     
     public Mitra findMitraTerdekat(User user, List<Mitra> mitras){
@@ -239,13 +241,7 @@ public class PesananService {
         
         Pesanan savedPesanan = pesananRepository.save(pesanan);
 
-        List<Mitra> eligibleMitra = mitraMatchingService.getEligibleMitra(savedPesanan);
-
-        Mitra mitraTerdekat = findMitraTerdekat(user, eligibleMitra);
-
-        if (mitraTerdekat != null) {
-            notificationService.sendNotificationMitra(mitraTerdekat.getMitraId(), "Ada pesanan baru di sekitar anda!");
-        }
+        offerPesananService.sendOfferToNextMitra(savedPesanan);
 
         notificationService.sendNotification(userId, "Pesanan berhasil dibuat!");
         
