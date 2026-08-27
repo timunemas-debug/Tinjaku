@@ -11,10 +11,12 @@ import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.OfferPesanan;
 import com.tinjaku.model.Pesanan;
+import com.tinjaku.model.PesananHistory;
 import com.tinjaku.model.StatusOfferPesanan;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.OfferPesananRepository;
+import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.SecurityService;
 
@@ -27,12 +29,24 @@ public class OfferPesananService {
     private final SecurityService securityService;
     private final MitraMatchingService mitraMatchingService;
     private final NotificationService notificationService;
+    private final PesananHistoryRepository pesananHistoryRepository;
 
-    public OfferPesananService(OfferPesananRepository offerPesananRepository, SecurityService securityService, MitraMatchingService mitraMatchingService, NotificationService notificationService){
+    public OfferPesananService(OfferPesananRepository offerPesananRepository, SecurityService securityService, MitraMatchingService mitraMatchingService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository){
         this.offerPesananRepository = offerPesananRepository;
         this.securityService = securityService;
         this.mitraMatchingService = mitraMatchingService;
         this.notificationService = notificationService;
+        this.pesananHistoryRepository = pesananHistoryRepository;
+    }
+
+    private void saveHistory(Pesanan pesanan){
+
+        PesananHistory history = new PesananHistory();
+        history.setStatus(pesanan.getStatus());
+        history.setWaktuPerubahan(LocalDateTime.now());
+        history.setPesanan(pesanan);
+
+        pesananHistoryRepository.save(history);
     }
 
     public OfferPesanan createOffer(Pesanan pesanan, Mitra mitra){
@@ -80,8 +94,10 @@ public class OfferPesananService {
 
         pesanan.setMitra(currentDetails.getMitra());
         pesanan.setStatus(StatusPesanan.DITERIMA);
-
+        
         offerPesananRepository.save(offerPesanan);
+
+        saveHistory(pesanan);
 
         notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda sudah diterima!");
     }
@@ -118,6 +134,7 @@ public class OfferPesananService {
 
         if (sudahOfferedMitraIds.size() >= 4) {
             pesanan.setStatus(StatusPesanan.GAGAL);
+            saveHistory(pesanan);
             notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda gagal!");
             return;
         }
@@ -133,6 +150,8 @@ public class OfferPesananService {
         }
 
         pesanan.setStatus(StatusPesanan.GAGAL);
+
+        saveHistory(pesanan);
 
         notificationService.sendNotification(pesanan.getUser().getUserId(), "Pesanan anda dibatalkan!, Pesanan gagal mendapatkan mitra.");
     }

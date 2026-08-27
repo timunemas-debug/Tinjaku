@@ -289,68 +289,6 @@ public class PesananServiceTest {
     }
 
     @Test
-    public void shouldTerimaPesanan(){
-
-        AlamatMitra alamat = new AlamatMitra();
-        alamat.setIdAlamat(22L);
-        alamat.setJalan("TEST JALAN");
-        alamat.setKelurahan("KELURAHAN");
-        alamat.setKecamatan("KECAMATAN");
-        alamat.setKota(Kota.TANGERANG);
-        
-        User user = new User();
-        user.setUserId(1L);
-        user.setPickupLat(2.000);
-        user.setPickupLong(2.000);
-        
-        Pesanan pesanan = new Pesanan();
-        pesanan.setId(1L);
-        pesanan.setKeluhan("WC mampet");
-        pesanan.setKota(Kota.TANGERANG);
-        pesanan.setKecamatan("KECAMATAN");
-        pesanan.setStatus(StatusPesanan.MENUNGGU);
-        pesanan.setUser(user);
-
-        Mitra mitra = new Mitra();
-        mitra.setMitraId(1L);
-        mitra.setNamaMitra("Sedot Wc");
-        mitra.setStatusOnOff(StatusOnOff.ONLINE);
-        mitra.setLatitude(2.000);
-        mitra.setLongitude(2.000);
-
-        mitra.setAlamatList(List.of(alamat));
-
-        when(securityService.getCurrentMitraId())
-                .thenReturn(1L);
-
-        when(pesananRepository.save(any(Pesanan.class)))
-                .thenReturn(pesanan);
-
-        when(mitraService.getMitraById(1L))
-                .thenReturn(mitra);
-
-        when(ratingService.getAverageRating(1L))
-                .thenReturn(3.0);
-
-        doReturn(pesanan)
-                .when(pesananService)
-                .getPesananEntityById(pesanan.getId());
-
-        mitraMatchingService.calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
-
-        Pesanan result = pesananService.terimaPesanan(1L);
-
-        assertNotNull(result);
-        assertEquals(Kota.TANGERANG, result.getKota());
-        assertEquals("KECAMATAN", result.getKecamatan());
-        assertEquals(StatusPesanan.DITERIMA, result.getStatus());
-        assertEquals(mitra, result.getMitra());
-
-        verify(pesananHistoryRepository).save(any(PesananHistory.class));
-        verify(pesananRepository).save(any(Pesanan.class));
-    }
-
-    @Test
     public void shouldSelesaiPesanan(){
 
         Mitra mitra = new Mitra();

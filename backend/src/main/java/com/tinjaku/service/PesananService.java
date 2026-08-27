@@ -164,7 +164,9 @@ public class PesananService {
     public boolean userMasihPunyaPesananAktif(User user){
 
         return user.getPesananList().stream()
-               .anyMatch(u -> u.getStatus() != StatusPesanan.SELESAI);
+               .anyMatch(u -> u.getStatus() == StatusPesanan.MENUNGGU ||
+                              u.getStatus() == StatusPesanan.DITERIMA||
+                              u.getStatus() == StatusPesanan.DIKERJAKAN);
     }
 
     @Transactional
@@ -250,61 +252,6 @@ public class PesananService {
         history.setPesanan(pesanan);
 
         pesananHistoryRepository.save(history);
-    }
-
-    @Transactional
-    public Pesanan terimaPesanan(Long pesananId){
-
-        Long mitraId = securityService.getCurrentMitraId();
-
-        Pesanan pesanan = getPesananEntityById(pesananId);
-        
-        if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
-            throw new BadRequestException("Pesanan tidak bisa diterima!");
-        }
-        
-        Mitra mitra = mitraService.getMitraById(mitraId);
-
-        if(mitra.getStatusOnOff() != StatusOnOff.ONLINE){
-            throw new BadRequestException("Anda sedang offline!");
-        }
-        
-        Double rating = ratingService.getAverageRating(mitraId);
-
-        if (rating == null) {
-            throw new BadRequestException("Mitra tidak memiliki rating!");
-        }
-
-        if(rating <= 1.5){
-            throw new BadRequestException("Rating Anda dibawah 1.5");
-        }
-
-        if (mitra.getLatitude() == null || mitra.getLongitude() == null) {
-            throw new BadRequestException("Lokasi mitra belum tersedia!");
-        }
-        
-        User user = pesanan.getUser();
-
-        if (user.getPickupLat() == null || user.getPickupLong() == null) {
-            throw new BadRequestException("User belum memiliki titik lokasi!");
-        }
-        
-        double distance = mitraMatchingService.calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
-
-        if (distance > 10) {
-            throw new BadRequestException("Jarak anda terlalu jauh!");
-        }
-
-        pesanan.setMitra(mitra);
-        pesanan.setStatus(StatusPesanan.DITERIMA);
-
-        Pesanan savedPesanan = pesananRepository.save(pesanan);
-
-        saveHistory(savedPesanan);
-
-        notificationService.sendNotification(savedPesanan.getUser().getUserId(), "Pesanan diterima!, Pesanan kamu telah diterima oleh mitra");
-
-        return savedPesanan;
     }
 
     @Transactional

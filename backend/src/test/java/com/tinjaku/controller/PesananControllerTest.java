@@ -185,39 +185,6 @@ public class PesananControllerTest {
                 .andExpect(status().isOk());
     }
 
-//     @Test
-//     public void shouldUpdatePesanan() throws Exception{
-
-//         PesananResponse response = new PesananResponse();
-//         response.setId(1L);
-//         response.setKeluhan("WC MAMPET");
-//         response.setKelurahan("A");
-//         response.setKecamatan("B");
-//         response.setNamaPenerima("TEST");
-
-//         Pesanan pesanan = new Pesanan();
-//         pesanan.setId(1L);
-//         pesanan.setKeluhan("WC MAMPET");
-//         pesanan.setKelurahan("C");
-//         pesanan.setKecamatan("D");
-//         pesanan.setNamaPenerima("YOGI");
-
-//         when(pesananService.updatePesananService(eq(1L), any(PesananRequest.class)))
-//                 .thenReturn(pesanan);
-
-//         when(pesananService.getPesananById(1L))
-//                 .thenReturn(response);
-
-//         mockMvc.perform(put("/pesanan/1")
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(objectMapper.writeValueAsString(pesanan)))
-//                 .andExpect(status().isOk())
-//                 .andExpect(jsonPath("$.keluhan").value("WC MAMPET"))
-//                 .andExpect(jsonPath("$.kelurahan").value("A"))
-//                 .andExpect(jsonPath("$.kecamatan").value("B"))
-//                 .andExpect(jsonPath("$.namaPenerima").value("TEST"));
-//     }
-
     @Test
     public void shouldTotalPesanan() throws Exception{
 
@@ -225,31 +192,6 @@ public class PesananControllerTest {
 
         mockMvc.perform(get("/pesanan/total"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    public void shouldTerimaPesananUserByPesananId() throws Exception{
-
-        Pesanan pesanan = new Pesanan();
-        pesanan.setId(1L);
-        pesanan.setStatus(StatusPesanan.MENUNGGU);
-        pesanan.setKeluhan("WC MAMPET");
-
-        PesananResponse response = new PesananResponse();
-        response.setId(1L);
-        response.setStatus(StatusPesanan.DITERIMA);
-        response.setKeluhan("WC MAMPET");
-
-        when(pesananService.terimaPesanan(1L))
-                .thenReturn(pesanan);
-
-        when(pesananService.getPesananById(1L))
-                .thenReturn(response);
-
-        mockMvc.perform(patch("/pesanan/1/terima"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("DITERIMA"))
-                .andExpect(jsonPath("$.keluhan").value("WC MAMPET"));
     }
 
     @Test

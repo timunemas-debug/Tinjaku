@@ -81,14 +81,6 @@ public class PesananController {
     }
 
     @PreAuthorize("hasRole('MITRA')")
-    @PatchMapping("/{pesananId}/terima")
-    public PesananResponse terimaPesananUserByPesananId(@PathVariable Long pesananId){
-        Pesanan pesanan = pesananService.terimaPesanan(pesananId);
-
-        return pesananService.getPesananById(pesanan.getId());
-    }
-
-    @PreAuthorize("hasRole('MITRA')")
     @PatchMapping("/{pesananId}/tolak")
     public PesananResponse tolakPesananByPesananId(@PathVariable Long pesananId){
         Pesanan pesanan = pesananService.tolakPesanan(pesananId);
