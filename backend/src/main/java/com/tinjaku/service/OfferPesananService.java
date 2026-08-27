@@ -3,6 +3,9 @@ package com.tinjaku.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.model.Mitra;
@@ -17,6 +20,7 @@ import com.tinjaku.security.SecurityService;
 
 import jakarta.transaction.Transactional;
 
+@Service
 public class OfferPesananService {
     
     private final OfferPesananRepository offerPesananRepository;
@@ -157,4 +161,15 @@ public class OfferPesananService {
         sendOfferToNextMitra(offerPesanan.getPesanan());
     }
 
+    @Scheduled(fixedRate = 1000)
+    public void checkExpiredOffers(){
+
+        LocalDateTime sekarang = LocalDateTime.now();
+
+        List<OfferPesanan> expiredOffers = offerPesananRepository.findByStatusOfferPesananAndExpiresAtLessThan(StatusOfferPesanan.MENUNGGU, sekarang);
+
+        for(OfferPesanan offer : expiredOffers){
+            expireOffer(offer);
+        }
+    }
 }

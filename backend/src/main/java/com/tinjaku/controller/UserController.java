@@ -16,8 +16,10 @@ import com.tinjaku.service.UserService;
 
 import jakarta.validation.Valid;
 
+import com.tinjaku.dto.request.UpdateLocationUserRequest;
 import com.tinjaku.dto.request.UpdateUserProfileRequest;
 import com.tinjaku.dto.request.UserRequest;
+import com.tinjaku.dto.response.UpdateLocationUserResponse;
 import com.tinjaku.dto.response.UpdateUserProfileResponse;
 import com.tinjaku.dto.response.UserResponse;
 
@@ -57,5 +59,11 @@ public class UserController {
     @PutMapping("/profile")
     public UpdateUserProfileResponse updateProfile(@Valid @RequestBody UpdateUserProfileRequest request){
         return userService.updateProfile(request);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/update-location")
+    public UpdateLocationUserResponse updateLocation(@Valid @RequestBody UpdateLocationUserRequest request){
+        return userService.updateLocationUser(request);
     }
 }

@@ -2,10 +2,7 @@ package com.tinjaku.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -21,7 +18,6 @@ import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
-import com.tinjaku.repository.projection.RatingSummary;
 import com.tinjaku.security.SecurityService;
 
 import jakarta.transaction.Transactional;
@@ -233,17 +229,15 @@ public class PesananService {
         pesanan.setProvinsi(alamat.getProvinsi());
         pesanan.setKeluhan(request.getKeluhan());
         pesanan.setUser(user);
-
-        pesanan.setMitra(null);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
-
-        saveHistory(pesanan);
         
         Pesanan savedPesanan = pesananRepository.save(pesanan);
-
+        
+        saveHistory(savedPesanan);
+        
         offerPesananService.sendOfferToNextMitra(savedPesanan);
 
-        notificationService.sendNotification(userId, "Pesanan berhasil dibuat!");
+        notificationService.sendNotification(userId, "Pesanan berhasil dibuat dan sedang mencari mitra.");
         
         return savedPesanan;
     }

@@ -65,6 +65,12 @@ public class PesananServiceTest {
     @Mock
     PesananHistoryRepository pesananHistoryRepository;
 
+    @Mock
+    OfferPesananService offerPesananService;
+
+    @Mock
+    MitraMatchingService mitraMatchingService;
+
     @Spy
     @InjectMocks
     PesananService pesananService;
@@ -187,55 +193,6 @@ public class PesananServiceTest {
         verify(pesananRepository).count();
     }
 
-//     @Test
-//     public void shouldUpdatePesananService(){
-
-//         Pesanan pesanan = new Pesanan();
-//         pesanan.setId(1L);
-//         pesanan.setKeluhan("Wc mampet");
-//         pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
-
-//         PesananRequest request = new PesananRequest();
-//         request.setKeluhan("Wc luber luber");
-//         request.setStatus(StatusPesanan.DIKERJAKAN);
-
-//         Pesanan pesananBaru = new Pesanan();
-//         pesananBaru.setKeluhan("Wc luber luber");
-//         pesananBaru.setStatus(StatusPesanan.DIKERJAKAN);
-
-//         when(pesananRepository.findById(1L))
-//                 .thenReturn(Optional.of(pesanan));
-
-//         when(pesananRepository.save(pesanan))
-//                 .thenReturn(pesanan);
-
-//         Pesanan result = pesananService.updatePesananService(1L, request);
-
-//         assertEquals("Wc luber luber", result.getKeluhan());
-//         assertEquals(StatusPesanan.DIKERJAKAN, result.getStatus());
-
-//         verify(pesananRepository).findById(1L);
-//         verify(pesananRepository).save(pesanan);
-//     }
-
-//     @Test
-//     public void shoulUpdatePesananResourceNotFound(){
-
-//         Pesanan pesanan = new Pesanan();
-//         pesanan.setId(1L);
-
-//         PesananRequest request = new PesananRequest();
-//         request.setKeluhan("Wc mampet");
-
-//         when(pesananRepository.findById(1L))
-//                 .thenReturn(Optional.empty());
-
-//         assertThrows(ResourceNotFound.class, () -> pesananService.updatePesananService(1L, request));
-
-//         verify(pesananRepository).findById(1L);
-//         verify(pesananRepository, never()).save(any());
-//     }
-
     @Test
     public void shouldHapusPesananService(){
 
@@ -284,6 +241,8 @@ public class PesananServiceTest {
         user.setNamaDepan("Jeremy");
         user.setStatusOnOff(StatusOnOff.ONLINE);
         user.setPesananList(new ArrayList<>());
+        user.setPickupLat(2.0214);
+        user.setPickupLong(3.4123);
 
         Alamat alamat = new Alamat();
         alamat.setUser(user);
@@ -316,14 +275,6 @@ public class PesananServiceTest {
         when(pesananRepository.save(any(Pesanan.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        doReturn(List.of(mitra))
-                .when(pesananService)
-                .getEligibleMitra(any(Pesanan.class));
-
-        doReturn(mitra)
-                .when(pesananService)
-                .findMitraTerdekat(eq(user), anyList());
-
         Pesanan result = pesananService.createPesanan(request);
 
         assertNotNull(result);
@@ -333,9 +284,8 @@ public class PesananServiceTest {
         assertEquals(user, result.getUser());
 
         verify(pesananRepository).save(any(Pesanan.class));
-
-        verify(notificationService).sendNotificationMitra(1L, "Ada pesanan baru di sekitar anda!");
-        verify(notificationService).sendNotification(1L, "Pesanan berhasil dibuat!");
+        verify(offerPesananService).sendOfferToNextMitra(result);
+        verify(notificationService).sendNotification(1L, "Pesanan berhasil dibuat dan sedang mencari mitra.");
     }
 
     @Test
@@ -386,6 +336,8 @@ public class PesananServiceTest {
                 .when(pesananService)
                 .getPesananEntityById(pesanan.getId());
 
+        mitraMatchingService.calculateDistance(user.getPickupLat(), user.getPickupLong(), mitra.getLatitude(), mitra.getLongitude());
+
         Pesanan result = pesananService.terimaPesanan(1L);
 
         assertNotNull(result);
@@ -401,9 +353,16 @@ public class PesananServiceTest {
     @Test
     public void shouldSelesaiPesanan(){
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(2L);
+
         Pesanan pesanan = new Pesanan();
         pesanan.setId(1L);
         pesanan.setStatus(StatusPesanan.DALAM_PERJALANAN);
+        pesanan.setMitra(mitra);
+
+        when(securityService.getCurrentMitraId())
+                .thenReturn(2L);
 
         when(pesananRepository.findById(1L))
                 .thenReturn(Optional.of(pesanan));
@@ -422,9 +381,16 @@ public class PesananServiceTest {
     @Test
     public void shouldTolakPesanan(){
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(2L);
+
         Pesanan pesanan = new Pesanan();
         pesanan.setId(1L);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
+        pesanan.setMitra(mitra);
+
+        when(securityService.getCurrentMitraId())
+                .thenReturn(2L);
 
         when(pesananRepository.findById(1L))
                 .thenReturn(Optional.of(pesanan));
@@ -443,9 +409,16 @@ public class PesananServiceTest {
     @Test
     public void shouldDalamPerjalanan(){
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(2L);
+
         Pesanan pesanan = new Pesanan();
         pesanan.setId(1L);
         pesanan.setStatus(StatusPesanan.DITERIMA);
+        pesanan.setMitra(mitra);
+
+        when(securityService.getCurrentMitraId())
+                .thenReturn(2L);
 
         when(pesananRepository.findById(1L))
                 .thenReturn(Optional.of(pesanan));
@@ -505,8 +478,16 @@ public class PesananServiceTest {
         user.setUserId(1L);
         user.setCreatedAt(LocalDateTime.now().minusDays(3));
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(2L);
+
         Pesanan pesanan = new Pesanan();
         pesanan.setUser(user);
+        pesanan.setStatus(StatusPesanan.DITERIMA);
+        pesanan.setMitra(mitra);
+
+        when(securityService.getCurrentMitraId())
+                .thenReturn(2L);
 
         when(pesananRepository.findById(1L))
                 .thenReturn(Optional.of(pesanan));
