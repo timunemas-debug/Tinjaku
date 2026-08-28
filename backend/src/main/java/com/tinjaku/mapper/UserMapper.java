@@ -27,7 +27,6 @@ public class UserMapper {
         user.setNamaDepan(request.getNamaDepan());
         user.setNamaBelakang(request.getNamaBelakang());
         user.setEmail(request.getEmail());
-
         return user;
     }
 

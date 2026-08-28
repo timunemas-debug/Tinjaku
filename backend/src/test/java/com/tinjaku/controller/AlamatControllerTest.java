@@ -129,7 +129,7 @@ public class AlamatControllerTest {
     public void shouldGetAllAlamat() throws Exception{
 
         AlamatResponse response = new AlamatResponse();
-        response.setLabel(Label.APARTEMENT);
+        response.setLabel(Label.APARTMENT);
         response.setJalan(jalan);
         response.setKelurahan(kelurahan);
         response.setKecamatan(kecamatan);
@@ -167,7 +167,7 @@ public class AlamatControllerTest {
     public void shouldAlamatById() throws Exception{
 
         AlamatResponse response = new AlamatResponse();
-        response.setLabel(Label.APARTEMENT);
+        response.setLabel(Label.APARTMENT);
         response.setJalan(jalan);
         response.setKelurahan(kelurahan);
         response.setKecamatan(kecamatan);

@@ -2,7 +2,9 @@ package com.tinjaku.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -103,6 +105,45 @@ public class PesananService {
         return pesananList.stream()
                 .map(pesananMapper::mapToResponse)
                 .toList();
+    }
+
+    private final Map<String, BigDecimal> hargaJasaMap = Map.ofEntries(
+        Map.entry("RUMAH_KECIL", BigDecimal.valueOf(400000)),
+        Map.entry("RUMAH_SEDANG", BigDecimal.valueOf(550000)),
+        Map.entry("RUMAH_BESAR", BigDecimal.valueOf(650000)),
+
+        Map.entry("KANTOR_KECIL", BigDecimal.valueOf(900000)),
+        Map.entry("KANTOR_SEDANG", BigDecimal.valueOf(1100000)),
+        Map.entry("KANTOR_BESAR", BigDecimal.valueOf(1400000)),
+
+        Map.entry("APARTMENT_KECIL", BigDecimal.valueOf(600000)),
+        Map.entry("APARTMENT_SEDANG", BigDecimal.valueOf(750000)),
+        Map.entry("APARTMENT_BESAR", BigDecimal.valueOf(850000)),
+
+        Map.entry("HOTEL_KECIL", BigDecimal.valueOf(800000)),
+        Map.entry("HOTEL_SEDANG", BigDecimal.valueOf(1000000)),
+        Map.entry("HOTEL_BESAR", BigDecimal.valueOf(1300000)),
+        
+        Map.entry("GUDANG_KECIL", BigDecimal.valueOf(900000)),
+        Map.entry("GUDANG_SEDANG", BigDecimal.valueOf(1100000)),
+        Map.entry("GUDANG_BESAR", BigDecimal.valueOf(1400000)),
+        Map.entry("PABRIK_KECIL", BigDecimal.valueOf(950000)),
+        Map.entry("PABRIK_SEDANG", BigDecimal.valueOf(1200000)),
+        Map.entry("PABRIK_BESAR", BigDecimal.valueOf(1550000))
+
+    );
+
+    public BigDecimal hitungHargaJasa(Pesanan pesanan){
+
+        String key = pesanan.getLabel().name() + "_" + pesanan.getUkuranSepticTank().name();
+
+        BigDecimal harga = hargaJasaMap.get(key);
+        
+        if (harga == null) {
+            throw new BadRequestException("Harga jasa untuk kategori tersebut belum tersedia!");
+        }
+
+        return harga;
     }
 
     public long hitungTotalPesanan(){

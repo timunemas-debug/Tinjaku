@@ -1,6 +1,7 @@
 package com.tinjaku.dto.response;
 import com.tinjaku.model.Kota;
 import com.tinjaku.model.StatusPesanan;
+import com.tinjaku.model.UkuranSepticTank;
 
 import lombok.*;
 
@@ -21,4 +22,5 @@ public class PesananResponse {
     private String provinsi;
     private String namaLengkap;
     private String namaMitra;
+    private UkuranSepticTank ukuranSepticTank;
 }

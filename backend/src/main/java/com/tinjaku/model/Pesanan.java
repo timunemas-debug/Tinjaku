@@ -63,18 +63,15 @@ public class Pesanan {
 
     @Enumerated(EnumType.STRING)
     private Kota kota;
+
+    @Enumerated(EnumType.STRING)
+    private UkuranSepticTank ukuranSepticTank;
+
+    @Enumerated(EnumType.STRING)
+    private Label label;
     
     private String provinsi;
 
     public Pesanan(){
-    }
-
-    @Override
-    public String toString(){
-        return "Pesanan{" +
-               "id=" + id +
-               ",keluhan=" + keluhan +
-               ".status=" + status +
-               "}";
     }
 }
