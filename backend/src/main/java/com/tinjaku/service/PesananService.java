@@ -14,10 +14,8 @@ import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananHistoryMapper;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.*;
-import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
-import com.tinjaku.repository.RatingRepository;
 import com.tinjaku.security.SecurityService;
 
 import jakarta.transaction.Transactional;
@@ -25,42 +23,31 @@ import jakarta.transaction.Transactional;
 @Service
 public class PesananService {
     private final UserService userService;
-    private final MitraService mitraService;
     private final PesananRepository pesananRepository;
     private final PesananMapper pesananMapper;
     private final AlamatService alamatService;
-    private final RatingService ratingService;
     private final SecurityService securityService;
     private final NotificationService notificationService;
     private final PesananHistoryRepository pesananHistoryRepository;
     private final PesananHistoryMapper pesananHistoryMapper;
-    private final MitraRepository mitraRepository;
-    private final RatingRepository ratingRepository;
     private final MitraMatchingService mitraMatchingService;
     private final OfferPesananService offerPesananService;
     
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
     
-    public PesananService(UserService userService, MitraService mitraService,
-                          PesananRepository pesananRepository, PesananMapper pesananMapper,
-                          AlamatService alamatService, RatingService ratingService,
-                          SecurityService securityService, NotificationService notificationService,
+    public PesananService(UserService userService,PesananRepository pesananRepository, PesananMapper pesananMapper,
+                          AlamatService alamatService,SecurityService securityService, NotificationService notificationService,
                           PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper,
-                          MitraRepository mitraRepository, RatingRepository ratingRepository,
                           MitraMatchingService mitraMatchingService, OfferPesananService offerPesananService){
 
         this.userService = userService;
-        this.mitraService = mitraService;
         this.pesananRepository = pesananRepository;
         this.pesananMapper = pesananMapper;
         this.alamatService = alamatService;
-        this.ratingService = ratingService;
         this.securityService = securityService;
         this.notificationService = notificationService;
         this.pesananHistoryRepository = pesananHistoryRepository;
         this.pesananHistoryMapper = pesananHistoryMapper;
-        this.mitraRepository = mitraRepository;
-        this.ratingRepository = ratingRepository;
         this.mitraMatchingService = mitraMatchingService;
         this.offerPesananService = offerPesananService;
     }
@@ -276,32 +263,6 @@ public class PesananService {
         pesanan.setStatus(StatusPesanan.SELESAI);
         pesanan.setCompletedAt(LocalDateTime.now());
 
-        saveHistory(pesanan);
-
-        return pesananRepository.save(pesanan);
-    }
-
-    @Transactional
-    public Pesanan tolakPesanan(Long pesananId){
-
-        Long mitraId = securityService.getCurrentMitraId();
-
-        Pesanan pesanan = getPesananEntityById(pesananId);
-
-        if (pesanan.getMitra() == null) {
-            throw new BadRequestException("Pesanan belum memiliki mitra!");
-        }
-
-        if (!pesanan.getMitra().getMitraId().equals(mitraId)) {
-            throw new BadRequestException("Pesanan bukan milik mitra!");
-        }
-
-        if(pesanan.getStatus() != StatusPesanan.MENUNGGU){
-            throw new BadRequestException("Pesanan tidak dapat ditolak!");
-        }
-
-        pesanan.setStatus(StatusPesanan.DITOLAK);
-        
         saveHistory(pesanan);
 
         return pesananRepository.save(pesanan);

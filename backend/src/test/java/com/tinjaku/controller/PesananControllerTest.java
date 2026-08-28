@@ -195,30 +195,6 @@ public class PesananControllerTest {
     }
 
     @Test
-    public void shouldTolakPesanan() throws Exception{
-
-        Pesanan pesanan = new Pesanan();
-        pesanan.setId(1L);
-        pesanan.setStatus(StatusPesanan.MENUNGGU);
-        pesanan.setKeluhan("WC MAMPET");
-
-        PesananResponse response = new PesananResponse();
-        response.setId(1L);
-        response.setStatus(StatusPesanan.DITOLAK);
-        response.setKeluhan("WC MAMPET");
-
-        when(pesananService.tolakPesanan(1L))
-                .thenReturn(pesanan);
-
-        when(pesananService.getPesananById(1L))
-                .thenReturn(response);
-
-        mockMvc.perform(patch("/pesanan/1/tolak"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("DITOLAK"));
-    }
-
-    @Test
     public void shouldDalamPerjalanan() throws Exception{
 
         Pesanan pesanan = new Pesanan();

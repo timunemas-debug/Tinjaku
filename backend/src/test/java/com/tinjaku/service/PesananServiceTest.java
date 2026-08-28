@@ -317,34 +317,6 @@ public class PesananServiceTest {
     }
 
     @Test
-    public void shouldTolakPesanan(){
-
-        Mitra mitra = new Mitra();
-        mitra.setMitraId(2L);
-
-        Pesanan pesanan = new Pesanan();
-        pesanan.setId(1L);
-        pesanan.setStatus(StatusPesanan.MENUNGGU);
-        pesanan.setMitra(mitra);
-
-        when(securityService.getCurrentMitraId())
-                .thenReturn(2L);
-
-        when(pesananRepository.findById(1L))
-                .thenReturn(Optional.of(pesanan));
-        
-        when(pesananRepository.save(any(Pesanan.class)))
-                .thenReturn(pesanan);
-
-        Pesanan result = pesananService.tolakPesanan(1L);
-        
-        assertEquals(StatusPesanan.DITOLAK, result.getStatus());
-
-        verify(pesananHistoryRepository).save(any(PesananHistory.class));
-        verify(pesananRepository).save(any(Pesanan.class));
-    }
-
-    @Test
     public void shouldDalamPerjalanan(){
 
         Mitra mitra = new Mitra();

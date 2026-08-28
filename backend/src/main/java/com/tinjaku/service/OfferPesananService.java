@@ -93,7 +93,7 @@ public class OfferPesananService {
         offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.DITERIMA);
 
         pesanan.setMitra(currentDetails.getMitra());
-        pesanan.setStatus(StatusPesanan.DITERIMA);
+        pesanan.setStatus(StatusPesanan.MENUNGGU_PEMBAYARAN);
         
         offerPesananRepository.save(offerPesanan);
 

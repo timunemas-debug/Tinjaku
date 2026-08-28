@@ -79,14 +79,6 @@ public class PesananController {
     public long totalPesanan(){
         return pesananService.hitungTotalPesanan();
     }
-
-    @PreAuthorize("hasRole('MITRA')")
-    @PatchMapping("/{pesananId}/tolak")
-    public PesananResponse tolakPesananByPesananId(@PathVariable Long pesananId){
-        Pesanan pesanan = pesananService.tolakPesanan(pesananId);
-
-        return pesananService.getPesananById(pesanan.getId());
-    }
     
     @PreAuthorize("hasRole('MITRA')")
     @PatchMapping("/{pesananId}/dalam-perjalanan")
