@@ -9,6 +9,7 @@ import com.tinjaku.dto.response.AlamatResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.tinjaku.model.User;
@@ -27,6 +28,7 @@ public class UserMapper {
         user.setNamaDepan(request.getNamaDepan());
         user.setNamaBelakang(request.getNamaBelakang());
         user.setEmail(request.getEmail());
+        user.setCreatedAt(LocalDateTime.now());
         return user;
     }
 
@@ -54,6 +56,7 @@ public class UserMapper {
         user.setNamaBelakang(request.getNamaBelakang());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
+        user.setCreatedAt(LocalDateTime.now());
 
         return user;
     }

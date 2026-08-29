@@ -1,6 +1,7 @@
 package com.tinjaku.dto.request;
 
 
+import com.tinjaku.model.Label;
 import com.tinjaku.model.UkuranSepticTank;
 
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,10 @@ public class PesananRequest {
     @NotBlank(message = "Keluhan tidak boleh kosong")
     private String keluhan;
 
+    @NotNull(message = "Label wajib di isi!")
+    private Label label;
+
     @NotNull(message = "Ukuran septic tank tidak boleh kosong!")
     private UkuranSepticTank ukuranSepticTank;
+
 }

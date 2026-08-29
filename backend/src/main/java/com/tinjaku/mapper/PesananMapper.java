@@ -18,7 +18,9 @@ public class PesananMapper {
         response.setKecamatan(pesanan.getKecamatan());
         response.setKota(pesanan.getKota());
         response.setProvinsi(pesanan.getProvinsi());
+        response.setLabel(pesanan.getLabel());
         response.setUkuranSepticTank(pesanan.getUkuranSepticTank());
+        response.setTotalHarga(pesanan.getTotalHarga());
 
         response.setUserId(pesanan.getUser() != null ? pesanan.getUser().getUserId() : null);
         response.setNamaLengkap(pesanan.getUser() != null ? pesanan.getUser().getNamaLengkap() : null);

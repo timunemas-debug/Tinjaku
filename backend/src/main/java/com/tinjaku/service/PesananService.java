@@ -260,7 +260,15 @@ public class PesananService {
         pesanan.setKeluhan(request.getKeluhan());
         pesanan.setUser(user);
         pesanan.setStatus(StatusPesanan.MENUNGGU);
-        
+        pesanan.setLabel(request.getLabel());
+        pesanan.setUkuranSepticTank(request.getUkuranSepticTank());
+
+        BigDecimal hargaDasar = hitungHargaJasa(pesanan);
+        pesanan.setHargaJasa(hargaDasar);
+
+        BigDecimal total = hitungTotalHarga(userId, pesanan);
+        pesanan.setTotalHarga(total);
+
         Pesanan savedPesanan = pesananRepository.save(pesanan);
         
         saveHistory(savedPesanan);

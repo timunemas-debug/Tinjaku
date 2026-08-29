@@ -1,5 +1,8 @@
 package com.tinjaku.dto.response;
+import java.math.BigDecimal;
+
 import com.tinjaku.model.Kota;
+import com.tinjaku.model.Label;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.model.UkuranSepticTank;
 
@@ -22,5 +25,7 @@ public class PesananResponse {
     private String provinsi;
     private String namaLengkap;
     private String namaMitra;
+    private Label label;
     private UkuranSepticTank ukuranSepticTank;
+    private BigDecimal totalHarga;
 }

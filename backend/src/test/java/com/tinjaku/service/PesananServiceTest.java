@@ -25,11 +25,13 @@ import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Alamat;
 import com.tinjaku.model.AlamatMitra;
 import com.tinjaku.model.Kota;
+import com.tinjaku.model.Label;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.PesananHistory;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
+import com.tinjaku.model.UkuranSepticTank;
 import com.tinjaku.model.User;
 import com.tinjaku.repository.PesananHistoryRepository;
 import com.tinjaku.repository.PesananRepository;
@@ -243,6 +245,7 @@ public class PesananServiceTest {
         user.setPesananList(new ArrayList<>());
         user.setPickupLat(2.0214);
         user.setPickupLong(3.4123);
+        user.setCreatedAt(LocalDateTime.now());
 
         Alamat alamat = new Alamat();
         alamat.setUser(user);
@@ -256,12 +259,8 @@ public class PesananServiceTest {
         request.setAlamatId(1L);
         request.setNamaPenerima("Jamsuy");
         request.setKeluhan("WC mampet");
-
-        Mitra mitra = new Mitra();
-        mitra.setMitraId(1L);
-        mitra.setLatitude(2.90942);
-        mitra.setLongitude(2.2981);
-        mitra.setStatusOnOff(StatusOnOff.ONLINE);
+        request.setLabel(Label.RUMAH);
+        request.setUkuranSepticTank(UkuranSepticTank.KECIL);
 
         when(securityService.getCurrentUserId())
                 .thenReturn(1L);
@@ -282,6 +281,8 @@ public class PesananServiceTest {
         assertEquals("Jamsuy", result.getNamaPenerima());
         assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
         assertEquals(user, result.getUser());
+        assertEquals(BigDecimal.valueOf(400000), result.getHargaJasa());
+        assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
 
         verify(pesananRepository).save(any(Pesanan.class));
         verify(offerPesananService).sendOfferToNextMitra(result);

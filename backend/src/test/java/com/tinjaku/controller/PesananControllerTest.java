@@ -21,8 +21,10 @@ import com.tinjaku.dto.request.RatingRequest;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
 import com.tinjaku.mapper.PesananMapper;
+import com.tinjaku.model.Label;
 import com.tinjaku.model.Pesanan;
 import com.tinjaku.model.StatusPesanan;
+import com.tinjaku.model.UkuranSepticTank;
 import com.tinjaku.security.CustomUserDetailsService;
 import com.tinjaku.security.JwtService;
 import com.tinjaku.service.PesananService;
@@ -62,17 +64,23 @@ public class PesananControllerTest {
         pesanan.setKeluhan("WC MAMPET");
         pesanan.setKelurahan("A");
         pesanan.setKecamatan("B");
+        pesanan.setLabel(Label.RUMAH);
+        pesanan.setUkuranSepticTank(UkuranSepticTank.KECIL);
 
         PesananRequest request = new PesananRequest();
         request.setAlamatId(1L);
         request.setKeluhan("WC MAMPET");
         request.setNamaPenerima("Jeremy");
+        request.setLabel(Label.RUMAH);
+        request.setUkuranSepticTank(UkuranSepticTank.KECIL);
 
         PesananResponse response = new PesananResponse();
         response.setId(1L);
         response.setKeluhan("WC MAMPET");
         response.setKelurahan("A");
         response.setKecamatan("B");
+        response.setLabel(Label.RUMAH);
+        response.setUkuranSepticTank(UkuranSepticTank.KECIL);
 
         when(pesananService.createPesanan(any(PesananRequest.class)))
                 .thenReturn(pesanan);

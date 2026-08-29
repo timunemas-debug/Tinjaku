@@ -65,7 +65,7 @@ public class OfferPesananService {
         offer.setMitra(mitra);
         offer.setStatusOfferPesanan(StatusOfferPesanan.MENUNGGU);
         offer.setOfferedAt(LocalDateTime.now());
-        offer.setExpiresAt(LocalDateTime.now().plusSeconds(10));
+        offer.setExpiresAt(offer.getOfferedAt().plusSeconds(10));
         
         OfferPesanan savedOfferPesanan = offerPesananRepository.save(offer);
 
@@ -81,6 +81,13 @@ public class OfferPesananService {
 
         OfferPesanan offerPesanan = offerPesananRepository.findByPesananIdAndMitraMitraId(pesanan.getId(), mitraId)
                 .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(offerPesanan.getExpiresAt())) {
+            offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.EXPIRED);
+            throw new BadRequestException("Offer pesanan sudah lebih dari waktu accept!");
+        }
 
         if (offerPesanan.getStatusOfferPesanan() != StatusOfferPesanan.MENUNGGU) {
             throw new BadRequestException("Offer sudah tidak menunggu");

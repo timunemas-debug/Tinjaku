@@ -149,7 +149,7 @@ public class AlamatControllerTest {
 
         mockMvc.perform(get("/alamat"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].label").value("APARTEMENT"))
+                .andExpect(jsonPath("$[0].label").value("APARTMENT"))
                 .andExpect(jsonPath("$[0].jalan").value(jalan))
                 .andExpect(jsonPath("$[0].kelurahan").value(kelurahan))
                 .andExpect(jsonPath("$[0].kecamatan").value(kecamatan))
@@ -179,7 +179,7 @@ public class AlamatControllerTest {
 
         mockMvc.perform(get("/alamat/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.label").value("APARTEMENT"))
+                .andExpect(jsonPath("$.label").value("APARTMENT"))
                 .andExpect(jsonPath("$.jalan").value(jalan))
                 .andExpect(jsonPath("$.kelurahan").value(kelurahan))
                 .andExpect(jsonPath("$.kecamatan").value(kecamatan))
