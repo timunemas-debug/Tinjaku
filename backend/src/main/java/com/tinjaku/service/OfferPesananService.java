@@ -85,7 +85,6 @@ public class OfferPesananService {
         LocalDateTime now = LocalDateTime.now();
 
         if (now.isAfter(offerPesanan.getExpiresAt())) {
-            offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.EXPIRED);
             throw new BadRequestException("Offer pesanan sudah lebih dari waktu accept!");
         }
 
@@ -164,7 +163,7 @@ public class OfferPesananService {
     }
 
     @Transactional
-    public void expireOffer(OfferPesanan offerPesanan){
+    public void expireOffer(Long offerId){
 
         if (offerPesanan == null) {
             throw new ResourceNotFound("Offer pesanan tidak ditemukan!");
