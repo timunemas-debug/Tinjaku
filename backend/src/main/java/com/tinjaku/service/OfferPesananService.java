@@ -2,6 +2,7 @@ package com.tinjaku.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.StatusPesanan;
 import com.tinjaku.repository.OfferPesananRepository;
 import com.tinjaku.repository.PesananHistoryRepository;
+import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.SecurityService;
 
@@ -30,13 +32,15 @@ public class OfferPesananService {
     private final MitraMatchingService mitraMatchingService;
     private final NotificationService notificationService;
     private final PesananHistoryRepository pesananHistoryRepository;
+    private final PesananRepository pesananRepository;
 
-    public OfferPesananService(OfferPesananRepository offerPesananRepository, SecurityService securityService, MitraMatchingService mitraMatchingService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository){
+    public OfferPesananService(OfferPesananRepository offerPesananRepository, SecurityService securityService, MitraMatchingService mitraMatchingService, NotificationService notificationService, PesananHistoryRepository pesananHistoryRepository, PesananRepository pesananRepository){
         this.offerPesananRepository = offerPesananRepository;
         this.securityService = securityService;
         this.mitraMatchingService = mitraMatchingService;
         this.notificationService = notificationService;
         this.pesananHistoryRepository = pesananHistoryRepository;
+        this.pesananRepository = pesananRepository;
     }
 
     private void saveHistory(Pesanan pesanan){
@@ -129,10 +133,19 @@ public class OfferPesananService {
 
         offerPesananRepository.save(offerPesanan);
 
-        sendOfferToNextMitra(pesanan);
+        sendOfferToNextMitra(pesanan.getId());
     }
 
-    public void sendOfferToNextMitra(Pesanan pesanan){
+    @Transactional
+    public void sendOfferToNextMitra(Long pesananId){
+
+        Optional<Pesanan> pesananOptional = pesananRepository.findByIdWithLock(pesananId);
+
+        if (pesananOptional.isEmpty()) {
+            throw new ResourceNotFound("Pesanan tidak ditemukan!");
+        }
+
+        Pesanan pesanan = pesananOptional.get();
 
         List<Mitra> eligibleMitra = mitraMatchingService.getEligibleMitra(pesanan);
 
@@ -163,27 +176,26 @@ public class OfferPesananService {
     }
 
     @Transactional
-    public void expireOffer(Long offerId){
+    public Pesanan expireOffer(Long offerId){
 
-        if (offerPesanan == null) {
-            throw new ResourceNotFound("Offer pesanan tidak ditemukan!");
-        }
+        OfferPesanan offerPesanan = offerPesananRepository.findByIdWithLock(offerId)
+                .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
 
         if (offerPesanan.getStatusOfferPesanan() != StatusOfferPesanan.MENUNGGU) {
-            throw new BadRequestException("Offer pesanan tidak dapat di proses!");
+            return null;
         }
 
         LocalDateTime now = LocalDateTime.now();
 
         if (offerPesanan.getExpiresAt().isAfter(now)) {
-            throw new BadRequestException("Offer pesanan belum expired!");
+            return null;
         }
-
+        
         offerPesanan.setStatusOfferPesanan(StatusOfferPesanan.EXPIRED);
         
         offerPesananRepository.save(offerPesanan);
 
-        sendOfferToNextMitra(offerPesanan.getPesanan());
+        return offerPesanan.getPesanan();
     }
 
     @Scheduled(fixedRate = 1000)
@@ -194,7 +206,12 @@ public class OfferPesananService {
         List<OfferPesanan> expiredOffers = offerPesananRepository.findByStatusOfferPesananAndExpiresAtLessThan(StatusOfferPesanan.MENUNGGU, sekarang);
 
         for(OfferPesanan offer : expiredOffers){
-            expireOffer(offer);
+
+            Pesanan pesanan = expireOffer(offer.getId());
+
+            if (pesanan != null) {
+                sendOfferToNextMitra(pesanan.getId());
+            }
         }
     }
 }

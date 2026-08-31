@@ -285,7 +285,7 @@ public class PesananServiceTest {
         assertEquals(StatusPesanan.MENUNGGU, result.getStatus());
 
         verify(pesananRepository).save(any(Pesanan.class));
-        verify(offerPesananService).sendOfferToNextMitra(result);
+        verify(offerPesananService).sendOfferToNextMitra(result.getId());
         verify(notificationService).sendNotification(1L, "Pesanan berhasil dibuat dan sedang mencari mitra.");
     }
 

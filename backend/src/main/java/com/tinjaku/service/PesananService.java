@@ -273,7 +273,7 @@ public class PesananService {
         
         saveHistory(savedPesanan);
         
-        offerPesananService.sendOfferToNextMitra(savedPesanan);
+        offerPesananService.sendOfferToNextMitra(savedPesanan.getId());
 
         notificationService.sendNotification(userId, "Pesanan berhasil dibuat dan sedang mencari mitra.");
         

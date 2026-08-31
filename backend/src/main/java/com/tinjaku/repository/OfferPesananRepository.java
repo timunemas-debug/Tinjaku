@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.tinjaku.model.OfferPesanan;
 import com.tinjaku.model.StatusOfferPesanan;
@@ -18,7 +20,8 @@ public interface OfferPesananRepository extends JpaRepository<OfferPesanan, Long
     Optional<OfferPesanan> findByPesananIdAndMitraMitraId(Long pesananId, Long mitraId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<OfferPesanan> findByIdWithLock(Long offerId);
+    @Query("SELECT o FROM OfferPesanan o WHERE o.Id = :offerId")
+    Optional<OfferPesanan> findByIdWithLock(@Param("offerId") Long offerId);
 
     List<OfferPesanan> findByStatusOfferPesananAndExpiresAtLessThan(StatusOfferPesanan status, LocalDateTime time);
 
