@@ -78,17 +78,23 @@ public class OfferPesananService {
     }
 
     @Transactional
-    public void acceptOffer(Pesanan pesanan){
+    public void acceptOffer(Long offerId){
+
+        OfferPesanan offerPesanan = offerPesananRepository.findByIdWithLock(offerId)
+                .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
 
         CustomMitraDetails currentDetails = securityService.getCurrentMitra();
         Long mitraId = currentDetails.getMitraId();
 
-        OfferPesanan offerPesanan = offerPesananRepository.findByPesananIdAndMitraMitraId(pesanan.getId(), mitraId)
-                .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
-
         LocalDateTime now = LocalDateTime.now();
 
-        if (now.isAfter(offerPesanan.getExpiresAt())) {
+        Pesanan pesanan = offerPesanan.getPesanan();
+
+        if (offerPesanan.getMitra().getMitraId() != mitraId) {
+            throw new BadRequestException("Offer bukan milik mitra!");
+        }
+
+        if (!now.isBefore(offerPesanan.getExpiresAt())) {
             throw new BadRequestException("Offer pesanan sudah lebih dari waktu accept!");
         }
 
