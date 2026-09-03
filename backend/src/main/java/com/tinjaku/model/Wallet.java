@@ -38,5 +38,5 @@ public class Wallet {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "wallet")
-    private List<WalletTransaction> walletTransaction;
+    private List<WalletTransaction> walletTransactions;
 }

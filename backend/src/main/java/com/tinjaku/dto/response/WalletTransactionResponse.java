@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WalletTransaction {
+public class WalletTransactionResponse {
 
     private Long walletTransactionId;
     private WalletTransactionType type;
