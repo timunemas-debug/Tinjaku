@@ -3,7 +3,9 @@ package com.tinjaku.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tinjaku.dto.response.WalletResponse;
 import com.tinjaku.exception.BadRequestException;
@@ -24,11 +26,14 @@ public class WalletService {
         this.walletMapper = walletMapper;
     }
 
-    public WalletResponse createdWallet(Mitra mitra){
-        
-        Wallet mitraWallet = getWalletByMitraId(mitra.getMitraId());
+    @Transactional
+    public WalletResponse createWallet(Mitra mitra){
 
-        if (mitraWallet != null) {
+        if (mitra == null || mitra.getMitraId() == null) {
+            throw new BadRequestException("Mitra tidak valid!");
+        }
+        
+        if (walletRepository.existsByMitraMitraId(mitra.getMitraId())) {
             throw new BadRequestException("Mitra sudah memiliki wallet!");
         }
 
@@ -38,7 +43,11 @@ public class WalletService {
         wallet.setCreatedAt(LocalDateTime.now());
         wallet.setUpdatedAt(LocalDateTime.now());
 
-        return walletMapper.toMapResponse(walletRepository.save(wallet));
+        try {
+            return walletMapper.toMapResponse(walletRepository.save(wallet));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Mitra sudah memiliki wallet!");
+        }
     }
 
     public Wallet getWalletByMitraId(Long mitraId){

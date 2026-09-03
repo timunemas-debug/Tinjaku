@@ -2,6 +2,8 @@ package com.tinjaku.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface WalletTransactionRepository extends JpaRepository<WalletTransactionRepository, Long>{
+import com.tinjaku.model.WalletTransaction;
+
+public interface WalletTransactionRepository extends JpaRepository<WalletTransaction, Long>{
     
 }
