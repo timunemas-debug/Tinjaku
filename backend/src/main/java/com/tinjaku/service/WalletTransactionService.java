@@ -3,10 +3,12 @@ package com.tinjaku.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tinjaku.dto.response.WalletTransactionResponse;
+import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.WalletTransactionMapper;
 import com.tinjaku.model.Pesanan;
@@ -33,10 +35,14 @@ public class WalletTransactionService {
     public WalletTransactionResponse addCredit(Long mitraId, Pesanan pesanan){
         
         Wallet wallet = walletRepository.findByMitraMitraId(mitraId)
-                .orElseThrow(() -> new ResourceNotFound("Wallet mitra tidak ditemukan!"));
-
+        .orElseThrow(() -> new ResourceNotFound("Wallet mitra tidak ditemukan!"));
+        
         Wallet walletWithLock = walletRepository.findByWalletIdWithLock(wallet.getWalletId())
-                .orElseThrow(() -> new ResourceNotFound("Wallet tidak ditemukan!"));
+        .orElseThrow(() -> new ResourceNotFound("Wallet tidak ditemukan!"));
+        
+        if (walletTransactionRepository.existsByReferenceTypeAndReferenceIdAndType(WalletReferenceType.PESANAN, pesanan.getId(), WalletTransactionType.CREDIT)) {
+            throw new BadRequestException("Pesanan sudah pernah dikreditkan ke wallet!");
+        }
 
         BigDecimal balanceBefore = walletWithLock.getBalance();
         BigDecimal amountCredit = pesanan.getHargaJasa();
@@ -54,6 +60,49 @@ public class WalletTransactionService {
         walletTransaction.setDescription("Pendapatan dari pesanan #" + pesanan.getId());
         walletTransaction.setCreatedAt(LocalDateTime.now());
         
-        return walletTransactionMapper.toMapResponse(walletTransactionRepository.save(walletTransaction));
+        try {
+            return walletTransactionMapper.toMapResponse(walletTransactionRepository.save(walletTransaction));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Pesanan sudah pernah dikreditkan ke wallet!");
+        }
+    }
+
+    @Transactional
+    public WalletTransactionResponse addDebit(Long walletId, BigDecimal amountDebit){
+
+        Wallet walletWithLock = walletRepository.findByWalletIdWithLock(walletId)
+                .orElseThrow(() -> new ResourceNotFound("Wallet tidak ditemukan!"));
+
+        BigDecimal balanceBefore = walletWithLock.getBalance();
+        
+        if (amountDebit.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Saldo yang ingin anda tarik tidak valid!");
+        }
+
+        if (balanceBefore.compareTo(amountDebit) < 0 ) {
+            throw new BadRequestException("Saldo anda tidak mencukupi!");
+        }
+
+        BigDecimal balanceAfter = balanceBefore.subtract(amountDebit);
+
+        walletWithLock.setBalance(balanceAfter);
+
+        WalletTransaction walletTransaction = new WalletTransaction();
+        walletTransaction.setWallet(walletWithLock);
+        walletTransaction.setType(WalletTransactionType.DEBIT);
+        walletTransaction.setAmount(amountDebit);
+        walletTransaction.setBalanceBefore(balanceBefore);
+        walletTransaction.setBalanceAfter(balanceAfter);
+        walletTransaction.setReferenceType(WalletReferenceType.WITHDRAWAL);
+        walletTransaction.setReferenceId(walletId);
+        walletTransaction.setDescription("Berhasil melakukan withdrawal sebesar: " + amountDebit);
+        walletTransaction.setCreatedAt(LocalDateTime.now());
+
+
+        try {
+            return walletTransactionMapper.toMapResponse(walletTransactionRepository.save(walletTransaction));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Transaksi wallet sudah pernah dilakukan!");
+        }
     }
 }
