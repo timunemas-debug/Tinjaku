@@ -119,14 +119,16 @@ public class OfferPesananService {
     }
 
     @Transactional
-    public void rejectOffer(Pesanan pesanan){
+    public void rejectOffer(Long offerId){
+
+        OfferPesanan offerPesanan = offerPesananRepository.findByIdWithLock(offerId)
+                .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
 
         CustomMitraDetails currentDetails = securityService.getCurrentMitra();
         Long mitraId = currentDetails.getMitraId();
         
-        OfferPesanan offerPesanan = offerPesananRepository.findByPesananIdAndMitraMitraId(pesanan.getId(), mitraId)
-        .orElseThrow(() -> new ResourceNotFound("Offer pesanan tidak ditemukan!"));
-        
+        Pesanan pesanan = offerPesanan.getPesanan();
+
         if (!offerPesanan.getMitra().getMitraId().equals(mitraId)) {
             throw new BadRequestException("Offer pesanan bukan milik mitra!");
         }

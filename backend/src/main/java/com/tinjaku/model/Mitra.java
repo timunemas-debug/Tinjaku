@@ -45,6 +45,9 @@ public class Mitra {
 
     @OneToMany(mappedBy = "mitra")
     private List<OfferPesanan> offerPesanan = new ArrayList<>();
+
+    @OneToOne(mappedBy = "mitra")
+    private Wallet wallet;
     
     public Mitra(){
     }
