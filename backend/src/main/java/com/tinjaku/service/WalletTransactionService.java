@@ -68,7 +68,7 @@ public class WalletTransactionService {
     }
 
     @Transactional
-    public WalletTransactionResponse addDebit(Long walletId, BigDecimal amountDebit){
+    public WalletTransactionResponse addDebit(Long walletId, Long withdrawalId, BigDecimal amountDebit){
 
         Wallet walletWithLock = walletRepository.findByWalletIdWithLock(walletId)
                 .orElseThrow(() -> new ResourceNotFound("Wallet tidak ditemukan!"));
@@ -94,13 +94,13 @@ public class WalletTransactionService {
         walletTransaction.setBalanceBefore(balanceBefore);
         walletTransaction.setBalanceAfter(balanceAfter);
         walletTransaction.setReferenceType(WalletReferenceType.WITHDRAWAL);
-        walletTransaction.setReferenceId(walletId);
+        walletTransaction.setReferenceId(withdrawalId);
         walletTransaction.setDescription("Berhasil melakukan withdrawal sebesar: " + amountDebit);
         walletTransaction.setCreatedAt(LocalDateTime.now());
 
 
         try {
-            return walletTransactionMapper.toMapResponse(walletTransactionRepository.save(walletTransaction));
+            return walletTransactionMapper.toMapResponse(walletTransactionRepository.saveAndFlush(walletTransaction));
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("Transaksi wallet sudah pernah dilakukan!");
         }

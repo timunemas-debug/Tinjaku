@@ -2,15 +2,13 @@ package com.tinjaku.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,28 +16,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "wallet")
+@Table(
+    name = "withdrawal"
+)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Wallet {
+public class Withdrawal {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long walletId;
+    private Long withdrawalId;
 
-    @OneToOne
-    @JoinColumn(name = "mitra_id", nullable = false, unique = true)
-    private Mitra mitra;
+    @ManyToOne
+    @JoinColumn(name = "wallet_id", nullable = false)
+    private Wallet wallet;
 
-    private BigDecimal balance;
+    private BigDecimal amount;
+    private StatusWithdrawal status;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "wallet")
-    private List<WalletTransaction> walletTransactions;
-
-    @OneToMany(mappedBy = "wallet")
-    private List<Withdrawal> withdrawals;
+    private LocalDateTime processedAt;
+    private String message;
 }
