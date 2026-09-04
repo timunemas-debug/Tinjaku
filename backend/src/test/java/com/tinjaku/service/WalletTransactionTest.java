@@ -89,6 +89,50 @@ public class WalletTransactionTest {
         verify(walletTransactionMapper).toMapResponse(any(WalletTransaction.class));
         
     }
+    @Test
+    public void shouldAddDebitSuccessfully() {
+
+        Wallet wallet = new Wallet();
+        wallet.setWalletId(1L);
+        wallet.setBalance(BigDecimal.valueOf(200000));
+
+        BigDecimal amountDebit =
+                BigDecimal.valueOf(75000);
+
+        WalletTransactionResponse response =
+                new WalletTransactionResponse();
+
+        when(walletRepository.findByWalletIdWithLock(1L))
+                .thenReturn(Optional.of(wallet));
+
+        when(walletTransactionRepository
+                .saveAndFlush(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(walletTransactionMapper
+                .toMapResponse(any(WalletTransaction.class)))
+                .thenReturn(response);
+
+        WalletTransactionResponse result =
+                walletTransactionService.addDebit(
+                        1L,
+                        10L,
+                        amountDebit
+                );
+
+        assertNotNull(result);
+
+        assertEquals(
+                new BigDecimal("125000"),
+                wallet.getBalance()
+        );
+
+        verify(walletTransactionRepository)
+                .saveAndFlush(any(WalletTransaction.class));
+
+        verify(walletTransactionMapper)
+                .toMapResponse(any(WalletTransaction.class));
+    }
 
     @Test
     public void shouldRejectDebitWhenBalanceInsufficient() {
