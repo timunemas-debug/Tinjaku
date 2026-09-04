@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tinjaku.dto.request.PesananRequest;
 import com.tinjaku.dto.response.PesananResponse;
+import com.tinjaku.dto.response.WalletTransactionResponse;
 import com.tinjaku.exception.ResourceNotFound;
 import com.tinjaku.mapper.PesananMapper;
 import com.tinjaku.model.Alamat;
@@ -72,6 +73,9 @@ public class PesananServiceTest {
 
     @Mock
     MitraMatchingService mitraMatchingService;
+
+    @Mock
+    WalletTransactionService walletTransactionService;
 
     @Spy
     @InjectMocks
@@ -305,6 +309,9 @@ public class PesananServiceTest {
 
         when(pesananRepository.findById(1L))
                 .thenReturn(Optional.of(pesanan));
+
+        when(walletTransactionService.addCredit(pesanan))
+                .thenReturn(new WalletTransactionResponse());
         
         when(pesananRepository.save(any(Pesanan.class)))
                 .thenReturn(pesanan);
@@ -313,6 +320,7 @@ public class PesananServiceTest {
 
         assertEquals(StatusPesanan.SELESAI, result.getStatus());
 
+        verify(walletTransactionService).addCredit(pesanan);
         verify(pesananHistoryRepository).save(any(PesananHistory.class));
         verify(pesananRepository).save(any(Pesanan.class));
     }

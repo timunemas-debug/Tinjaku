@@ -33,13 +33,15 @@ public class PesananService {
     private final PesananHistoryMapper pesananHistoryMapper;
     private final MitraMatchingService mitraMatchingService;
     private final OfferPesananService offerPesananService;
+    private final WalletTransactionService walletTransactionService;
     
     private static final BigDecimal DISKON_PENGGUNA_BARU = BigDecimal.valueOf(25_000);
     
     public PesananService(UserService userService,PesananRepository pesananRepository, PesananMapper pesananMapper,
                           AlamatService alamatService,SecurityService securityService, NotificationService notificationService,
                           PesananHistoryRepository pesananHistoryRepository, PesananHistoryMapper pesananHistoryMapper,
-                          MitraMatchingService mitraMatchingService, OfferPesananService offerPesananService){
+                          MitraMatchingService mitraMatchingService, OfferPesananService offerPesananService,
+                          WalletTransactionService walletTransactionService){
 
         this.userService = userService;
         this.pesananRepository = pesananRepository;
@@ -51,6 +53,7 @@ public class PesananService {
         this.pesananHistoryMapper = pesananHistoryMapper;
         this.mitraMatchingService = mitraMatchingService;
         this.offerPesananService = offerPesananService;
+        this.walletTransactionService = walletTransactionService;
     }
     
     public Mitra findMitraTerdekat(User user, List<Mitra> mitras){
@@ -310,6 +313,7 @@ public class PesananService {
 
         pesanan.setStatus(StatusPesanan.SELESAI);
         pesanan.setCompletedAt(LocalDateTime.now());
+        walletTransactionService.addCredit(pesanan);
 
         saveHistory(pesanan);
 

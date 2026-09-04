@@ -18,21 +18,26 @@ import com.tinjaku.model.WalletTransaction;
 import com.tinjaku.model.WalletTransactionType;
 import com.tinjaku.repository.WalletRepository;
 import com.tinjaku.repository.WalletTransactionRepository;
+import com.tinjaku.security.SecurityService;
 
 @Service
 public class WalletTransactionService {
     private final WalletTransactionRepository walletTransactionRepository;
     private final WalletTransactionMapper walletTransactionMapper;
     private final WalletRepository walletRepository;
+    private final SecurityService securityService;
 
-    public WalletTransactionService(WalletTransactionRepository walletTransactionRepository, WalletTransactionMapper walletTransactionMapper, WalletRepository walletRepository){
+    public WalletTransactionService(WalletTransactionRepository walletTransactionRepository, WalletTransactionMapper walletTransactionMapper, WalletRepository walletRepository, SecurityService securityService){
         this.walletTransactionRepository = walletTransactionRepository;
         this.walletTransactionMapper = walletTransactionMapper;
         this.walletRepository = walletRepository;
+        this.securityService = securityService;
     }
 
     @Transactional
-    public WalletTransactionResponse addCredit(Long mitraId, Pesanan pesanan){
+    public WalletTransactionResponse addCredit(Pesanan pesanan){
+
+        Long mitraId = securityService.getCurrentMitraId();
         
         Wallet wallet = walletRepository.findByMitraMitraId(mitraId)
         .orElseThrow(() -> new ResourceNotFound("Wallet mitra tidak ditemukan!"));
@@ -42,6 +47,10 @@ public class WalletTransactionService {
         
         if (walletTransactionRepository.existsByReferenceTypeAndReferenceIdAndType(WalletReferenceType.PESANAN, pesanan.getId(), WalletTransactionType.CREDIT)) {
             throw new BadRequestException("Pesanan sudah pernah dikreditkan ke wallet!");
+        }
+
+        if (!walletWithLock.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Wallet bukan milik mitra!");
         }
 
         BigDecimal balanceBefore = walletWithLock.getBalance();
@@ -61,7 +70,7 @@ public class WalletTransactionService {
         walletTransaction.setCreatedAt(LocalDateTime.now());
         
         try {
-            return walletTransactionMapper.toMapResponse(walletTransactionRepository.save(walletTransaction));
+            return walletTransactionMapper.toMapResponse(walletTransactionRepository.saveAndFlush(walletTransaction));
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("Pesanan sudah pernah dikreditkan ke wallet!");
         }

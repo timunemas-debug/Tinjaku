@@ -16,6 +16,7 @@ import com.tinjaku.model.Wallet;
 import com.tinjaku.model.Withdrawal;
 import com.tinjaku.repository.WalletRepository;
 import com.tinjaku.repository.WithdrawalRepository;
+import com.tinjaku.security.SecurityService;
 
 import jakarta.transaction.Transactional;
 
@@ -25,16 +26,20 @@ public class WithdrawalService {
     private final WithdrawalMapper withdrawalMapper;
     private final WalletRepository walletRepository;
     private final WalletTransactionService walletTransactionService;
+    private final SecurityService securityService;
 
-    public WithdrawalService(WithdrawalRepository withdrawalRepository, WithdrawalMapper withdrawalMapper, WalletRepository walletRepository, WalletTransactionService walletTransactionService){
+    public WithdrawalService(WithdrawalRepository withdrawalRepository, WithdrawalMapper withdrawalMapper, WalletRepository walletRepository, WalletTransactionService walletTransactionService, SecurityService securityService){
         this.withdrawalRepository = withdrawalRepository;
         this.withdrawalMapper = withdrawalMapper;
         this.walletRepository = walletRepository;
         this.walletTransactionService = walletTransactionService;
+        this.securityService = securityService;
     }
 
     @Transactional
     public WithdrawalResponse createWithdrawal(WithdrawalRequest request, Long walletId){
+
+        Long mitraId = securityService.getCurrentMitraId();
 
         Wallet wallet = walletRepository.findByWalletIdWithLock(walletId)
                 .orElseThrow(() -> new ResourceNotFound("Wallet tidak ditemukan!"));
@@ -47,6 +52,10 @@ public class WithdrawalService {
         
         if (withdrawal.getAmount().compareTo(wallet.getBalance()) > 0) {
             throw new BadRequestException("Saldo anda tidak cukup untuk di withdrawal!");
+        }
+
+        if (!wallet.getMitra().getMitraId().equals(mitraId)) {
+            throw new BadRequestException("Withdrawal bukan milik mitra!");
         }
         
         withdrawal.setWallet(wallet);
@@ -90,7 +99,7 @@ public class WithdrawalService {
         walletTransactionService.addDebit(walletId, withdrawal.getWithdrawalId() , withdrawal.getAmount());
 
         withdrawal.setStatus(StatusWithdrawal.SUCCESS);
-        withdrawal.setCreatedAt(LocalDateTime.now());
+        withdrawal.setProcessedAt(LocalDateTime.now());
 
         return withdrawalMapper.toMapResponse(withdrawalRepository.save(withdrawal));
     }
