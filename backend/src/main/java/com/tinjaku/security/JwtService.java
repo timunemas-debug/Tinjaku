@@ -40,10 +40,13 @@ public class JwtService {
         else if(userDetails instanceof CustomMitraDetails customMitraDetails){
             role = customMitraDetails.getMitra().getRole().name();
             id = customMitraDetails.getMitra().getMitraId();
+        }else if (userDetails instanceof CustomAdminDetails customAdminDetails) {
+            role = customAdminDetails.getAdmin().getRole().name();
+            id = customAdminDetails.getAdmin().getAdminId();
         }else{
             throw new IllegalArgumentException("Unknown UserDetails type!");
         }
-
+        
         return Jwts.builder()
                     .subject(userDetails.getUsername())
                     .claim("role", role)

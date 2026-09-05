@@ -7,8 +7,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.exception.UsernameNotFoundException;
+import com.tinjaku.model.Admin;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.User;
+import com.tinjaku.repository.AdminRepository;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.UserRepository;
 
@@ -17,10 +19,12 @@ public class CustomUserDetailsService implements UserDetailsService{
     
     private final UserRepository userRepository;
     private final MitraRepository mitraRepository;
+    private final AdminRepository adminRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository, MitraRepository mitraRepository){
+    public CustomUserDetailsService(UserRepository userRepository, MitraRepository mitraRepository, AdminRepository adminRepository){
         this.userRepository = userRepository;
         this.mitraRepository = mitraRepository;
+        this.adminRepository = adminRepository;
     }
 
     @Override
@@ -38,6 +42,12 @@ public class CustomUserDetailsService implements UserDetailsService{
             return new CustomMitraDetails(mitra.get());
         }
 
-        throw new UsernameNotFoundException("User tidak ditemukan!");
+        Optional<Admin> admin = adminRepository.findByEmailIgnoreCase(email);
+
+        if (admin.isPresent()) {
+            return new CustomAdminDetails(admin.get());
+        }
+
+        throw new UsernameNotFoundException("Email tidak ditemukan!");
     }
 }
