@@ -9,19 +9,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.LoginRequest;
+import com.tinjaku.dto.request.RegisterAdminRequest;
 import com.tinjaku.dto.request.RegisterMitraRequest;
 import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.response.LoginResponse;
+import com.tinjaku.dto.response.RegisterAdminResponse;
 import com.tinjaku.dto.response.RegisterMitraResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 import com.tinjaku.exception.BadRequestException;
+import com.tinjaku.mapper.AdminMapper;
 import com.tinjaku.mapper.MitraMapper;
 import com.tinjaku.mapper.UserMapper;
+import com.tinjaku.model.Admin;
 import com.tinjaku.model.Mitra;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.model.User;
+import com.tinjaku.repository.AdminRepository;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.UserRepository;
+import com.tinjaku.security.CustomAdminDetails;
 import com.tinjaku.security.CustomMitraDetails;
 import com.tinjaku.security.CustomUserDetails;
 import com.tinjaku.security.JwtService;
@@ -35,10 +41,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AdminRepository adminRepository;
+    private final AdminMapper adminMapper;
 
     public AuthService(UserRepository userRepository, UserMapper userMapper, MitraRepository mitraRepository, MitraMapper mitraMapper,
                        AuthenticationManager authenticationManager,
-                       PasswordEncoder passwordEncoder, JwtService jwtService) {
+                       PasswordEncoder passwordEncoder, JwtService jwtService, AdminRepository adminRepository, AdminMapper adminMapper) {
 
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -47,6 +55,8 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.adminRepository = adminRepository;
+        this.adminMapper = adminMapper;
     }
 
     private void setOnline(User user) {
@@ -67,6 +77,16 @@ public class AuthService {
     private void setOnlineMitra(Mitra mitra){
         mitra.setStatusOnOff(StatusOnOff.ONLINE);
         mitraRepository.save(mitra);
+    }
+
+    private void setOnlineAdmin(Admin admin){
+        admin.setStatus(StatusOnOff.ONLINE);
+        adminRepository.save(admin);
+    }
+
+    private void setOfflineAdmin(Admin admin){
+        admin.setStatus(StatusOnOff.OFFLINE);
+        adminRepository.save(admin);
     }
 
     public RegisterResponse register(RegisterRequest request) {
@@ -97,6 +117,9 @@ public class AuthService {
         if (userDetails instanceof CustomMitraDetails customMitraDetails) {
             setOnlineMitra(customMitraDetails.getMitra());
         }
+        if (userDetails instanceof CustomAdminDetails customAdminDetails) {
+            setOnlineAdmin(customAdminDetails.getAdmin());
+        }
 
         String jwt = jwtService.generateToken(userDetails);
 
@@ -116,6 +139,10 @@ public class AuthService {
         if (userDetails instanceof CustomMitraDetails customMitraDetails) {
             setOfflineMitra(customMitraDetails.getMitra());
         }
+
+        if (userDetails instanceof CustomAdminDetails customAdminDetails) {
+            setOfflineAdmin(customAdminDetails.getAdmin());
+        }
     }
 
     public RegisterMitraResponse registerMitra(RegisterMitraRequest request){
@@ -128,9 +155,20 @@ public class AuthService {
         }
 
         Mitra mitra = mitraMapper.toEntity(request);
-
         mitra.setPassword(passwordEncoder.encode(request.getPassword()));
 
         return mitraMapper.toRegisterMitraResponse(mitraRepository.save(mitra));
+    }
+
+    public RegisterAdminResponse registerAdmin(RegisterAdminRequest request){
+
+        if (adminRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            throw new BadRequestException("Email sudah terdaftar!");
+        }
+
+        Admin admin = adminMapper.toEntity(request);
+        admin.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        return adminMapper.toMapResponse(adminRepository.save(admin));
     }
 }

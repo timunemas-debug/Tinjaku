@@ -32,6 +32,10 @@ public class Admin {
     
     @Enumerated(EnumType.STRING)
     private Role role = Role.ROLE_ADMIN;
+
+    @Enumerated(EnumType.STRING)
+    private StatusOnOff status;
+    
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 }

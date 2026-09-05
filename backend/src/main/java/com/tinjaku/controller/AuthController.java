@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tinjaku.dto.request.LoginRequest;
+import com.tinjaku.dto.request.RegisterAdminRequest;
 import com.tinjaku.dto.request.RegisterMitraRequest;
 import com.tinjaku.dto.request.RegisterRequest;
 import com.tinjaku.dto.response.LoginResponse;
+import com.tinjaku.dto.response.RegisterAdminResponse;
 import com.tinjaku.dto.response.RegisterMitraResponse;
 import com.tinjaku.dto.response.RegisterResponse;
 import com.tinjaku.service.AuthService;
@@ -37,6 +39,11 @@ public class AuthController {
         return authService.registerMitra(request);
     }
 
+    @PostMapping("/regist-admin")
+    public RegisterAdminResponse registAdmin(@RequestBody RegisterAdminRequest request){
+        return authService.registerAdmin(request);
+    }
+
     @PostMapping("/login-user")
     public LoginResponse login(@RequestBody @Valid LoginRequest request){
         return authService.login(request);
@@ -44,6 +51,11 @@ public class AuthController {
 
     @PostMapping("/login-mitra")
     public LoginResponse loginMitra(@RequestBody @Valid LoginRequest request){
+        return authService.login(request);
+    }
+
+    @PostMapping("/login-admin")
+    public LoginResponse loginAdmin(@RequestBody @Valid LoginRequest request){
         return authService.login(request);
     }
 
