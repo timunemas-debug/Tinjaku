@@ -37,3 +37,6 @@ export const getRiwayatPesananUser = () =>
 
 export const getRiwayatPesananMitra = () =>
   api.get("/pesanan/riwayat-mitra").then((res) => res.data);
+
+export const getPesananHistory = (pesananId) =>
+  api.get(`/pesanan/${pesananId}/history-pesanan`).then((res) => res.data);

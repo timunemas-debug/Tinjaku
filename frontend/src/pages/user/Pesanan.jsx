@@ -13,6 +13,9 @@ import { createPesanan } from "../../services/pesananService";
 import { getAlamat } from "../../services/alamatService";
 import { useAuth } from "../../hooks/useAuth";
 
+const LABEL_OPTIONS = ["RUMAH", "KANTOR", "APARTEMENT", "HOTEL", "GUDANG", "PABRIK"];
+const UKURAN_OPTIONS = ["KECIL", "SEDANG", "BESAR"];
+
 export default function Pesanan() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +27,8 @@ export default function Pesanan() {
     namaPenerima: "",
     alamatId: "",
     keluhan: "",
+    label: "RUMAH",
+    ukuranSepticTank: "SEDANG",
   });
 
   const [error, setError] = useState(null);
@@ -65,12 +70,8 @@ export default function Pesanan() {
 
   return (
     <div className="max-w-5xl mx-auto">
-
-      
       <div className="mb-8">
-        <p className="text-sm text-black/40 mb-2">
-          Layanan
-        </p>
+        <p className="text-sm text-black/40 mb-2">Layanan</p>
 
         <h1 className="font-display font-extrabold text-3xl text-[#111116]">
           Buat Pesanan
@@ -82,23 +83,15 @@ export default function Pesanan() {
         </p>
       </div>
 
-      
       <div className="grid lg:grid-cols-[1fr_300px] gap-6">
-
-        
         <form
           onSubmit={handleSubmit}
           className="bg-white border border-black/[0.07] rounded-2xl overflow-hidden"
         >
-
-          
           <div className="px-7 py-6 border-b border-black/[0.06]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#FFF4CC] flex items-center justify-center">
-                <FiFileText
-                  size={18}
-                  className="text-[#111116]"
-                />
+                <FiFileText size={18} className="text-[#111116]" />
               </div>
 
               <div>
@@ -113,17 +106,13 @@ export default function Pesanan() {
             </div>
           </div>
 
-          
           <div className="p-7 max-md:p-5">
-
-            
             {error && (
               <div className="mb-6 bg-[#FFF0F0] border border-[#F3CACA] text-[#C43D3D] rounded-xl px-4 py-3 text-sm">
                 {error}
               </div>
             )}
 
-            
             <div className="mb-6">
               <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
                 <FiUser size={15} />
@@ -140,7 +129,6 @@ export default function Pesanan() {
               />
             </div>
 
-            
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <label className="flex items-center gap-2 text-sm font-bold text-[#111116]">
@@ -162,18 +150,12 @@ export default function Pesanan() {
                 <div className="border border-black/[0.08] rounded-xl px-4 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 border-2 border-black/10 border-t-black rounded-full animate-spin" />
-
-                    <span className="text-sm text-black/40">
-                      Memuat alamat...
-                    </span>
+                    <span className="text-sm text-black/40">Memuat alamat...</span>
                   </div>
                 </div>
               ) : alamatList.length === 0 ? (
                 <div className="border border-dashed border-black/15 rounded-xl px-5 py-6 text-center">
-                  <FiMapPin
-                    size={22}
-                    className="mx-auto text-black/20 mb-2"
-                  />
+                  <FiMapPin size={22} className="mx-auto text-black/20 mb-2" />
 
                   <p className="text-sm font-semibold text-black/60">
                     Belum ada alamat
@@ -205,10 +187,7 @@ export default function Pesanan() {
                   </option>
 
                   {alamatList.map((a, i) => (
-                    <option
-                      key={a.idALamat ?? i}
-                      value={a.idALamat ?? i}
-                    >
+                    <option key={a.idALamat ?? i} value={a.idALamat ?? i}>
                       {a.label} — {a.jalan}, {a.kecamatan}
                     </option>
                   ))}
@@ -216,7 +195,45 @@ export default function Pesanan() {
               )}
             </div>
 
-            
+            {/* Field baru: Tipe Lokasi & Ukuran Septic Tank */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
+                  Tipe Lokasi
+                </label>
+
+                <select
+                  name="label"
+                  value={form.label}
+                  onChange={handleChange}
+                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] bg-white outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition"
+                  required
+                >
+                  {LABEL_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
+                  Ukuran Septic Tank
+                </label>
+
+                <select
+                  name="ukuranSepticTank"
+                  value={form.ukuranSepticTank}
+                  onChange={handleChange}
+                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] bg-white outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition"
+                  required
+                >
+                  {UKURAN_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="mb-7">
               <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
                 <FiFileText size={15} />
@@ -239,7 +256,6 @@ export default function Pesanan() {
               </p>
             </div>
 
-            
             <button
               type="submit"
               disabled={loading || alamatList.length === 0}
@@ -260,27 +276,20 @@ export default function Pesanan() {
           </div>
         </form>
 
-        
         <aside className="flex flex-col gap-4">
-
-          
           <div className="bg-[#111116] rounded-2xl p-6 text-white">
             <p className="text-xs text-white/40 uppercase tracking-wider font-semibold mb-5">
               Cara kerja
             </p>
 
             <div className="flex flex-col gap-5">
-
               <div className="flex gap-3">
                 <div className="w-7 h-7 rounded-full bg-[#FFC800] text-[#111116] flex items-center justify-center shrink-0 text-xs font-bold">
                   1
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold">
-                    Buat pesanan
-                  </p>
-
+                  <p className="text-sm font-semibold">Buat pesanan</p>
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">
                     Masukkan alamat dan jelaskan kebutuhanmu.
                   </p>
@@ -293,10 +302,7 @@ export default function Pesanan() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold">
-                    Mitra menerima
-                  </p>
-
+                  <p className="text-sm font-semibold">Mitra menerima</p>
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">
                     Pesanan akan diteruskan kepada mitra.
                   </p>
@@ -309,27 +315,18 @@ export default function Pesanan() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold">
-                    Layanan selesai
-                  </p>
-
+                  <p className="text-sm font-semibold">Layanan selesai</p>
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">
                     Pantau proses pesanan melalui riwayat.
                   </p>
                 </div>
               </div>
-
             </div>
           </div>
 
-          
           <div className="bg-white border border-black/[0.07] rounded-2xl p-6">
-
             <div className="w-9 h-9 rounded-xl bg-[#FFF4CC] flex items-center justify-center mb-4">
-              <FiCheck
-                size={17}
-                className="text-[#111116]"
-              />
+              <FiCheck size={17} className="text-[#111116]" />
             </div>
 
             <h3 className="font-display font-bold text-base text-[#111116]">
@@ -341,9 +338,7 @@ export default function Pesanan() {
               sudah sesuai agar mitra dapat memproses pesanan
               dengan lebih cepat.
             </p>
-
           </div>
-
         </aside>
       </div>
     </div>

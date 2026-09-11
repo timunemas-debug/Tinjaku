@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { FiInbox } from "react-icons/fi";
-import { getPesananByStatus, terimaPesanan } from "../../services/pesananService";
+import { getPesananByStatus } from "../../services/pesananService";
 
 function PesananMasuk() {
   const [pesanan, setPesanan] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [actionError, setActionError] = useState("");
 
   useEffect(() => {
     async function fetchPesanan() {
@@ -27,33 +26,24 @@ function PesananMasuk() {
     fetchPesanan();
   }, []);
 
-  const ambilPesanan = async (pesananId) => {
-    setActionError("");
-    try {
-      await terimaPesanan(pesananId);
-      setPesanan((prev) => prev.filter((p) => p.id !== pesananId));
-    } catch (err) {
-      setActionError(err.message);
-    }
-  };
-
   return (
     <div>
       <h1 className="font-display font-bold text-2xl text-ink mb-2">
         Pesanan Masuk
       </h1>
-      <p className="font-body text-sm text-ink/50 mb-6">
+      <p className="font-body text-sm text-ink/50 mb-4">
         Pesanan yang menunggu diambil oleh mitra.
+      </p>
+
+      <p className="font-body text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
+        Fitur "Ambil Pesanan" manual sedang diganti sistem <strong>Offer Otomatis</strong>{" "}
+        (mirip Gojek/Grab). Backend sistem ini masih dalam pengembangan, jadi tombol
+        di bawah untuk sementara dinonaktifkan.
       </p>
 
       {error && (
         <p className="font-body text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
           {error}
-        </p>
-      )}
-      {actionError && (
-        <p className="font-body text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
-          {actionError}
         </p>
       )}
 
@@ -95,10 +85,11 @@ function PesananMasuk() {
                 <td className="p-4 font-body text-sm text-ink">{item.keluhan}</td>
                 <td className="p-4">
                   <button
-                    onClick={() => ambilPesanan(item.id)}
-                    className="font-body font-bold text-sm text-ink bg-accent px-4 py-2 rounded-full hover:brightness-95"
+                    disabled
+                    title="Fitur sedang diperbarui ke sistem offer otomatis"
+                    className="font-body font-semibold text-sm text-gray-400 bg-gray-100 px-4 py-2 rounded-full cursor-not-allowed"
                   >
-                    Ambil
+                    Segera Hadir
                   </button>
                 </td>
               </tr>

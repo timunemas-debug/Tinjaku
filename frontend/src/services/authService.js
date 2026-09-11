@@ -12,7 +12,16 @@ export const authService = {
     return response.data; 
   },
 
-  
+  registerAdmin: async ({ email, password }) => {
+  const response = await api.post("/auth/regist-admin", { email, password });
+  return response.data;
+},
+
+  loginAdmin: async ({ email, password }) => {
+  const response = await api.post("/auth/login-admin", { email, password });
+  return response.data;
+},
+
   registerMitra: async ({ namaMitra, email, password }) => {
     const response = await api.post("/auth/regist-mitra", {
       namaMitra,

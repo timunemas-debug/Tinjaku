@@ -14,3 +14,6 @@ export const updateUserProfile = (data) =>
 
 export const deleteUser = (userId) =>
   api.delete(`/user/${userId}`).then((res) => res.data);
+
+export const updateLocation = (pickupLat, pickupLong) =>
+  api.put("/user/update-location", { pickupLat, pickupLong }).then((res) => res.data);
