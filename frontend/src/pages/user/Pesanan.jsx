@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiMapPin,
@@ -6,63 +6,186 @@ import {
   FiFileText,
   FiArrowRight,
   FiCheck,
-  FiPlus,
 } from "react-icons/fi";
 
+import MapPicker from "../../components/map/MapPicker";
+
 import { createPesanan } from "../../services/pesananService";
-import { getAlamat } from "../../services/alamatService";
+import { createAlamat } from "../../services/alamatService";
+import { updateLocation } from "../../services/userService";
+
 import { useAuth } from "../../hooks/useAuth";
 
-const LABEL_OPTIONS = ["RUMAH", "KANTOR", "APARTEMENT", "HOTEL", "GUDANG", "PABRIK"];
+const LABEL_OPTIONS = [
+  "RUMAH",
+  "KANTOR",
+  "APARTMENT",
+  "HOTEL",
+  "GUDANG",
+  "PABRIK",
+];
+
 const UKURAN_OPTIONS = ["KECIL", "SEDANG", "BESAR"];
 
 export default function Pesanan() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [alamatList, setAlamatList] = useState([]);
-  const [loadingAlamat, setLoadingAlamat] = useState(true);
+  const [location, setLocation] = useState(null);
 
   const [form, setForm] = useState({
     namaPenerima: "",
-    alamatId: "",
     keluhan: "",
     label: "RUMAH",
     ukuranSepticTank: "SEDANG",
   });
 
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    getAlamat()
-      .then(setAlamatList)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoadingAlamat(false));
-  }, []);
-
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleLocationSelect = async (selectedLocation) => {
+    setLocation(selectedLocation);
+    setError("");
+
+    try {
+      await updateLocation(
+        selectedLocation.latitude,
+        selectedLocation.longitude
+      );
+    } catch (err) {
+      console.error("Gagal menyimpan lokasi:", err);
+    }
+  };
+
+  const getKota = (rawAddress) => {
+    if (!rawAddress) return null;
+
+    const address = JSON.stringify(rawAddress).toUpperCase();
+
+    if (address.includes("JAKARTA")) return "JAKARTA";
+    if (address.includes("BOGOR")) return "BOGOR";
+    if (address.includes("DEPOK")) return "DEPOK";
+    if (address.includes("BEKASI")) return "BEKASI";
+    if (address.includes("TANGERANG")) return "TANGERANG";
+
+    return null;
+  };
+
+  const buildAlamatData = () => {
+    const raw = location?.raw?.address || {};
+
+    const jalan =
+      raw.road ||
+      raw.pedestrian ||
+      raw.footway ||
+      raw.residential ||
+      location?.address ||
+      "Lokasi yang dipilih di peta";
+
+    const jalanLengkap = raw.house_number
+      ? `${jalan} No. ${raw.house_number}`
+      : jalan;
+
+    const kelurahan =
+      raw.village ||
+      raw.suburb ||
+      raw.neighbourhood ||
+      raw.quarter ||
+      "Lokasi terpilih";
+
+    const kecamatan =
+      raw.city_district ||
+      raw.municipality ||
+      raw.county ||
+      raw.suburb ||
+      "Lokasi terpilih";
+
+    const provinsi =
+      raw.state ||
+      raw.region ||
+      "Banten";
+
+    return {
+      label: form.label,
+      jalan: jalanLengkap,
+      kelurahan,
+      kecamatan,
+      kota: getKota(raw),
+      provinsi,
+    };
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
-    setError(null);
+    setError("");
+
+    if (!user?.userId) {
+      setError("Data user tidak ditemukan. Silakan login kembali.");
+      return;
+    }
+
+    if (!location?.latitude || !location?.longitude) {
+      setError("Silakan pilih lokasi layanan terlebih dahulu.");
+      return;
+    }
+
+    if (!location?.address) {
+      setError("Alamat belum ditemukan. Silakan pilih lokasi lagi.");
+      return;
+    }
 
     try {
-      await createPesanan({
-        ...form,
-        alamatId: Number(form.alamatId),
-      });
+      setLoading(true);
+
+      const alamatData = buildAlamatData();
+
+      if (!alamatData.kota) {
+        throw new Error(
+          "Kota dari lokasi belum dapat dikenali. Silakan pilih lokasi yang lebih tepat."
+        );
+      }
+
+      const alamatBaru = await createAlamat(alamatData);
+
+      const alamatId =
+        alamatBaru?.idAlamat ??
+        alamatBaru?.alamatId ??
+        alamatBaru?.id;
+
+      if (!alamatId) {
+        throw new Error("ID alamat tidak ditemukan.");
+      }
+
+      const pesananData = {
+        namaPenerima: form.namaPenerima,
+        alamatId: Number(alamatId),
+        keluhan: form.keluhan,
+        label: form.label,
+        ukuranSepticTank: form.ukuranSepticTank,
+      };
+
+      await createPesanan(user.userId, pesananData);
 
       navigate("/riwayat");
     } catch (err) {
-      setError(err.message);
+      console.error("Gagal membuat pesanan:", err);
+
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.message ||
+          "Gagal membuat pesanan."
+      );
     } finally {
       setLoading(false);
     }
@@ -71,15 +194,17 @@ export default function Pesanan() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <p className="text-sm text-black/40 mb-2">Layanan</p>
+        <p className="text-sm text-black/40 mb-2">
+          Layanan
+        </p>
 
         <h1 className="font-display font-extrabold text-3xl text-[#111116]">
           Buat Pesanan
         </h1>
 
         <p className="text-sm text-black/50 mt-2 max-w-xl">
-          Isi informasi di bawah ini agar mitra dapat mengetahui
-          lokasi dan kebutuhan layanan kamu.
+          Pilih lokasi layanan dan lengkapi kebutuhan pesanan
+          kamu.
         </p>
       </div>
 
@@ -91,16 +216,16 @@ export default function Pesanan() {
           <div className="px-7 py-6 border-b border-black/[0.06]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#FFF4CC] flex items-center justify-center">
-                <FiFileText size={18} className="text-[#111116]" />
+                <FiFileText size={18} />
               </div>
 
               <div>
-                <h2 className="font-display font-bold text-lg text-[#111116]">
+                <h2 className="font-display font-bold text-lg">
                   Detail Pesanan
                 </h2>
 
                 <p className="text-xs text-black/40 mt-0.5">
-                  Lengkapi data berikut
+                  Tentukan lokasi dan kebutuhan layanan
                 </p>
               </div>
             </div>
@@ -114,7 +239,7 @@ export default function Pesanan() {
             )}
 
             <div className="mb-6">
-              <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
+              <label className="flex items-center gap-2 text-sm font-bold mb-2">
                 <FiUser size={15} />
                 Nama Penerima
               </label>
@@ -124,81 +249,45 @@ export default function Pesanan() {
                 value={form.namaPenerima}
                 onChange={handleChange}
                 placeholder="Masukkan nama penerima"
-                className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] placeholder:text-black/25 outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition"
+                className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20"
                 required
               />
             </div>
 
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-[#111116]">
-                  <FiMapPin size={15} />
-                  Alamat Layanan
-                </label>
-
-                <button
-                  type="button"
-                  onClick={() => navigate("/alamat")}
-                  className="text-xs font-semibold text-black/40 hover:text-black flex items-center gap-1 transition"
-                >
-                  <FiPlus size={13} />
-                  Kelola alamat
-                </button>
+            <div className="mb-7">
+              <div className="flex items-center gap-2 text-sm font-bold mb-2">
+                <FiMapPin size={15} />
+                Lokasi Layanan
               </div>
 
-              {loadingAlamat ? (
-                <div className="border border-black/[0.08] rounded-xl px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 border-2 border-black/10 border-t-black rounded-full animate-spin" />
-                    <span className="text-sm text-black/40">Memuat alamat...</span>
-                  </div>
-                </div>
-              ) : alamatList.length === 0 ? (
-                <div className="border border-dashed border-black/15 rounded-xl px-5 py-6 text-center">
-                  <FiMapPin size={22} className="mx-auto text-black/20 mb-2" />
+              <p className="text-xs text-black/40 mb-4">
+                Pilih lokasi di peta atau gunakan lokasi kamu.
+                Alamat akan terdeteksi otomatis.
+              </p>
 
-                  <p className="text-sm font-semibold text-black/60">
-                    Belum ada alamat
-                  </p>
-
-                  <p className="text-xs text-black/35 mt-1 mb-4">
-                    Tambahkan alamat terlebih dahulu sebelum membuat pesanan.
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() => navigate("/alamat")}
-                    className="inline-flex items-center gap-2 bg-[#FFC800] text-[#111116] px-4 py-2.5 rounded-xl text-xs font-bold hover:brightness-95 transition"
-                  >
-                    <FiPlus size={14} />
-                    Tambah Alamat
-                  </button>
-                </div>
-              ) : (
-                <select
-                  name="alamatId"
-                  value={form.alamatId}
-                  onChange={handleChange}
-                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] bg-white outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition"
-                  required
-                >
-                  <option value="" disabled>
-                    Pilih alamat layanan
-                  </option>
-
-                  {alamatList.map((a, i) => (
-                    <option key={a.idALamat ?? i} value={a.idALamat ?? i}>
-                      {a.label} — {a.jalan}, {a.kecamatan}
-                    </option>
-                  ))}
-                </select>
-              )}
+              <MapPicker
+                onLocationSelect={handleLocationSelect}
+              />
             </div>
 
-            {/* Field baru: Tipe Lokasi & Ukuran Septic Tank */}
+            {location && (
+              <div className="mb-7 bg-[#F5FFF7] border border-[#CDEBD4] rounded-xl px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <FiCheck
+                    size={16}
+                    className="text-green-600"
+                  />
+
+                  <p className="text-sm font-semibold text-green-700">
+                    Lokasi layanan sudah dipilih
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
+                <label className="text-sm font-bold block mb-2">
                   Tipe Lokasi
                 </label>
 
@@ -206,17 +295,22 @@ export default function Pesanan() {
                   name="label"
                   value={form.label}
                   onChange={handleChange}
-                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] bg-white outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition"
+                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm bg-white outline-none focus:border-[#FFC800]"
                   required
                 >
-                  {LABEL_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                  {LABEL_OPTIONS.map((option) => (
+                    <option
+                      key={option}
+                      value={option}
+                    >
+                      {option}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
+                <label className="text-sm font-bold block mb-2">
                   Ukuran Septic Tank
                 </label>
 
@@ -224,18 +318,23 @@ export default function Pesanan() {
                   name="ukuranSepticTank"
                   value={form.ukuranSepticTank}
                   onChange={handleChange}
-                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] bg-white outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition"
+                  className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm bg-white outline-none focus:border-[#FFC800]"
                   required
                 >
-                  {UKURAN_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                  {UKURAN_OPTIONS.map((option) => (
+                    <option
+                      key={option}
+                      value={option}
+                    >
+                      {option}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
 
             <div className="mb-7">
-              <label className="flex items-center gap-2 text-sm font-bold text-[#111116] mb-2">
+              <label className="flex items-center gap-2 text-sm font-bold mb-2">
                 <FiFileText size={15} />
                 Keluhan / Kebutuhan
               </label>
@@ -246,25 +345,24 @@ export default function Pesanan() {
                 onChange={handleChange}
                 placeholder="Contoh: WC mampet dan air sulit mengalir..."
                 rows={5}
-                className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm text-[#111116] placeholder:text-black/25 outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 transition resize-none"
+                className="w-full border border-black/[0.12] rounded-xl px-4 py-3.5 text-sm outline-none focus:border-[#FFC800] focus:ring-2 focus:ring-[#FFC800]/20 resize-none"
                 required
               />
 
               <p className="text-xs text-black/30 mt-2">
-                Jelaskan masalah yang sedang kamu alami agar mitra
-                bisa mempersiapkan kebutuhan layanan.
+                Jelaskan masalah yang sedang kamu alami.
               </p>
             </div>
 
             <button
               type="submit"
-              disabled={loading || alamatList.length === 0}
+              disabled={loading || !location}
               className="w-full flex items-center justify-center gap-2 bg-[#FFC800] text-[#111116] rounded-xl py-3.5 font-bold text-sm hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                  Mengirim Pesanan...
+                  Membuat Pesanan...
                 </>
               ) : (
                 <>
@@ -289,35 +387,44 @@ export default function Pesanan() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold">Buat pesanan</p>
+                  <p className="text-sm font-semibold">
+                    Pilih lokasi
+                  </p>
+
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">
-                    Masukkan alamat dan jelaskan kebutuhanmu.
+                    Pilih lokasi layanan melalui peta.
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 text-xs font-bold">
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-xs font-bold">
                   2
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold">Mitra menerima</p>
+                  <p className="text-sm font-semibold">
+                    Lengkapi pesanan
+                  </p>
+
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">
-                    Pesanan akan diteruskan kepada mitra.
+                    Isi nama penerima dan kebutuhan layanan.
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 text-xs font-bold">
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-xs font-bold">
                   3
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold">Layanan selesai</p>
+                  <p className="text-sm font-semibold">
+                    Mitra menerima
+                  </p>
+
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">
-                    Pantau proses pesanan melalui riwayat.
+                    Pesanan diteruskan kepada mitra.
                   </p>
                 </div>
               </div>
@@ -326,17 +433,16 @@ export default function Pesanan() {
 
           <div className="bg-white border border-black/[0.07] rounded-2xl p-6">
             <div className="w-9 h-9 rounded-xl bg-[#FFF4CC] flex items-center justify-center mb-4">
-              <FiCheck size={17} className="text-[#111116]" />
+              <FiCheck size={17} />
             </div>
 
-            <h3 className="font-display font-bold text-base text-[#111116]">
-              Biar lebih cepat
+            <h3 className="font-display font-bold text-base">
+              Alamat otomatis
             </h3>
 
             <p className="text-xs text-black/45 leading-relaxed mt-2">
-              Pastikan alamat dan keluhan yang kamu masukkan
-              sudah sesuai agar mitra dapat memproses pesanan
-              dengan lebih cepat.
+              Kamu tidak perlu mengetik alamat. Pilih lokasi
+              di peta dan alamat akan terdeteksi otomatis.
             </p>
           </div>
         </aside>

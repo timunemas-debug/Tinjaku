@@ -57,7 +57,8 @@ export default function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-6">
 
-      
+      <LocationPicker />
+
       <section className="bg-[#111116] rounded-[28px] overflow-hidden relative">
         <div className="relative z-10 px-8 py-9 max-md:px-6 max-md:py-7">
 
@@ -96,15 +97,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        
         <div className="absolute -right-20 -bottom-24 w-64 h-64 rounded-full border-[40px] border-[#FFC800]/10" />
         <div className="absolute right-20 -top-20 w-40 h-40 rounded-full bg-white/[0.03]" />
       </section>
 
-      
       <section className="grid grid-cols-3 gap-4 max-md:grid-cols-1">
 
-        
         <div className="bg-white border border-black/[0.07] rounded-2xl p-5 hover:border-black/15 transition">
           <div className="flex items-center justify-between mb-5">
             <div className="w-10 h-10 rounded-xl bg-[#FFF4CC] flex items-center justify-center">
@@ -128,7 +126,6 @@ export default function Dashboard() {
           </p>
         </div>
 
-        
         <div className="bg-white border border-black/[0.07] rounded-2xl p-5 hover:border-black/15 transition">
           <div className="flex items-center justify-between mb-5">
             <div className="w-10 h-10 rounded-xl bg-[#EAF9F0] flex items-center justify-center">
@@ -152,7 +149,6 @@ export default function Dashboard() {
           </p>
         </div>
 
-        
         <div className="bg-white border border-black/[0.07] rounded-2xl p-5 hover:border-black/15 transition">
           <div className="flex items-center justify-between mb-5">
             <div className="w-10 h-10 rounded-xl bg-[#EEF4FF] flex items-center justify-center">
@@ -180,10 +176,8 @@ export default function Dashboard() {
         </div>
       </section>
 
-      
       <section className="bg-white border border-black/[0.07] rounded-2xl overflow-hidden">
 
-        
         <div className="px-6 py-5 border-b border-black/[0.06] flex items-center justify-between gap-4">
           <div>
             <h2 className="font-display font-bold text-lg text-[#111116]">
@@ -204,7 +198,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        
         {loading && (
           <div className="px-6 py-12 text-center">
             <div className="w-7 h-7 border-2 border-black/10 border-t-black rounded-full animate-spin mx-auto mb-3" />
@@ -215,7 +208,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        
         {!loading && pesananAktif.length === 0 && (
           <div className="px-6 py-14 text-center">
 
@@ -244,7 +236,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        
         {!loading && pesananAktif.length > 0 && (
           <div className="divide-y divide-black/[0.06]">
 
@@ -299,7 +290,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        
         {!loading && pesananAktif.length > 3 && (
           <div className="px-6 py-4 border-t border-black/[0.06]">
             <Link
@@ -314,7 +304,6 @@ export default function Dashboard() {
 
       </section>
 
-      {/* ================= BANTUAN ================= */}
       <section className="bg-[#FFF8DD] border border-[#FFC800]/20 rounded-2xl px-6 py-5 flex items-center justify-between gap-5 max-md:flex-col max-md:items-start">
         <div>
           <p className="font-display font-bold text-[#111116] text-base">
