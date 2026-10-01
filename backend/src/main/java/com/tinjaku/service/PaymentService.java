@@ -1,11 +1,15 @@
 package com.tinjaku.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.tinjaku.dto.request.PaymentRequest;
 import com.tinjaku.dto.response.PaymentResponse;
 import com.tinjaku.exception.BadRequestException;
 import com.tinjaku.mapper.PaymentMapper;
+import com.tinjaku.model.IdempotencyRecord;
+import com.tinjaku.model.IdempotencyStatus;
 import com.tinjaku.model.Payment;
 import com.tinjaku.model.PaymentStatus;
 import com.tinjaku.model.Pesanan;
@@ -32,6 +36,23 @@ public class PaymentService {
     @Transactional
     public PaymentResponse addPayment(PaymentRequest request, String idempotencyKey){
 
+        IdempotencyRecord idempotencyRecord;
+
+        Optional<IdempotencyRecord> record = idempotencyRecordService.findByKey(idempotencyKey);
+
+        if (record.isPresent()) {
+            IdempotencyRecord existingRecord = record.get();
+
+            if (existingRecord.getStatus() == IdempotencyStatus.PROCESSING) {
+                throw new BadRequestException("Pembayaran sedang diproses!");
+            }
+
+            idempotencyRecord = existingRecord;
+
+        }else{
+            idempotencyRecord = idempotencyRecordService.createRecord(idempotencyKey);
+        }
+
         Pesanan pesanan = pesananService.getPesananEntityById(request.getPesananId());
 
         if (pesanan.getStatus() != StatusPesanan.MENUNGGU_PEMBAYARAN) {
@@ -48,9 +69,13 @@ public class PaymentService {
         payment.setAmount(pesanan.getTotalHarga());
         payment.setStatus(PaymentStatus.PENDING);
 
+        Payment savedPayment = paymentRepository.save(payment);
+        idempotencyRecord.setPayment(savedPayment);
         // TEMPAT UNTUK PAYMENT GATEAWAYNYA YAAA!!!!!!!!!!!!!!!!!!!!!!
+        //IDEMPOTENCY KEY BELUM SELESAI MENUNGGU PAYMENT GATEAWAY
 
-
-        return paymentMapper.toResponse(paymentRepository.save(payment));
+        idempotencyRecordService.save(idempotencyRecord);
+        
+        return paymentMapper.toResponse(savedPayment);
     }
 }

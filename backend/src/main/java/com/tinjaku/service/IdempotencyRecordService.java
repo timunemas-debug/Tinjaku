@@ -34,4 +34,8 @@ public class IdempotencyRecordService {
         return idempotencyRecordRepository.findByKey(key);
     }
 
+    public IdempotencyRecord save(IdempotencyRecord idempotencyRecord){
+        return idempotencyRecordRepository.save(idempotencyRecord);
+    }
+
 }
