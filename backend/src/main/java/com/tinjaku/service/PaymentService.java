@@ -20,16 +20,17 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     private final PesananService pesananService;
+    private final IdempotencyRecordService idempotencyRecordService;
 
-    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, PesananService pesananService){
-
+    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, PesananService pesananService, IdempotencyRecordService idempotencyRecordService){
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
         this.pesananService = pesananService;
+        this.idempotencyRecordService = idempotencyRecordService;
     }
 
     @Transactional
-    public PaymentResponse addPayment(PaymentRequest request){
+    public PaymentResponse addPayment(PaymentRequest request, String idempotencyKey){
 
         Pesanan pesanan = pesananService.getPesananEntityById(request.getPesananId());
 
