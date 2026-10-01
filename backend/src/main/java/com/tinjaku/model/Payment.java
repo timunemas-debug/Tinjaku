@@ -32,6 +32,9 @@ public class Payment {
     @JoinColumn(name = "pesanan_id")
     private Pesanan pesanan;
 
+    @OneToOne(mappedBy = "payment")
+    private IdempotencyRecord idempotencyRecord;
+
     private BigDecimal amount;
 
 
