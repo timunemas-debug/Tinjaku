@@ -109,7 +109,7 @@ public class RatingServiceTest {
         when(ratingMapper.toResponse(rating))
                 .thenReturn(response);
 
-        List<RatingResponse> result = ratingService.getRatingMitra(1L);
+        List<RatingResponse> result = ratingService.getRatingMitra();
 
         assertEquals("WC MAKMUR", result.get(0).getNamaMitra());
         assertEquals(4, result.get(0).getRating());

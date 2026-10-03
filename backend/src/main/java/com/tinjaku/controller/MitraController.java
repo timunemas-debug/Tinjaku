@@ -79,10 +79,10 @@ public class MitraController {
         return mitraService.getDashboard();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{mitraId}/ratings")
-    public List<RatingResponse> getByMitraId(@PathVariable Long mitraId){
-        return ratingService.getRatingMitra(mitraId);
+    @PreAuthorize("hasRole('MITRA')")
+    @GetMapping("/ratings")
+    public List<RatingResponse> getByMitraId(){
+        return ratingService.getRatingMitra();
     }
 
     @PreAuthorize("hasRole('ADMIN')")

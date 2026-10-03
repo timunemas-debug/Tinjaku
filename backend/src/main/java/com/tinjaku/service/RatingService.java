@@ -16,6 +16,7 @@ import com.tinjaku.model.Pesanan;
 import com.tinjaku.repository.MitraRepository;
 import com.tinjaku.repository.PesananRepository;
 import com.tinjaku.repository.RatingRepository;
+import com.tinjaku.security.SecurityService;
 
 import jakarta.transaction.Transactional;
 
@@ -25,19 +26,28 @@ public class RatingService {
     private final PesananRepository pesananRepository;
     private final RatingRepository ratingRepository;
     private final MitraRepository mitraRepository;
+    private final SecurityService securityService;
 
-    public RatingService(RatingMapper ratingMapper, PesananRepository pesananRepository, RatingRepository ratingRepository, MitraRepository mitraRepository){
+    public RatingService(RatingMapper ratingMapper, PesananRepository pesananRepository, RatingRepository ratingRepository, MitraRepository mitraRepository, SecurityService securityService){
         this.ratingMapper = ratingMapper;
         this.pesananRepository = pesananRepository;
         this.ratingRepository = ratingRepository;
         this.mitraRepository = mitraRepository;
+        this.securityService = securityService;
     }
 
    @Transactional
    public RatingResponse tambahRating(Long pesananId, RatingRequest request){
+
+        Long userId = securityService.getCurrentUserId();
+
         Pesanan pesanan = pesananRepository.findById(pesananId)
                 .orElseThrow(() ->
                         new ResourceNotFound("Pesanan tidak ditemukan!"));
+
+        if (!pesanan.getUser().getUserId().equals(userId)) {
+            throw new BadRequestException("Pesanan tersebut bukan milik user!");
+        }
 
         if(pesanan.getStatus() != StatusPesanan.SELESAI){
             throw new BadRequestException("Pesanan harus diselesaikan terlebih dahulu sebelum memberikan rating!");
@@ -57,7 +67,10 @@ public class RatingService {
         return ratingMapper.toResponse(savedRating);
     }
 
-    public List<RatingResponse> getRatingMitra(Long mitraId){
+    public List<RatingResponse> getRatingMitra(){
+
+        Long mitraId = securityService.getCurrentMitraId();
+
         mitraRepository.findById(mitraId)
                 .orElseThrow(() ->
                     new ResourceNotFound("Mitra tidak ditemukan!"));

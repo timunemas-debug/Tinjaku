@@ -23,6 +23,7 @@ import com.tinjaku.dto.response.MitraResponse;
 import com.tinjaku.dto.response.OnlineResponse;
 import com.tinjaku.dto.response.PesananResponse;
 import com.tinjaku.dto.response.RatingResponse;
+import com.tinjaku.model.Mitra;
 import com.tinjaku.model.StatusOnOff;
 import com.tinjaku.security.CustomUserDetailsService;
 import com.tinjaku.security.JwtService;
@@ -160,13 +161,16 @@ public class MitraControllerTest {
     @Test
     public void shouldGetByMitraId() throws Exception{
 
+        Mitra mitra = new Mitra();
+        mitra.setMitraId(1L);
+
         RatingResponse response1 = new RatingResponse();
         response1.setRating(4);
 
         RatingResponse response2 = new RatingResponse();
         response2.setRating(5);
 
-        when(ratingService.getRatingMitra(1L))
+        when(ratingService.getRatingMitra())
                 .thenReturn(List.of(response1, response2));
 
         mockMvc.perform(get("/mitra/1/ratings"))
