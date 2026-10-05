@@ -89,6 +89,24 @@ public class AuthService {
         adminRepository.save(admin);
     }
 
+    public boolean validationPassword(String password){
+
+        boolean firstUppercase = Character.isUpperCase(password.charAt(0));
+        boolean enoughLength = password.length() > 5;
+
+        boolean uniqueCharacter = false;
+        
+        for(char c : password.toCharArray()){
+
+            if (!Character.isLetterOrDigit(c)) {
+                uniqueCharacter = true;
+                break;
+            }
+        }
+
+        return firstUppercase && enoughLength && uniqueCharacter;
+    }
+
     public RegisterResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
@@ -97,9 +115,12 @@ public class AuthService {
         if (mitraRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new BadRequestException("Email sudah terdaftar!");
         }
-
+        
+        if (!validationPassword(request.getPassword())) {
+           throw new BadRequestException("Password anda tidak valid!. Wajib memakai huruf kapital di awal, wajib lebih dari 5 character, wajib menambahkan unique character!");
+        }
+        
         User user = userMapper.toEntity(request);
-
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         return userMapper.toRegisterResponse(userRepository.save(user));
@@ -154,6 +175,10 @@ public class AuthService {
             throw new BadRequestException("Email sudah terdaftar!");
         }
 
+        if (!validationPassword(request.getPassword())) {
+            throw new BadRequestException("Password anda tidak valid!. Wajib memakai huruf kapital di awal, wajib lebih dari 5 character, wajib menambahkan unique character!");
+        }
+
         Mitra mitra = mitraMapper.toEntity(request);
         mitra.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -164,6 +189,10 @@ public class AuthService {
 
         if (adminRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new BadRequestException("Email sudah terdaftar!");
+        }
+
+        if (validationPassword(request.getPassword())) {
+            throw new BadRequestException("Password anda tidak valid!. Wajib memakai huruf kapital di awal, wajib lebih dari 5 character, wajib menambahkan unique character!");
         }
 
         Admin admin = adminMapper.toEntity(request);
